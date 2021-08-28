@@ -1,0 +1,10 @@
+{
+  "namespace": "github.com/backtolife2021",
+  "copyright": "2020, backtolife (https://floatsyi.com)",
+  "require": [
+    "https://unpkg.com/react@17/umd/react.development.js",
+    "https://unpkg.com/react-dom@17/umd/react-dom.development.js"
+  ],
+  "include": ["https://github.com/*"],
+  "grant": ["GM.getValue", "GM.registerMenuCommand"]
+}

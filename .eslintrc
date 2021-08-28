@@ -1,0 +1,38 @@
+{
+  "root": true,
+  "extends": ["@quitsmx", "plugin:jest/recommended"],
+  "plugins": ["testing-library", "jest"],
+  "ignorePatterns": ["/dist", "/patches"],
+  "env": {
+    "jest/globals": true,
+    "browser": true
+  },
+  "settings": {
+    "jest": {
+      "version": 27
+    }
+  },
+  "overrides": [
+    {
+      "parserOptions": { "project": "./tsconfig.json" },
+      "files": ["*.ts", "*.tsx"], // Your TypeScript files extension
+      "extends": ["@quitsmx/eslint-config/ts-runtime", "@quitsmx/eslint-config/react"]
+    },
+
+    {
+      "files": ["./*.js", "scripts/**/*"],
+      "parserOptions": { "sourceType": "script" },
+      "extends": ["@quitsmx/eslint-config/node"],
+      "rules": {
+        "node/no-unsupported-features/es-syntax": ["error", { "ignores": ["modules"] }]
+      }
+    },
+    {
+      "files": ["rollup.config.js", "scripts/**/*.ts"],
+      "rules": {
+        "node/no-unsupported-features/es-syntax": ["error", { "ignores": ["modules"] }]
+      }
+    }
+  ],
+  "rules": { "no-void": "off" }
+}

@@ -1,0 +1,89 @@
+{
+  "name": "color-code",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [
+    "userscript",
+    "greasemonkey",
+    "tampermonkey",
+    "rollup",
+    "typescript",
+    "react"
+  ],
+  "homepage": "https://github.com/backtolife2021/color-code",
+  "repository": {
+    "type": "git",
+    "url": "github:backtolife2021/color-code"
+  },
+  "bugs": {
+    "url": "https://github.com/backtolife2021/color-code/issues"
+  },
+  "author": "backtolife",
+  "license": "MIT",
+  "engines": {
+    "node": "14"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx rollup --config rollup.config.js",
+    "watch": "npx rollup --config rollup.config.js --watch",
+    "serve": "node -r esm server.js",
+    "start": "node -r esm server.js",
+    "build:release": "npx rollup --config rollup.config.js --sourcemap 0 --file dist/release-$npm_package_version.user.js",
+    "build:release:win32": "npx rollup --config rollup.config.js --sourcemap 0 --file dist\\release-%npm_package_version%.user.js",
+    "commit": "git-cz",
+    "lint": "eslint --cache .",
+    "version": "npm run build:release && git add dist/release-$npm_package_version.user.js",
+    "prepublishOnly": "npm run build:release && git add dist/release-$npm_package_version.user.js",
+    "dedup": "yarn-deduplicate --strategy highest yarn.lock"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
+    "@babel/preset-react": "^7.14.5",
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "@quitsmx/eslint-config": "^0.5.4",
+    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-replace": "^2.4.2",
+    "@rollup/plugin-typescript": "^8.2.1",
+    "@types/qrcode": "^1.4.1",
+    "@types/react": "^17.0.14",
+    "@types/react-dom": "^17.0.9",
+    "@typescript-eslint/eslint-plugin": "^4.27.0",
+    "@typescript-eslint/parser": "^4.27.0",
+    "colorette": "^1.2.2",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^7.27.0",
+    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-testing-library": "^4.10.1",
+    "esm": "^3.2.25",
+    "husky": "^6.0.0",
+    "lint-staged": "^10.5.4",
+    "prettier": "ssh://git@github.com:aMarCruz/prettier.git",
+    "rollup": "^2.53.1",
+    "rollup-plugin-userscript-metablock": "^0.3.0",
+    "serve": "^12.0.0",
+    "serve-handler": "^6.1.3",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5",
+    "yarn-deduplicate": "^3.1.0"
+  },
+  "config": {
+    "port": "8124"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^1.6.5",
+    "@emotion/css": "^11.1.3",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "framer-motion": "^4",
+    "qrcode": "^1.4.4",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}
