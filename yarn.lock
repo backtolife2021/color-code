@@ -5610,9 +5610,9 @@ rollup-plugin-userscript-metablock@^0.3.0:
     valid-url "^1.0.9"
 
 rollup@^2.53.1:
-  version "2.56.0"
-  resolved "https://registry.nlark.com/rollup/download/rollup-2.56.0.tgz#daa832955d2b58f1ed52a3c4c85b7d1adaf076d0"
-  integrity sha1-2qgylV0rWPHtUqPEyFt9GtrwdtA=
+  version "2.56.3"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.56.3.tgz#b63edadd9851b0d618a6d0e6af8201955a77aeff"
+  integrity sha512-Au92NuznFklgQCUcV96iXlxUbHuB1vQMaH76DHl5M11TotjOHwqk9CwcrT78+Tnv4FN9uTBxq6p4EJoYkpyekg==
   optionalDependencies:
     fsevents "~2.3.2"
 
