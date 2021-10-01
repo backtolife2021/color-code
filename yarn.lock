@@ -904,10 +904,10 @@
     resolve-global "1.0.0"
     yargs "^16.2.0"
 
-"@commitlint/config-conventional@^12.1.4":
-  version "12.1.4"
-  resolved "https://registry.nlark.com/@commitlint/config-conventional/download/@commitlint/config-conventional-12.1.4.tgz?cache=0&sync_timestamp=1627111036053&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40commitlint%2Fconfig-conventional%2Fdownload%2F%40commitlint%2Fconfig-conventional-12.1.4.tgz#95bbab622f117a8a3e49f95917b08655040c66a8"
-  integrity sha1-lburYi8Reoo+SflZF7CGVQQMZqg=
+"@commitlint/config-conventional@^13.1.0":
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-13.1.0.tgz#f02871d50c73db0a31b777231f49203b964d9d59"
+  integrity sha512-zukJXqdr6jtMiVRy3tTHmwgKcUMGfqKDEskRigc5W3k2aYF4gBAtCEjMAJGZgSQE4DMcHeok0pEV2ANmTpb0cw==
   dependencies:
     conventional-changelog-conventionalcommits "^4.3.1"
 
@@ -2519,16 +2519,7 @@ conventional-changelog-conventionalcommits@4.5.0:
     lodash "^4.17.15"
     q "^1.5.1"
 
-conventional-changelog-conventionalcommits@^4.3.1:
-  version "4.6.0"
-  resolved "https://registry.nlark.com/conventional-changelog-conventionalcommits/download/conventional-changelog-conventionalcommits-4.6.0.tgz?cache=0&sync_timestamp=1619742190111&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fconventional-changelog-conventionalcommits%2Fdownload%2Fconventional-changelog-conventionalcommits-4.6.0.tgz#7fc17211dbca160acf24687bd2fdd5fd767750eb"
-  integrity sha1-f8FyEdvKFgrPJGh70v3V/XZ3UOs=
-  dependencies:
-    compare-func "^2.0.0"
-    lodash "^4.17.15"
-    q "^1.5.1"
-
-conventional-changelog-conventionalcommits@^4.5.0:
+conventional-changelog-conventionalcommits@^4.3.1, conventional-changelog-conventionalcommits@^4.5.0:
   version "4.6.1"
   resolved "https://registry.nlark.com/conventional-changelog-conventionalcommits/download/conventional-changelog-conventionalcommits-4.6.1.tgz#f4c0921937050674e578dc7875f908351ccf4014"
   integrity sha1-9MCSGTcFBnTleNx4dfkINRzPQBQ=
