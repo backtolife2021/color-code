@@ -39,7 +39,7 @@ export const Sidebar: React.FC<ISidebarProps> = (props) => {
             p: 3,
             flexGrow: 9999,
             flexBasis: 0,
-            minWidth: 320,
+            minWidth: 300,
           }}
         >
           {right()}

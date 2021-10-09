@@ -52,5 +52,5 @@ export default {
       },
     }),
   ],
-  external: (id) => /^react(-dom)?$/.test(id) || id === 'qrcode',
+  external: (id) => /^react(-dom)?$/.test(id),
 }

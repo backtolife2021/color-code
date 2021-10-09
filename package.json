@@ -1,7 +1,7 @@
 {
   "name": "color-code",
   "version": "0.0.0",
-  "description": "",
+  "description": "wip",
   "keywords": [
     "userscript",
     "greasemonkey",
@@ -85,7 +85,7 @@
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "framer-motion": "^4",
-    "qrcode": "^1.4.4",
+    "prism-react-renderer": "^1.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

@@ -36,5 +36,5 @@
       }
     }
   ],
-  "rules": { "no-void": "off" }
+  "rules": { "no-void": "off", "react/jsx-no-bind": { "allowArrowFunctions": true } }
 }

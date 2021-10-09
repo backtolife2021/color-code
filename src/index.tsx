@@ -1,4 +1,4 @@
-import createApp from './app'
+import createApp from './App'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 GM.registerMenuCommand('Setting', () => {
