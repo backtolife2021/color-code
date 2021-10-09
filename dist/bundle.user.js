@@ -551,7 +551,7 @@ SOFTWARE.
    */
 
   function compile(value) {
-    return dealloc(parse('', null, null, null, [''], value = alloc(value), 0, [0], value));
+    return dealloc(parse$1('', null, null, null, [''], value = alloc(value), 0, [0], value));
   }
   /**
    * @param {string} value
@@ -566,7 +566,7 @@ SOFTWARE.
    * @return {object}
    */
 
-  function parse(value, root, parent, rule, rules, rulesets, pseudo, points, declarations) {
+  function parse$1(value, root, parent, rule, rules, rulesets, pseudo, points, declarations) {
     var index = 0;
     var offset = 0;
     var length = pseudo;
@@ -645,16 +645,16 @@ SOFTWARE.
 
           default:
             append(reference = ruleset(characters, root, parent, index, offset, rules, points, type, props = [], children = [], length), rulesets);
-            if (character === 123) if (offset === 0) parse(characters, root, reference, reference, props, rulesets, length, points, children);else switch (atrule) {
+            if (character === 123) if (offset === 0) parse$1(characters, root, reference, reference, props, rulesets, length, points, children);else switch (atrule) {
               // d m s
               case 100:
               case 109:
               case 115:
-                parse(value, reference, reference, rule && append(ruleset(value, reference, reference, 0, 0, rules, points, type, rules, props = [], length), children), rules, children, length, points, rule ? props : children);
+                parse$1(value, reference, reference, rule && append(ruleset(value, reference, reference, 0, 0, rules, points, type, rules, props = [], length), children), rules, children, length, points, rule ? props : children);
                 break;
 
               default:
-                parse(characters, reference, reference, reference, [''], children, length, points, children);
+                parse$1(characters, reference, reference, reference, [''], children, length, points, children);
             }
         }
 
@@ -747,7 +747,7 @@ SOFTWARE.
    * @return {string}
    */
 
-  function prefix(value, length) {
+  function prefix$1(value, length) {
     switch (hash(value, length)) {
       // color-adjust
       case 5103:
@@ -875,7 +875,7 @@ SOFTWARE.
           // (s)tretch
 
           case 115:
-            return ~indexof(value, 'stretch') ? prefix(replace(value, 'stretch', 'fill-available'), length) + value : value;
+            return ~indexof(value, 'stretch') ? prefix$1(replace(value, 'stretch', 'fill-available'), length) + value : value;
         }
         break;
       // position: sticky
@@ -993,7 +993,7 @@ SOFTWARE.
   function prefixer(element, index, children, callback) {
     if (!element.return) switch (element.type) {
       case DECLARATION:
-        element.return = prefix(element.value, element.length);
+        element.return = prefix$1(element.value, element.length);
         break;
 
       case KEYFRAMES:
@@ -1298,8 +1298,8 @@ SOFTWARE.
     return cache;
   };
 
-  function _extends$m() {
-    _extends$m = Object.assign || function (target) {
+  function _extends$y() {
+    _extends$y = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -1313,7 +1313,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$m.apply(this, arguments);
+    return _extends$y.apply(this, arguments);
   }
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -1911,7 +1911,7 @@ SOFTWARE.
       return mergedTheme;
     }
 
-    return _extends$m({}, outerTheme, theme);
+    return _extends$y({}, outerTheme, theme);
   };
 
   var createCacheWithTheme = /* #__PURE__ */weakMemoize(function (outerTheme) {
@@ -2055,6 +2055,138 @@ SOFTWARE.
   });
   var CSSReset$1 = CSSReset;
 
+  var isProduction = "production" === 'production';
+  var prefix = 'Invariant failed';
+
+  function invariant(condition, message) {
+    if (condition) {
+      return;
+    }
+
+    if (isProduction) {
+      throw new Error(prefix);
+    }
+
+    throw new Error(prefix + ": " + (message || ''));
+  }
+
+  var getRect = function getRect(_ref) {
+    var top = _ref.top,
+        right = _ref.right,
+        bottom = _ref.bottom,
+        left = _ref.left;
+    var width = right - left;
+    var height = bottom - top;
+    var rect = {
+      top: top,
+      right: right,
+      bottom: bottom,
+      left: left,
+      width: width,
+      height: height,
+      x: left,
+      y: top,
+      center: {
+        x: (right + left) / 2,
+        y: (bottom + top) / 2
+      }
+    };
+    return rect;
+  };
+
+  var expand = function expand(target, expandBy) {
+    return {
+      top: target.top - expandBy.top,
+      left: target.left - expandBy.left,
+      bottom: target.bottom + expandBy.bottom,
+      right: target.right + expandBy.right
+    };
+  };
+
+  var shrink = function shrink(target, shrinkBy) {
+    return {
+      top: target.top + shrinkBy.top,
+      left: target.left + shrinkBy.left,
+      bottom: target.bottom - shrinkBy.bottom,
+      right: target.right - shrinkBy.right
+    };
+  };
+
+  var noSpacing = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+  };
+
+  var createBox = function createBox(_ref2) {
+    var borderBox = _ref2.borderBox,
+        _ref2$margin = _ref2.margin,
+        margin = _ref2$margin === void 0 ? noSpacing : _ref2$margin,
+        _ref2$border = _ref2.border,
+        border = _ref2$border === void 0 ? noSpacing : _ref2$border,
+        _ref2$padding = _ref2.padding,
+        padding = _ref2$padding === void 0 ? noSpacing : _ref2$padding;
+    var marginBox = getRect(expand(borderBox, margin));
+    var paddingBox = getRect(shrink(borderBox, border));
+    var contentBox = getRect(shrink(paddingBox, padding));
+    return {
+      marginBox: marginBox,
+      borderBox: getRect(borderBox),
+      paddingBox: paddingBox,
+      contentBox: contentBox,
+      margin: margin,
+      border: border,
+      padding: padding
+    };
+  };
+
+  var parse = function parse(raw) {
+    var value = raw.slice(0, -2);
+    var suffix = raw.slice(-2);
+
+    if (suffix !== 'px') {
+      return 0;
+    }
+
+    var result = Number(value);
+    !!isNaN(result) ? invariant(false) : void 0;
+    return result;
+  };
+
+  var calculateBox = function calculateBox(borderBox, styles) {
+    var margin = {
+      top: parse(styles.marginTop),
+      right: parse(styles.marginRight),
+      bottom: parse(styles.marginBottom),
+      left: parse(styles.marginLeft)
+    };
+    var padding = {
+      top: parse(styles.paddingTop),
+      right: parse(styles.paddingRight),
+      bottom: parse(styles.paddingBottom),
+      left: parse(styles.paddingLeft)
+    };
+    var border = {
+      top: parse(styles.borderTopWidth),
+      right: parse(styles.borderRightWidth),
+      bottom: parse(styles.borderBottomWidth),
+      left: parse(styles.borderLeftWidth)
+    };
+    return createBox({
+      borderBox: borderBox,
+      margin: margin,
+      padding: padding,
+      border: border
+    });
+  };
+
+  var getBox = function getBox(el) {
+    var borderBox = el.getBoundingClientRect();
+    var styles = window.getComputedStyle(el);
+    return calculateBox(borderBox, styles);
+  };
+
   function getLastItem(array) {
     var length = array == null ? 0 : array.length;
     return length ? array[length - 1] : undefined;
@@ -2063,6 +2195,9 @@ SOFTWARE.
   // Number assertions
   function isNumber(value) {
     return typeof value === "number";
+  }
+  function isNotNumber(value) {
+    return typeof value !== "number" || Number.isNaN(value) || !Number.isFinite(value);
   }
 
   function isArray(value) {
@@ -4162,6 +4297,18 @@ SOFTWARE.
     });
     return result;
   }
+  function split(object, keys) {
+    var picked = {};
+    var omitted = {};
+    Object.keys(object).forEach(key => {
+      if (keys.includes(key)) {
+        picked[key] = object[key];
+      } else {
+        omitted[key] = object[key];
+      }
+    });
+    return [picked, omitted];
+  }
   /**
    * Get value from a deeply nested object using a string path.
    * Memoizes the value.
@@ -4360,11 +4507,17 @@ SOFTWARE.
     };
   }
 
+  function getOwnerDocument(node) {
+    var _node$ownerDocument;
+
+    return node instanceof Element ? (_node$ownerDocument = node.ownerDocument) != null ? _node$ownerDocument : document : document;
+  }
   function canUseDOM() {
     return !!(typeof window !== "undefined" && window.document && window.document.createElement);
   }
   var isBrowser$1 = canUseDOM();
   var dataAttr = condition => condition ? "" : undefined;
+  var ariaAttr = condition => condition ? true : undefined;
   var cx = function cx() {
     for (var _len = arguments.length, classNames = new Array(_len), _key = 0; _key < _len; _key++) {
       classNames[_key] = arguments[_key];
@@ -4372,6 +4525,38 @@ SOFTWARE.
 
     return classNames.filter(Boolean).join(" ");
   };
+  function addDomEvent(target, eventName, handler, options) {
+    target.addEventListener(eventName, handler, options);
+    return () => {
+      target.removeEventListener(eventName, handler, options);
+    };
+  }
+  /**
+   * Get the normalized event key across all browsers
+   * @param event keyboard event
+   */
+
+  function normalizeEventKey(event) {
+    var {
+      key,
+      keyCode
+    } = event;
+    var isArrowKey = keyCode >= 37 && keyCode <= 40 && key.indexOf("Arrow") !== 0;
+    var eventKey = isArrowKey ? "Arrow" + key : key;
+    return eventKey;
+  }
+
+  // Really great work done by Diego Haz on this one
+  function isInputElement(element) {
+    return isHTMLElement(element) && element.tagName.toLowerCase() === "input" && "select" in element;
+  }
+  function isActiveElement(element) {
+    var doc = element instanceof HTMLElement ? getOwnerDocument(element) : document;
+    return doc.activeElement === element;
+  }
+  function isHTMLElement(element) {
+    return element instanceof HTMLElement;
+  }
 
   /* eslint-disable no-nested-ternary */
   function runIfFn(valueOrFn) {
@@ -4380,6 +4565,18 @@ SOFTWARE.
     }
 
     return isFunction(valueOrFn) ? valueOrFn(...args) : valueOrFn;
+  }
+  function callAllHandlers() {
+    for (var _len2 = arguments.length, fns = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      fns[_key2] = arguments[_key2];
+    }
+
+    return function func(event) {
+      fns.some(fn => {
+        fn == null ? void 0 : fn(event);
+        return event == null ? void 0 : event.defaultPrevented;
+      });
+    };
   }
   function once(fn) {
     var result;
@@ -4407,6 +4604,12 @@ SOFTWARE.
       console.warn(message);
     }
   });
+
+  var promiseMicrotask = callback => {
+    Promise.resolve().then(callback);
+  };
+
+  var scheduleMicrotask = typeof queueMicrotask === "function" ? queueMicrotask : promiseMicrotask;
   var pipe = function pipe() {
     for (var _len6 = arguments.length, fns = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
       fns[_key6] = arguments[_key6];
@@ -4414,6 +4617,771 @@ SOFTWARE.
 
     return v => fns.reduce((a, b) => b(a), v);
   };
+
+  var distance1D = (a, b) => Math.abs(a - b);
+
+  var isPoint = point => "x" in point && "y" in point;
+
+  function distance(a, b) {
+    if (isNumber(a) && isNumber(b)) {
+      return distance1D(a, b);
+    }
+
+    if (isPoint(a) && isPoint(b)) {
+      var xDelta = distance1D(a.x, b.x);
+      var yDelta = distance1D(a.y, b.y);
+      return Math.sqrt(xDelta ** 2 + yDelta ** 2);
+    }
+
+    return 0;
+  }
+
+  // Original licensing for the following methods can be found in the
+  function focus(element, options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    var {
+      isActive = isActiveElement,
+      nextTick,
+      preventScroll = true,
+      selectTextIfInput = true
+    } = options;
+    if (!element || isActive(element)) return -1;
+
+    function triggerFocus() {
+      if (!element) {
+        warn({
+          condition: true,
+          message: "[chakra-ui]: can't call focus() on `null` or `undefined` element"
+        });
+        return;
+      }
+
+      if (supportsPreventScroll()) {
+        element.focus({
+          preventScroll
+        });
+      } else {
+        element.focus();
+
+        if (preventScroll) {
+          var scrollableElements = getScrollableElements(element);
+          restoreScrollPosition(scrollableElements);
+        }
+      }
+
+      if (isInputElement(element) && selectTextIfInput) {
+        element.select();
+      }
+    }
+
+    if (nextTick) {
+      return requestAnimationFrame(triggerFocus);
+    }
+
+    triggerFocus();
+    return -1;
+  }
+  var supportsPreventScrollCached = null;
+
+  function supportsPreventScroll() {
+    if (supportsPreventScrollCached == null) {
+      supportsPreventScrollCached = false;
+
+      try {
+        var div = document.createElement("div");
+        div.focus({
+          get preventScroll() {
+            supportsPreventScrollCached = true;
+            return true;
+          }
+
+        });
+      } catch (e) {// Ignore
+      }
+    }
+
+    return supportsPreventScrollCached;
+  }
+
+  function getScrollableElements(element) {
+    var doc = getOwnerDocument(element);
+    var parent = element.parentNode;
+    var scrollableElements = [];
+    var rootScrollingElement = doc.scrollingElement || doc.documentElement;
+
+    while (parent instanceof HTMLElement && parent !== rootScrollingElement) {
+      if (parent.offsetHeight < parent.scrollHeight || parent.offsetWidth < parent.scrollWidth) {
+        scrollableElements.push({
+          element: parent,
+          scrollTop: parent.scrollTop,
+          scrollLeft: parent.scrollLeft
+        });
+      }
+
+      parent = parent.parentNode;
+    }
+
+    if (rootScrollingElement instanceof HTMLElement) {
+      scrollableElements.push({
+        element: rootScrollingElement,
+        scrollTop: rootScrollingElement.scrollTop,
+        scrollLeft: rootScrollingElement.scrollLeft
+      });
+    }
+
+    return scrollableElements;
+  }
+
+  function restoreScrollPosition(scrollableElements) {
+    for (var {
+      element,
+      scrollTop,
+      scrollLeft
+    } of scrollableElements) {
+      element.scrollTop = scrollTop;
+      element.scrollLeft = scrollLeft;
+    }
+  }
+
+  function toNumber(value) {
+    var num = parseFloat(value);
+    return isNotNumber(num) ? 0 : num;
+  }
+  /**
+   * Converts a value to a specific precision (or decimal points).
+   *
+   * Returns a string representing a number in fixed-point notation.
+   *
+   * @param value the value to convert
+   * @param precision the precision or decimal points
+   */
+
+
+  function toPrecision(value, precision) {
+    var nextValue = toNumber(value);
+    var scaleFactor = 10 ** (precision != null ? precision : 10);
+    nextValue = Math.round(nextValue * scaleFactor) / scaleFactor;
+    return precision ? nextValue.toFixed(precision) : nextValue.toString();
+  }
+  /**
+   * Counts the number of decimal places a number has
+   *
+   * @param value the decimal value to count
+   */
+
+  function countDecimalPlaces(value) {
+    if (!Number.isFinite(value)) return 0;
+    var e = 1;
+    var p = 0;
+
+    while (Math.round(value * e) / e !== value) {
+      e *= 10;
+      p += 1;
+    }
+
+    return p;
+  }
+  /**
+   * Convert a value to percentage based on lower and upper bound values
+   *
+   * @param value the value in number
+   * @param min the minimum value
+   * @param max the maximum value
+   */
+
+  function valueToPercent(value, min, max) {
+    return (value - min) * 100 / (max - min);
+  }
+  /**
+   * Calculate the value based on percentage, lower and upper bound values
+   *
+   * @param percent the percent value in decimals (e.g 0.6, 0.3)
+   * @param min the minimum value
+   * @param max the maximum value
+   */
+
+  function percentToValue(percent, min, max) {
+    return (max - min) * percent + min;
+  }
+  /**
+   * Rounds a specific value to the next or previous step
+   *
+   * @param value the value to round
+   * @param from the number that stepping started from
+   * @param step the specified step
+   */
+
+  function roundValueToStep(value, from, step) {
+    var nextValue = Math.round((value - from) / step) * step + from;
+    var precision = countDecimalPlaces(step);
+    return toPrecision(nextValue, precision);
+  }
+  /**
+   * Clamps a value to ensure it stays within the min and max range.
+   *
+   * @param value the value to clamp
+   * @param min the minimum value
+   * @param max the maximum value
+   */
+
+  function clampValue(value, min, max) {
+    if (value == null) return value;
+    warn({
+      condition: max < min,
+      message: "clamp: max cannot be less than min"
+    });
+    return Math.min(Math.max(value, min), max);
+  }
+
+  var defaultTimestep = 1 / 60 * 1000;
+  var getCurrentTime = typeof performance !== "undefined" ? function () {
+    return performance.now();
+  } : function () {
+    return Date.now();
+  };
+  var onNextFrame = typeof window !== "undefined" ? function (callback) {
+    return window.requestAnimationFrame(callback);
+  } : function (callback) {
+    return setTimeout(function () {
+      return callback(getCurrentTime());
+    }, defaultTimestep);
+  };
+
+  function createRenderStep(runNextFrame) {
+    var toRun = [];
+    var toRunNextFrame = [];
+    var numToRun = 0;
+    var isProcessing = false;
+    var toKeepAlive = new WeakSet();
+    var step = {
+      schedule: function (callback, keepAlive, immediate) {
+        if (keepAlive === void 0) {
+          keepAlive = false;
+        }
+
+        if (immediate === void 0) {
+          immediate = false;
+        }
+
+        var addToCurrentFrame = immediate && isProcessing;
+        var buffer = addToCurrentFrame ? toRun : toRunNextFrame;
+        if (keepAlive) toKeepAlive.add(callback);
+
+        if (buffer.indexOf(callback) === -1) {
+          buffer.push(callback);
+          if (addToCurrentFrame && isProcessing) numToRun = toRun.length;
+        }
+
+        return callback;
+      },
+      cancel: function (callback) {
+        var index = toRunNextFrame.indexOf(callback);
+        if (index !== -1) toRunNextFrame.splice(index, 1);
+        toKeepAlive.delete(callback);
+      },
+      process: function (frameData) {
+        var _a;
+
+        isProcessing = true;
+        _a = [toRunNextFrame, toRun], toRun = _a[0], toRunNextFrame = _a[1];
+        toRunNextFrame.length = 0;
+        numToRun = toRun.length;
+
+        if (numToRun) {
+          for (var i = 0; i < numToRun; i++) {
+            var callback = toRun[i];
+            callback(frameData);
+
+            if (toKeepAlive.has(callback)) {
+              step.schedule(callback);
+              runNextFrame();
+            }
+          }
+        }
+
+        isProcessing = false;
+      }
+    };
+    return step;
+  }
+
+  var maxElapsed = 40;
+  var useDefaultElapsed = true;
+  var runNextFrame = false;
+  var isProcessing = false;
+  var frame = {
+    delta: 0,
+    timestamp: 0
+  };
+  var stepsOrder = ["read", "update", "preRender", "render", "postRender"];
+  var steps = /*#__PURE__*/stepsOrder.reduce(function (acc, key) {
+    acc[key] = createRenderStep(function () {
+      return runNextFrame = true;
+    });
+    return acc;
+  }, {});
+  var sync = /*#__PURE__*/stepsOrder.reduce(function (acc, key) {
+    var step = steps[key];
+
+    acc[key] = function (process, keepAlive, immediate) {
+      if (keepAlive === void 0) {
+        keepAlive = false;
+      }
+
+      if (immediate === void 0) {
+        immediate = false;
+      }
+
+      if (!runNextFrame) startLoop();
+      return step.schedule(process, keepAlive, immediate);
+    };
+
+    return acc;
+  }, {});
+  var cancelSync = /*#__PURE__*/stepsOrder.reduce(function (acc, key) {
+    acc[key] = steps[key].cancel;
+    return acc;
+  }, {});
+
+  var processStep = function (stepId) {
+    return steps[stepId].process(frame);
+  };
+
+  var processFrame = function (timestamp) {
+    runNextFrame = false;
+    frame.delta = useDefaultElapsed ? defaultTimestep : Math.max(Math.min(timestamp - frame.timestamp, maxElapsed), 1);
+    frame.timestamp = timestamp;
+    isProcessing = true;
+    stepsOrder.forEach(processStep);
+    isProcessing = false;
+
+    if (runNextFrame) {
+      useDefaultElapsed = false;
+      onNextFrame(processFrame);
+    }
+  };
+
+  var startLoop = function () {
+    runNextFrame = true;
+    useDefaultElapsed = true;
+    if (!isProcessing) onNextFrame(processFrame);
+  };
+
+  var getFrameData = function () {
+    return frame;
+  };
+
+  /**
+   * Credit goes to `framer-motion` of this useful utilities.
+   * License can be found here: https://github.com/framer/motion
+   */
+  function isMouseEvent(event) {
+    // PointerEvent inherits from MouseEvent so we can't use a straight instanceof check.
+    if (typeof PointerEvent !== "undefined" && event instanceof PointerEvent) {
+      return !!(event.pointerType === "mouse");
+    }
+
+    return event instanceof MouseEvent;
+  }
+  function isTouchEvent(event) {
+    var hasTouches = !!event.touches;
+    return hasTouches;
+  }
+  /**
+   * Filters out events not attached to the primary pointer (currently left mouse button)
+   * @param eventHandler
+   */
+
+  function filterPrimaryPointer(eventHandler) {
+    return event => {
+      var isMouseEvent = event instanceof MouseEvent;
+      var isPrimaryPointer = !isMouseEvent || isMouseEvent && event.button === 0;
+
+      if (isPrimaryPointer) {
+        eventHandler(event);
+      }
+    };
+  }
+
+  var defaultPagePoint = {
+    pageX: 0,
+    pageY: 0
+  };
+
+  function pointFromTouch(e, pointType) {
+    if (pointType === void 0) {
+      pointType = "page";
+    }
+
+    var primaryTouch = e.touches[0] || e.changedTouches[0];
+    var point = primaryTouch || defaultPagePoint;
+    return {
+      x: point[pointType + "X"],
+      y: point[pointType + "Y"]
+    };
+  }
+
+  function pointFromMouse(point, pointType) {
+    if (pointType === void 0) {
+      pointType = "page";
+    }
+
+    return {
+      x: point[pointType + "X"],
+      y: point[pointType + "Y"]
+    };
+  }
+
+  function extractEventInfo(event, pointType) {
+    if (pointType === void 0) {
+      pointType = "page";
+    }
+
+    return {
+      point: isTouchEvent(event) ? pointFromTouch(event, pointType) : pointFromMouse(event, pointType)
+    };
+  }
+  var wrapPointerEventHandler = function wrapPointerEventHandler(handler, shouldFilterPrimaryPointer) {
+    if (shouldFilterPrimaryPointer === void 0) {
+      shouldFilterPrimaryPointer = false;
+    }
+
+    var listener = event => handler(event, extractEventInfo(event));
+
+    return shouldFilterPrimaryPointer ? filterPrimaryPointer(listener) : listener;
+  }; // We check for event support via functions in case they've been mocked by a testing suite.
+
+  var supportsPointerEvents = () => isBrowser$1 && window.onpointerdown === null;
+
+  var supportsTouchEvents = () => isBrowser$1 && window.ontouchstart === null;
+
+  var supportsMouseEvents = () => isBrowser$1 && window.onmousedown === null;
+
+  var mouseEventNames = {
+    pointerdown: "mousedown",
+    pointermove: "mousemove",
+    pointerup: "mouseup",
+    pointercancel: "mousecancel",
+    pointerover: "mouseover",
+    pointerout: "mouseout",
+    pointerenter: "mouseenter",
+    pointerleave: "mouseleave"
+  };
+  var touchEventNames = {
+    pointerdown: "touchstart",
+    pointermove: "touchmove",
+    pointerup: "touchend",
+    pointercancel: "touchcancel"
+  };
+  function getPointerEventName(name) {
+    if (supportsPointerEvents()) {
+      return name;
+    }
+
+    if (supportsTouchEvents()) {
+      return touchEventNames[name];
+    }
+
+    if (supportsMouseEvents()) {
+      return mouseEventNames[name];
+    }
+
+    return name;
+  }
+  function addPointerEvent(target, eventName, handler, options) {
+    return addDomEvent(target, getPointerEventName(eventName), wrapPointerEventHandler(handler, eventName === "pointerdown"), options);
+  }
+  function isMultiTouchEvent(event) {
+    return isTouchEvent(event) && event.touches.length > 1;
+  }
+
+  function _extends$x() {
+    _extends$x = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$x.apply(this, arguments);
+  }
+
+  function _defineProperty$1(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+  /**
+   * The event information passed to pan event handlers like `onPan`, `onPanStart`.
+   *
+   * It contains information about the current state of the tap gesture such as its
+   * `point`, `delta`, and `offset`
+   */
+
+  /**
+   * @internal
+   *
+   * A Pan Session is recognized when the pointer is down
+   * and moved in the allowed direction.
+   */
+
+  class PanSession {
+    /**
+     * We use this to keep track of the `x` and `y` pan session history
+     * as the pan event happens. It helps to calculate the `offset` and `delta`
+     */
+    // The pointer event that started the pan session
+    // The current pointer event for the pan session
+    // The current pointer event info for the pan session
+
+    /**
+     * Minimal pan distance required before recognizing the pan.
+     * @default "3px"
+     */
+    constructor(_event, handlers, threshold) {
+      _defineProperty$1(this, "history", []);
+
+      _defineProperty$1(this, "startEvent", null);
+
+      _defineProperty$1(this, "lastEvent", null);
+
+      _defineProperty$1(this, "lastEventInfo", null);
+
+      _defineProperty$1(this, "handlers", {});
+
+      _defineProperty$1(this, "removeListeners", noop);
+
+      _defineProperty$1(this, "threshold", 3);
+
+      _defineProperty$1(this, "updatePoint", () => {
+        if (!(this.lastEvent && this.lastEventInfo)) return;
+        var info = getPanInfo(this.lastEventInfo, this.history);
+        var isPanStarted = this.startEvent !== null;
+        var isDistancePastThreshold = distance(info.offset, {
+          x: 0,
+          y: 0
+        }) >= this.threshold;
+        if (!isPanStarted && !isDistancePastThreshold) return;
+        var {
+          timestamp
+        } = getFrameData();
+        this.history.push(_extends$x({}, info.point, {
+          timestamp
+        }));
+        var {
+          onStart,
+          onMove
+        } = this.handlers;
+
+        if (!isPanStarted) {
+          onStart == null ? void 0 : onStart(this.lastEvent, info);
+          this.startEvent = this.lastEvent;
+        }
+
+        onMove == null ? void 0 : onMove(this.lastEvent, info);
+      });
+
+      _defineProperty$1(this, "onPointerMove", (event, info) => {
+        this.lastEvent = event;
+        this.lastEventInfo = info; // Because Safari doesn't trigger mouseup events when it's above a `<select>`
+
+        if (isMouseEvent(event) && event.buttons === 0) {
+          this.onPointerUp(event, info);
+          return;
+        } // Throttle mouse move event to once per frame
+
+
+        sync.update(this.updatePoint, true);
+      });
+
+      _defineProperty$1(this, "onPointerUp", (event, info) => {
+        // notify pan session ended
+        var panInfo = getPanInfo(info, this.history);
+        var {
+          onEnd,
+          onSessionEnd
+        } = this.handlers;
+        onSessionEnd == null ? void 0 : onSessionEnd(event, panInfo);
+        this.end(); // if panning never started, no need to call `onEnd`
+        // panning requires a pointermove of at least 3px
+
+        if (!onEnd || !this.startEvent) return;
+        onEnd == null ? void 0 : onEnd(event, panInfo);
+      }); // If we have more than one touch, don't start detecting this gesture
+
+
+      if (isMultiTouchEvent(_event)) return;
+      this.handlers = handlers;
+
+      if (threshold) {
+        this.threshold = threshold;
+      } // stop default browser behavior
+
+
+      _event.stopPropagation();
+
+      _event.preventDefault(); // get and save the `pointerdown` event info in history
+      // we'll use it to compute the `offset`
+
+
+      var _info = extractEventInfo(_event);
+
+      var {
+        timestamp: _timestamp
+      } = getFrameData();
+      this.history = [_extends$x({}, _info.point, {
+        timestamp: _timestamp
+      })]; // notify pan session start
+
+      var {
+        onSessionStart
+      } = handlers;
+      onSessionStart == null ? void 0 : onSessionStart(_event, getPanInfo(_info, this.history)); // attach event listeners and return a single function to remove them all
+
+      this.removeListeners = pipe(addPointerEvent(window, "pointermove", this.onPointerMove), addPointerEvent(window, "pointerup", this.onPointerUp), addPointerEvent(window, "pointercancel", this.onPointerUp));
+    }
+
+    updateHandlers(handlers) {
+      this.handlers = handlers;
+    }
+
+    end() {
+      var _this$removeListeners;
+
+      (_this$removeListeners = this.removeListeners) == null ? void 0 : _this$removeListeners.call(this);
+      cancelSync.update(this.updatePoint);
+    }
+
+  }
+
+  function subtractPoint(a, b) {
+    return {
+      x: a.x - b.x,
+      y: a.y - b.y
+    };
+  }
+
+  function startPanPoint(history) {
+    return history[0];
+  }
+
+  function lastPanPoint(history) {
+    return history[history.length - 1];
+  }
+
+  function getPanInfo(info, history) {
+    return {
+      point: info.point,
+      delta: subtractPoint(info.point, lastPanPoint(history)),
+      offset: subtractPoint(info.point, startPanPoint(history)),
+      velocity: getVelocity(history, 0.1)
+    };
+  }
+
+  function lastDevicePoint(history) {
+    return history[history.length - 1];
+  }
+
+  var toMilliseconds = seconds => seconds * 1000;
+
+  function getVelocity(history, timeDelta) {
+    if (history.length < 2) {
+      return {
+        x: 0,
+        y: 0
+      };
+    }
+
+    var i = history.length - 1;
+    var timestampedPoint = null;
+    var lastPoint = lastDevicePoint(history);
+
+    while (i >= 0) {
+      timestampedPoint = history[i];
+
+      if (lastPoint.timestamp - timestampedPoint.timestamp > toMilliseconds(timeDelta)) {
+        break;
+      }
+
+      i--;
+    }
+
+    if (!timestampedPoint) {
+      return {
+        x: 0,
+        y: 0
+      };
+    }
+
+    var time = (lastPoint.timestamp - timestampedPoint.timestamp) / 1000;
+
+    if (time === 0) {
+      return {
+        x: 0,
+        y: 0
+      };
+    }
+
+    var currentVelocity = {
+      x: (lastPoint.x - timestampedPoint.x) / time,
+      y: (lastPoint.y - timestampedPoint.y) / time
+    };
+
+    if (currentVelocity.x === Infinity) {
+      currentVelocity.x = 0;
+    }
+
+    if (currentVelocity.y === Infinity) {
+      currentVelocity.y = 0;
+    }
+
+    return currentVelocity;
+  }
+
+  Object.freeze(["base", "sm", "md", "lg", "xl", "2xl"]);
+  function mapResponsive(prop, mapper) {
+    if (isArray(prop)) {
+      return prop.map(item => {
+        if (item === null) {
+          return null;
+        }
+
+        return mapper(item);
+      });
+    }
+
+    if (isObject(prop)) {
+      return objectKeys(prop).reduce((result, key) => {
+        result[key] = mapper(prop[key]);
+        return result;
+      }, {});
+    }
+
+    if (prop != null) {
+      return mapper(prop);
+    }
+
+    return null;
+  }
 
   function walkObject(target, predicate) {
     function inner(value, path) {
@@ -4513,6 +5481,17 @@ SOFTWARE.
     return [Context.Provider, useContext, Context];
   }
 
+  /**
+   * Gets only the valid children of a component,
+   * and ignores any nullish or falsy child.
+   *
+   * @param children the children
+   */
+
+  function getValidChildren(children) {
+    return React__namespace.Children.toArray(children).filter(child => /*#__PURE__*/React__namespace.isValidElement(child));
+  }
+
   var [PortalManagerContextProvider, usePortalManager] = createContext({
     strict: false,
     name: "PortalManagerContext"
@@ -4527,6 +5506,322 @@ SOFTWARE.
         zIndex
       }
     }, children);
+  }
+
+  /**
+   * React hook to manage boolean (on - off) states
+   *
+   * @param initialState the initial boolean state value
+   */
+
+  function useBoolean(initialState) {
+    if (initialState === void 0) {
+      initialState = false;
+    }
+
+    var [value, setValue] = React.useState(initialState);
+    var on = React.useCallback(() => {
+      setValue(true);
+    }, []);
+    var off = React.useCallback(() => {
+      setValue(false);
+    }, []);
+    var toggle = React.useCallback(() => {
+      setValue(prev => !prev);
+    }, []);
+    return [value, {
+      on,
+      off,
+      toggle
+    }];
+  }
+
+  /**
+   * useSafeLayoutEffect enables us to safely call `useLayoutEffect` on the browser
+   * (for SSR reasons)
+   *
+   * React currently throws a warning when using useLayoutEffect on the server.
+   * To get around it, we can conditionally useEffect on the server (no-op) and
+   * useLayoutEffect in the browser.
+   *
+   * @see https://gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
+   */
+
+  var useSafeLayoutEffect = isBrowser$1 ? React__namespace.useLayoutEffect : React__namespace.useEffect;
+
+  /**
+   * React hook to persist any value between renders,
+   * but keeps it up-to-date if it changes.
+   *
+   * @param value the value or function to persist
+   */
+
+  function useCallbackRef(fn, deps) {
+    if (deps === void 0) {
+      deps = [];
+    }
+
+    var ref = React__namespace.useRef(fn);
+    useSafeLayoutEffect(() => {
+      ref.current = fn;
+    }); // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return React__namespace.useCallback(function () {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return ref.current == null ? void 0 : ref.current(...args);
+    }, deps);
+  }
+
+  function useControllableProp(prop, state) {
+    var isControlled = prop !== undefined;
+    var value = isControlled && typeof prop !== "undefined" ? prop : state;
+    return [isControlled, value];
+  }
+  /**
+   * React hook for using controlling component state.
+   * @param props
+   */
+
+  function useControllableState(props) {
+    var {
+      value: valueProp,
+      defaultValue,
+      onChange,
+      shouldUpdate = (prev, next) => prev !== next
+    } = props;
+    var onChangeProp = useCallbackRef(onChange);
+    var shouldUpdateProp = useCallbackRef(shouldUpdate);
+    var [valueState, setValue] = React__namespace.useState(defaultValue);
+    var isControlled = valueProp !== undefined;
+    var value = isControlled ? valueProp : valueState;
+    var updateValue = React__namespace.useCallback(next => {
+      var nextValue = runIfFn(next, value);
+
+      if (!shouldUpdateProp(value, nextValue)) {
+        return;
+      }
+
+      if (!isControlled) {
+        setValue(nextValue);
+      }
+
+      onChangeProp(nextValue);
+    }, [isControlled, onChangeProp, value, shouldUpdateProp]);
+    return [value, updateValue];
+  }
+
+  /**
+   * Reack hook to measure a component's dimensions
+   *
+   * @param ref ref of the component to measure
+   * @param observe if `true`, resize and scroll observers will be turned on
+   */
+
+  function useDimensions(ref, observe) {
+    var [dimensions, setDimensions] = React__namespace.useState(null);
+    var rafId = React__namespace.useRef();
+    useSafeLayoutEffect(() => {
+      if (!ref.current) return undefined;
+      var node = ref.current;
+
+      function measure() {
+        rafId.current = requestAnimationFrame(() => {
+          var boxModel = getBox(node);
+          setDimensions(boxModel);
+        });
+      }
+
+      measure();
+
+      if (observe) {
+        window.addEventListener("resize", measure);
+        window.addEventListener("scroll", measure);
+      }
+
+      return () => {
+        if (observe) {
+          window.removeEventListener("resize", measure);
+          window.removeEventListener("scroll", measure);
+        }
+
+        if (rafId.current) {
+          cancelAnimationFrame(rafId.current);
+        }
+      };
+    }, [observe]);
+    return dimensions;
+  }
+
+  // This implementation is heavily inspired by react-aria's implementation
+  var defaultIdContext = {
+    prefix: Math.round(Math.random() * 10000000000),
+    current: 0
+  };
+  var IdContext = /*#__PURE__*/React__namespace.createContext(defaultIdContext);
+  function useId(idProp, prefix) {
+    var context = React__namespace.useContext(IdContext);
+    return React__namespace.useMemo(() => idProp || [prefix, context.prefix, ++context.current].filter(Boolean).join("-"), // eslint-disable-next-line react-hooks/exhaustive-deps
+    [idProp, prefix]);
+  }
+  /**
+   * Reack hook to generate ids for use in compound components
+   *
+   * @param idProp the external id passed from the user
+   * @param prefixes array of prefixes to use
+   *
+   * @example
+   *
+   * ```js
+   * const [buttonId, menuId] = useIds("52", "button", "menu")
+   *
+   * // buttonId will be `button-52`
+   * // menuId will be `menu-52`
+   * ```
+   */
+
+  function useIds(idProp) {
+    for (var _len = arguments.length, prefixes = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      prefixes[_key - 1] = arguments[_key];
+    }
+
+    var id = useId(idProp);
+    return React__namespace.useMemo(() => {
+      return prefixes.map(prefix => prefix + "-" + id);
+    }, [id, prefixes]);
+  }
+
+  /**
+   * React hook to manage browser event listeners
+   *
+   * @param event the event name
+   * @param handler the event handler function to execute
+   * @param doc the dom environment to execute against (defaults to `document`)
+   * @param options the event listener options
+   *
+   * @internal
+   */
+
+  function useEventListener(event, handler, env, options) {
+    var listener = useCallbackRef(handler);
+    React__namespace.useEffect(() => {
+      var _runIfFn;
+
+      var node = (_runIfFn = runIfFn(env)) != null ? _runIfFn : document;
+      node.addEventListener(event, listener, options);
+      return () => {
+        node.removeEventListener(event, listener, options);
+      };
+    }, [event, env, options, listener]);
+    return () => {
+      var _runIfFn2;
+
+      var node = (_runIfFn2 = runIfFn(env)) != null ? _runIfFn2 : document;
+      node.removeEventListener(event, listener, options);
+    };
+  }
+
+  /**
+   * React effect hook that invokes only on update.
+   * It doesn't invoke on mount
+   */
+
+  var useUpdateEffect = (effect, deps) => {
+    var mounted = React__namespace.useRef(false);
+    React__namespace.useEffect(() => {
+      if (mounted.current) {
+        return effect();
+      }
+
+      mounted.current = true;
+      return undefined; // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, deps);
+    return mounted.current;
+  };
+
+  /**
+   * Credit goes to `framer-motion` of this useful utilities.
+   * License can be found here: https://github.com/framer/motion
+   */
+  /**
+   * @internal
+   */
+
+  function usePointerEvent(env, eventName, handler, options) {
+    return useEventListener(getPointerEventName(eventName), wrapPointerEventHandler(handler, eventName === "pointerdown"), env, options);
+  }
+
+  function useUnmountEffect(fn, deps) {
+    if (deps === void 0) {
+      deps = [];
+    }
+
+    return React__namespace.useEffect(() => () => fn(), // eslint-disable-next-line react-hooks/exhaustive-deps
+    deps);
+  }
+
+  /**
+   * React hook to persist any value between renders,
+   * but keeps it up-to-date if it changes.
+   *
+   * @param value the value or function to persist
+   */
+
+  function useLatestRef(value) {
+    var ref = React__namespace.useRef(null);
+    ref.current = value;
+    return ref;
+  }
+
+  function usePanGesture(ref, props) {
+    var {
+      onPan,
+      onPanStart,
+      onPanEnd,
+      onPanSessionStart,
+      onPanSessionEnd
+    } = props;
+    var hasPanEvents = Boolean(onPan || onPanStart || onPanEnd || onPanSessionStart || onPanSessionEnd);
+    var panSession = React.useRef(null);
+    var handlers = {
+      onSessionStart: onPanSessionStart,
+      onSessionEnd: onPanSessionEnd,
+      onStart: onPanStart,
+      onMove: onPan,
+
+      onEnd(event, info) {
+        panSession.current = null;
+        onPanEnd == null ? void 0 : onPanEnd(event, info);
+      }
+
+    };
+    React.useEffect(() => {
+      var _panSession$current;
+
+      (_panSession$current = panSession.current) == null ? void 0 : _panSession$current.updateHandlers(handlers);
+    });
+
+    function onPointerDown(event) {
+      panSession.current = new PanSession(event, handlers);
+    }
+
+    usePointerEvent(() => ref.current, "pointerdown", hasPanEvents ? onPointerDown : noop);
+    useUnmountEffect(() => {
+      var _panSession$current2;
+
+      (_panSession$current2 = panSession.current) == null ? void 0 : _panSession$current2.end();
+      panSession.current = null;
+    });
+  }
+
+  function usePrevious(value) {
+    var ref = React.useRef();
+    React.useEffect(() => {
+      ref.current = value;
+    }, [value]);
+    return ref.current;
   }
 
   var classNames = {
@@ -5204,8 +6499,8 @@ SOFTWARE.
     return isString(value) && value.includes("(") && value.includes(")");
   };
 
-  function _extends$l() {
-    _extends$l = Object.assign || function (target) {
+  function _extends$w() {
+    _extends$w = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -5219,7 +6514,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$l.apply(this, arguments);
+    return _extends$w.apply(this, arguments);
   }
   var t = {
     borderWidths: toConfig("borderWidths"),
@@ -5238,7 +6533,7 @@ SOFTWARE.
     },
 
     prop(property, scale, transform) {
-      return _extends$l({
+      return _extends$w({
         property,
         scale
       }, scale && {
@@ -6110,8 +7405,8 @@ SOFTWARE.
   };
   var pseudoPropNames = objectKeys(pseudoSelectors);
 
-  function _extends$k() {
-    _extends$k = Object.assign || function (target) {
+  function _extends$v() {
+    _extends$v = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -6125,14 +7420,14 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$k.apply(this, arguments);
+    return _extends$v.apply(this, arguments);
   }
   var systemProps = mergeWith({}, background, border, color, flexbox, layout, filter, ring, interactivity, grid, others, position, effect, space, typography$2, textDecoration, transform, list, transition$2);
   var layoutSystem = Object.assign({}, space, layout, flexbox, grid, position);
-  objectKeys(layoutSystem);
+  var layoutPropNames = objectKeys(layoutSystem);
   var propNames = [...objectKeys(systemProps), ...pseudoPropNames];
 
-  var styleProps = _extends$k({}, systemProps, pseudoSelectors);
+  var styleProps = _extends$v({}, systemProps, pseudoSelectors);
 
   var isStyleProp = prop => prop in styleProps;
 
@@ -6492,8 +7787,8 @@ SOFTWARE.
     };
   }
 
-  function _extends$j() {
-    _extends$j = Object.assign || function (target) {
+  function _extends$u() {
+    _extends$u = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -6507,7 +7802,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$j.apply(this, arguments);
+    return _extends$u.apply(this, arguments);
   }
   function createThemeVars(target, options) {
     var context = {
@@ -6547,7 +7842,7 @@ SOFTWARE.
       var varRef = calc.negate(reference);
       return {
         cssVars: properties.cssVars,
-        cssMap: _extends$j({}, properties.cssMap, {
+        cssMap: _extends$u({}, properties.cssMap, {
           [negativeLookupKey]: {
             value: "" + negativeValue,
             var: "" + variable,
@@ -6578,7 +7873,7 @@ SOFTWARE.
     }
   };
 
-  function _objectWithoutPropertiesLoose$5(source, excluded) {
+  function _objectWithoutPropertiesLoose$e(source, excluded) {
     if (source == null) return {};
     var target = {};
     var sourceKeys = Object.keys(source);
@@ -6598,13 +7893,13 @@ SOFTWARE.
     return pick(theme, _tokens);
   }
   function omitVars(rawTheme) {
-    var cleanTheme = _objectWithoutPropertiesLoose$5(rawTheme, ["__cssMap", "__cssVars", "__breakpoints"]);
+    var cleanTheme = _objectWithoutPropertiesLoose$e(rawTheme, ["__cssMap", "__cssVars", "__breakpoints"]);
 
     return cleanTheme;
   }
 
-  function _extends$i() {
-    _extends$i = Object.assign || function (target) {
+  function _extends$t() {
+    _extends$t = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -6618,7 +7913,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$i.apply(this, arguments);
+    return _extends$t.apply(this, arguments);
   }
   function toCSSVar(rawTheme) {
     var _theme$config;
@@ -6658,7 +7953,7 @@ SOFTWARE.
       "--chakra-space-y-reverse": "0"
     };
     Object.assign(theme, {
-      __cssVars: _extends$i({}, defaultCssVars, cssVars),
+      __cssVars: _extends$t({}, defaultCssVars, cssVars),
       __cssMap: cssMap,
       __breakpoints: analyzeBreakpoints(theme.breakpoints)
     });
@@ -6826,7 +8121,7 @@ SOFTWARE.
 
     return theme;
   }
-  createContext({
+  var [StylesProvider, useStyles] = createContext({
     name: "StylesContext",
     errorMessage: "useStyles: `styles` is undefined. Seems you forgot to wrap the components in `<StylesProvider />` "
   });
@@ -6863,8 +8158,8 @@ SOFTWARE.
     return omit(props, ["styleConfig", "size", "variant", "colorScheme"]);
   }
 
-  function _extends$h() {
-    _extends$h = Object.assign || function (target) {
+  function _extends$s() {
+    _extends$s = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -6878,12 +8173,12 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$h.apply(this, arguments);
+    return _extends$s.apply(this, arguments);
   }
   function useChakra() {
     var colorModeResult = useColorMode();
     var theme = useTheme();
-    return _extends$h({}, colorModeResult, {
+    return _extends$s({}, colorModeResult, {
       theme
     });
   }
@@ -7051,7 +8346,7 @@ SOFTWARE.
       });
 
       Styled.withComponent = function (nextTag, nextOptions) {
-        return createStyled(nextTag, _extends$m({}, options, nextOptions, {
+        return createStyled(nextTag, _extends$y({}, options, nextOptions, {
           shouldForwardProp: composeShouldForwardProps(Styled, nextOptions, true)
         })).apply(void 0, styles);
       };
@@ -7084,7 +8379,7 @@ SOFTWARE.
   var validHTMLProps = new Set(["htmlWidth", "htmlHeight", "htmlSize"]);
   var shouldForwardProp = prop => validHTMLProps.has(prop) || !allPropNames.has(prop);
 
-  function _objectWithoutPropertiesLoose$4(source, excluded) {
+  function _objectWithoutPropertiesLoose$d(source, excluded) {
     if (source == null) return {};
     var target = {};
     var sourceKeys = Object.keys(source);
@@ -7122,7 +8417,7 @@ SOFTWARE.
         __css,
         sx
       } = props,
-          rest = _objectWithoutPropertiesLoose$4(props, ["theme", "css", "__css", "sx"]);
+          rest = _objectWithoutPropertiesLoose$d(props, ["theme", "css", "__css", "sx"]);
 
       var styleProps = objectFilter(rest, (_, prop) => isStyleProp(prop));
       var finalBaseStyle = runIfFn(baseStyle, props);
@@ -7136,7 +8431,7 @@ SOFTWARE.
         {
       baseStyle
     } = _ref2,
-        styledOptions = _objectWithoutPropertiesLoose$4(_ref2, ["baseStyle"]);
+        styledOptions = _objectWithoutPropertiesLoose$d(_ref2, ["baseStyle"]);
 
     if (!styledOptions.shouldForwardProp) {
       styledOptions.shouldForwardProp = shouldForwardProp;
@@ -7160,7 +8455,7 @@ SOFTWARE.
     return /*#__PURE__*/React__namespace.forwardRef(component);
   }
 
-  function _objectWithoutPropertiesLoose$3(source, excluded) {
+  function _objectWithoutPropertiesLoose$c(source, excluded) {
     if (source == null) return {};
     var target = {};
     var sourceKeys = Object.keys(source);
@@ -7188,7 +8483,7 @@ SOFTWARE.
     var {
       styleConfig: styleConfigProp
     } = props,
-        rest = _objectWithoutPropertiesLoose$3(props, ["styleConfig"]);
+        rest = _objectWithoutPropertiesLoose$c(props, ["styleConfig"]);
 
     var {
       theme,
@@ -7231,6 +8526,11 @@ SOFTWARE.
 
       return stylesRef.current;
     }, [styleConfig, mergedProps, (_opts2 = opts) == null ? void 0 : _opts2.isMultiPart]);
+  }
+  function useMultiStyleConfig(themeKey, props) {
+    return useStyleConfig(themeKey, props, {
+      isMultiPart: true
+    });
   }
 
   var parts$n = ["container", "button", "panel", "icon"];
@@ -8690,7 +9990,7 @@ SOFTWARE.
   function mode(light, dark) {
     return props => props.colorMode === "dark" ? dark : light;
   }
-  function orient(options) {
+  function orient$2(options) {
     var {
       orientation,
       vertical,
@@ -8700,8 +10000,8 @@ SOFTWARE.
     return orientation === "vertical" ? vertical : horizontal;
   }
 
-  function _extends$g() {
-    _extends$g = Object.assign || function (target) {
+  function _extends$r() {
+    _extends$r = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -8715,14 +10015,14 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$g.apply(this, arguments);
+    return _extends$r.apply(this, arguments);
   }
   var createBreakpoints = config => {
     warn({
       condition: true,
       message: ["[chakra-ui]: createBreakpoints(...) will be deprecated pretty soon", "simply pass the breakpoints as an object. Remove the createBreakpoint(..) call"].join("")
     });
-    return _extends$g({
+    return _extends$r({
       base: "0em"
     }, config);
   };
@@ -8825,7 +10125,7 @@ SOFTWARE.
     "top-accent": variantTopAccent,
     solid: variantSolid$3
   };
-  var defaultProps$n = {
+  var defaultProps$o = {
     variant: "subtle",
     colorScheme: "blue"
   };
@@ -8833,7 +10133,7 @@ SOFTWARE.
     parts: parts$m,
     baseStyle: baseStyle$C,
     variants: variants$b,
-    defaultProps: defaultProps$n
+    defaultProps: defaultProps$o
   };
 
   var spacing = {
@@ -8876,8 +10176,8 @@ SOFTWARE.
    * Spacing tokens are a part of DefaultChakraTheme['sizes']
    */
 
-  function _extends$f() {
-    _extends$f = Object.assign || function (target) {
+  function _extends$q() {
+    _extends$q = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -8891,7 +10191,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$f.apply(this, arguments);
+    return _extends$q.apply(this, arguments);
   }
   var largeSizes = {
     max: "max-content",
@@ -8919,7 +10219,7 @@ SOFTWARE.
     xl: "1280px"
   };
 
-  var sizes$l = _extends$f({}, spacing, largeSizes, {
+  var sizes$l = _extends$q({}, spacing, largeSizes, {
     container
   });
   /**
@@ -9004,14 +10304,14 @@ SOFTWARE.
     "2xl": getSize$3("32"),
     full: getSize$3("100%")
   };
-  var defaultProps$m = {
+  var defaultProps$n = {
     size: "md"
   };
   var Avatar = {
     parts: parts$l,
     baseStyle: baseStyle$B,
     sizes: sizes$k,
-    defaultProps: defaultProps$m
+    defaultProps: defaultProps$n
   };
 
   var baseStyle$A = {
@@ -9065,14 +10365,14 @@ SOFTWARE.
     subtle: variantSubtle,
     outline: variantOutline$2
   };
-  var defaultProps$l = {
+  var defaultProps$m = {
     variant: "subtle",
     colorScheme: "gray"
   };
   var Badge = {
     baseStyle: baseStyle$A,
     variants: variants$a,
-    defaultProps: defaultProps$l
+    defaultProps: defaultProps$m
   };
 
   var parts$k = ["container", "item", "link", "separator"];
@@ -9099,8 +10399,8 @@ SOFTWARE.
     baseStyle: baseStyle$z
   };
 
-  function _extends$e() {
-    _extends$e = Object.assign || function (target) {
+  function _extends$p() {
+    _extends$p = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -9114,7 +10414,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$e.apply(this, arguments);
+    return _extends$p.apply(this, arguments);
   }
   var baseStyle$y = {
     lineHeight: "1.2",
@@ -9174,7 +10474,7 @@ SOFTWARE.
       colorScheme: c
     } = props;
     var borderColor = mode("gray.200", "whiteAlpha.300")(props);
-    return _extends$e({
+    return _extends$p({
       border: "1px solid",
       borderColor: c === "gray" ? borderColor : "currentColor"
     }, variantGhost(props));
@@ -9304,7 +10604,7 @@ SOFTWARE.
       px: 2
     }
   };
-  var defaultProps$k = {
+  var defaultProps$l = {
     variant: "solid",
     size: "md",
     colorScheme: "gray"
@@ -9313,7 +10613,7 @@ SOFTWARE.
     baseStyle: baseStyle$y,
     variants: variants$9,
     sizes: sizes$j,
-    defaultProps: defaultProps$k
+    defaultProps: defaultProps$l
   };
 
   var parts$j = ["container", "control", "label", "icon"];
@@ -9417,7 +10717,7 @@ SOFTWARE.
       }
     }
   };
-  var defaultProps$j = {
+  var defaultProps$k = {
     size: "md",
     colorScheme: "blue"
   };
@@ -9425,7 +10725,7 @@ SOFTWARE.
     parts: parts$j,
     baseStyle: baseStyle$x,
     sizes: sizes$i,
-    defaultProps: defaultProps$j
+    defaultProps: defaultProps$k
   };
 
   function baseStyle$w(props) {
@@ -9469,18 +10769,18 @@ SOFTWARE.
       fontSize: "10px"
     }
   };
-  var defaultProps$i = {
+  var defaultProps$j = {
     size: "md"
   };
   var CloseButton = {
     baseStyle: baseStyle$w,
     sizes: sizes$h,
-    defaultProps: defaultProps$i
+    defaultProps: defaultProps$j
   };
 
   var {
     variants: variants$8,
-    defaultProps: defaultProps$h
+    defaultProps: defaultProps$i
   } = Badge;
   var baseStyle$v = {
     fontFamily: "mono",
@@ -9491,7 +10791,7 @@ SOFTWARE.
   var Code = {
     baseStyle: baseStyle$v,
     variants: variants$8,
-    defaultProps: defaultProps$h
+    defaultProps: defaultProps$i
   };
 
   var baseStyle$u = {
@@ -9518,13 +10818,13 @@ SOFTWARE.
     solid: variantSolid,
     dashed: variantDashed
   };
-  var defaultProps$g = {
+  var defaultProps$h = {
     variant: "solid"
   };
   var Divider = {
     baseStyle: baseStyle$t,
     variants: variants$7,
-    defaultProps: defaultProps$g
+    defaultProps: defaultProps$h
   };
 
   var parts$i = ["overlay", "dialogContainer", "dialog", "header", "closeButton", "body", "footer"];
@@ -9636,18 +10936,18 @@ SOFTWARE.
     "6xl": getSize$2("6xl"),
     full: getSize$2("full")
   };
-  var defaultProps$f = {
+  var defaultProps$g = {
     size: "md"
   };
   var Modal = {
     parts: parts$i,
     baseStyle: baseStyle$s,
     sizes: sizes$g,
-    defaultProps: defaultProps$f
+    defaultProps: defaultProps$g
   };
 
-  function _extends$d() {
-    _extends$d = Object.assign || function (target) {
+  function _extends$o() {
+    _extends$o = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -9661,7 +10961,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$d.apply(this, arguments);
+    return _extends$o.apply(this, arguments);
   }
   var parts$h = Modal.parts;
   /**
@@ -9700,7 +11000,7 @@ SOFTWARE.
     var {
       isFullHeight
     } = props;
-    return _extends$d({}, isFullHeight && {
+    return _extends$o({}, isFullHeight && {
       height: "100vh"
     }, {
       zIndex: "modal",
@@ -9751,14 +11051,14 @@ SOFTWARE.
     xl: getSize$1("4xl"),
     full: getSize$1("full")
   };
-  var defaultProps$e = {
+  var defaultProps$f = {
     size: "xs"
   };
   var Drawer = {
     parts: parts$h,
     baseStyle: baseStyle$r,
     sizes: sizes$f,
-    defaultProps: defaultProps$e
+    defaultProps: defaultProps$f
   };
 
   var parts$g = ["preview", "input"];
@@ -9830,7 +11130,7 @@ SOFTWARE.
       opacity: 0.4
     }
   };
-  var FormLabel = {
+  var FormLabel$1 = {
     baseStyle: baseStyle$o
   };
 
@@ -9872,13 +11172,13 @@ SOFTWARE.
       lineHeight: 1.2
     }
   };
-  var defaultProps$d = {
+  var defaultProps$e = {
     size: "xl"
   };
   var Heading = {
     baseStyle: baseStyle$n,
     sizes: sizes$e,
-    defaultProps: defaultProps$d
+    defaultProps: defaultProps$e
   };
 
   var parts$e = ["field", "addon"];
@@ -10087,7 +11387,7 @@ SOFTWARE.
     flushed: variantFlushed,
     unstyled: variantUnstyled$1
   };
-  var defaultProps$c = {
+  var defaultProps$d = {
     size: "md",
     variant: "outline"
   };
@@ -10096,7 +11396,7 @@ SOFTWARE.
     baseStyle: baseStyle$m,
     sizes: sizes$d,
     variants: variants$6,
-    defaultProps: defaultProps$c
+    defaultProps: defaultProps$d
   };
 
   function baseStyle$l(props) {
@@ -10303,8 +11603,8 @@ SOFTWARE.
 
   var _Input$baseStyle;
 
-  function _extends$c() {
-    _extends$c = Object.assign || function (target) {
+  function _extends$n() {
+    _extends$n = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -10318,12 +11618,12 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$c.apply(this, arguments);
+    return _extends$n.apply(this, arguments);
   }
   var parts$b = ["root", "field", "stepper", "stepperGroup"];
   var {
     variants: variants$5,
-    defaultProps: defaultProps$b
+    defaultProps: defaultProps$c
   } = Input;
   var baseStyleRoot$1 = {
     "--number-input-stepper-width": "24px",
@@ -10366,7 +11666,7 @@ SOFTWARE.
     };
     var resolvedFontSize = typography$1.fontSizes[sizeStyle.field.fontSize];
     return {
-      field: _extends$c({}, sizeStyle.field, {
+      field: _extends$n({}, sizeStyle.field, {
         paddingInlineEnd: "var(--number-input-field-padding)",
         verticalAlign: "top"
       }),
@@ -10395,11 +11695,11 @@ SOFTWARE.
     baseStyle: baseStyle$h,
     sizes: sizes$c,
     variants: variants$5,
-    defaultProps: defaultProps$b
+    defaultProps: defaultProps$c
   };
 
-  function _extends$b() {
-    _extends$b = Object.assign || function (target) {
+  function _extends$m() {
+    _extends$m = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -10413,10 +11713,10 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$b.apply(this, arguments);
+    return _extends$m.apply(this, arguments);
   }
 
-  var baseStyle$g = _extends$b({}, Input.baseStyle.field, {
+  var baseStyle$g = _extends$m({}, Input.baseStyle.field, {
     textAlign: "center"
   });
 
@@ -10452,12 +11752,12 @@ SOFTWARE.
     filled: props => Input.variants.filled(props).field,
     unstyled: Input.variants.unstyled.field
   };
-  var defaultProps$a = Input.defaultProps;
+  var defaultProps$b = Input.defaultProps;
   var PinInput = {
     baseStyle: baseStyle$g,
     sizes: sizes$b,
     variants: variants$4,
-    defaultProps: defaultProps$a
+    defaultProps: defaultProps$b
   };
 
   var parts$a = ["popper", "content", "header", "body", "footer", "arrow"];
@@ -10515,8 +11815,8 @@ SOFTWARE.
     baseStyle: baseStyle$f
   };
 
-  function _extends$a() {
-    _extends$a = Object.assign || function (target) {
+  function _extends$l() {
+    _extends$l = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -10530,7 +11830,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$a.apply(this, arguments);
+    return _extends$l.apply(this, arguments);
   }
   var parts$9 = ["track", "filledTrack", "label"];
 
@@ -10545,7 +11845,7 @@ SOFTWARE.
     var bgColor = mode(c + ".500", c + ".200")(props);
     var gradient = "linear-gradient(\n    to right,\n    transparent 0%,\n    " + getColor(t, bgColor) + " 50%,\n    transparent 100%\n  )";
     var addStripe = !isIndeterminate && hasStripe;
-    return _extends$a({}, addStripe && stripeStyle, isIndeterminate ? {
+    return _extends$l({}, addStripe && stripeStyle, isIndeterminate ? {
       bgImage: gradient
     } : {
       bgColor
@@ -10566,7 +11866,7 @@ SOFTWARE.
   }
 
   function baseStyleFilledTrack$1(props) {
-    return _extends$a({
+    return _extends$l({
       transitionProperty: "common",
       transitionDuration: "slow"
     }, filledStyle(props));
@@ -10600,7 +11900,7 @@ SOFTWARE.
       }
     }
   };
-  var defaultProps$9 = {
+  var defaultProps$a = {
     size: "md",
     colorScheme: "blue"
   };
@@ -10608,11 +11908,11 @@ SOFTWARE.
     parts: parts$9,
     sizes: sizes$a,
     baseStyle: baseStyle$e,
-    defaultProps: defaultProps$9
+    defaultProps: defaultProps$a
   };
 
-  function _extends$9() {
-    _extends$9 = Object.assign || function (target) {
+  function _extends$k() {
+    _extends$k = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -10626,7 +11926,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$9.apply(this, arguments);
+    return _extends$k.apply(this, arguments);
   }
   var parts$8 = ["container", "control", "label"];
 
@@ -10634,9 +11934,9 @@ SOFTWARE.
     var {
       control
     } = Checkbox.baseStyle(props);
-    return _extends$9({}, control, {
+    return _extends$k({}, control, {
       borderRadius: "full",
-      _checked: _extends$9({}, control["_checked"], {
+      _checked: _extends$k({}, control["_checked"], {
         _before: {
           content: "\"\"",
           display: "inline-block",
@@ -10684,7 +11984,7 @@ SOFTWARE.
       }
     }
   };
-  var defaultProps$8 = {
+  var defaultProps$9 = {
     size: "md",
     colorScheme: "blue"
   };
@@ -10692,11 +11992,11 @@ SOFTWARE.
     parts: parts$8,
     baseStyle: baseStyle$d,
     sizes: sizes$9,
-    defaultProps: defaultProps$8
+    defaultProps: defaultProps$9
   };
 
-  function _extends$8() {
-    _extends$8 = Object.assign || function (target) {
+  function _extends$j() {
+    _extends$j = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -10710,12 +12010,12 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$8.apply(this, arguments);
+    return _extends$j.apply(this, arguments);
   }
   var parts$7 = ["field", "icon"];
 
   function baseStyleField(props) {
-    return _extends$8({}, Input.baseStyle.field, {
+    return _extends$j({}, Input.baseStyle.field, {
       appearance: "none",
       paddingBottom: "1px",
       lineHeight: "normal",
@@ -10749,7 +12049,7 @@ SOFTWARE.
       }
     }
   });
-  var Select = {
+  var Select$1 = {
     parts: parts$7,
     baseStyle: baseStyle$c,
     sizes: sizes$8,
@@ -10809,8 +12109,8 @@ SOFTWARE.
     baseStyle: baseStyle$a
   };
 
-  function _extends$7() {
-    _extends$7 = Object.assign || function (target) {
+  function _extends$i() {
+    _extends$i = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -10824,12 +12124,12 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$7.apply(this, arguments);
+    return _extends$i.apply(this, arguments);
   }
   var parts$6 = ["container", "thumb", "track", "filledTrack"];
 
   function thumbOrientation(props) {
-    return orient({
+    return orient$2({
       orientation: props.orientation,
       vertical: {
         left: "50%",
@@ -10852,13 +12152,13 @@ SOFTWARE.
     var {
       orientation
     } = props;
-    return _extends$7({
+    return _extends$i({
       _disabled: {
         opacity: 0.6,
         cursor: "default",
         pointerEvents: "none"
       }
-    }, orient({
+    }, orient$2({
       orientation,
       vertical: {
         h: "100%"
@@ -10880,7 +12180,7 @@ SOFTWARE.
   }
 
   function baseStyleThumb$1(props) {
-    return _extends$7({
+    return _extends$i({
       zIndex: 1,
       borderRadius: "full",
       bg: "white",
@@ -10920,7 +12220,7 @@ SOFTWARE.
         w: "16px",
         h: "16px"
       },
-      track: orient({
+      track: orient$2({
         orientation: props.orientation,
         horizontal: {
           h: "4px"
@@ -10938,7 +12238,7 @@ SOFTWARE.
         w: "14px",
         h: "14px"
       },
-      track: orient({
+      track: orient$2({
         orientation: props.orientation,
         horizontal: {
           h: "4px"
@@ -10956,7 +12256,7 @@ SOFTWARE.
         w: "10px",
         h: "10px"
       },
-      track: orient({
+      track: orient$2({
         orientation: props.orientation,
         horizontal: {
           h: "2px"
@@ -10973,15 +12273,15 @@ SOFTWARE.
     md: sizeMd,
     sm: sizeSm
   };
-  var defaultProps$7 = {
+  var defaultProps$8 = {
     size: "md",
     colorScheme: "blue"
   };
-  var Slider = {
+  var Slider$1 = {
     parts: parts$6,
     sizes: sizes$7,
     baseStyle: baseStyle$9,
-    defaultProps: defaultProps$7
+    defaultProps: defaultProps$8
   };
 
   var baseStyle$8 = {
@@ -11005,13 +12305,13 @@ SOFTWARE.
       "--spinner-size": "3rem"
     }
   };
-  var defaultProps$6 = {
+  var defaultProps$7 = {
     size: "md"
   };
   var Spinner$1 = {
     baseStyle: baseStyle$8,
     sizes: sizes$6,
-    defaultProps: defaultProps$6
+    defaultProps: defaultProps$7
   };
 
   var parts$5 = ["label", "number", "icon", "helpText"];
@@ -11051,14 +12351,14 @@ SOFTWARE.
       }
     }
   };
-  var defaultProps$5 = {
+  var defaultProps$6 = {
     size: "md"
   };
   var Stat = {
     parts: parts$5,
     baseStyle: baseStyle$7,
     sizes: sizes$5,
-    defaultProps: defaultProps$5
+    defaultProps: defaultProps$6
   };
 
   var parts$4 = ["container", "track", "thumb"];
@@ -11132,19 +12432,19 @@ SOFTWARE.
       }
     }
   };
-  var defaultProps$4 = {
+  var defaultProps$5 = {
     size: "md",
     colorScheme: "blue"
   };
-  var Switch = {
+  var Switch$1 = {
     parts: parts$4,
     baseStyle: baseStyle$6,
     sizes: sizes$4,
-    defaultProps: defaultProps$4
+    defaultProps: defaultProps$5
   };
 
-  function _extends$6() {
-    _extends$6 = Object.assign || function (target) {
+  function _extends$h() {
+    _extends$h = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -11158,7 +12458,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$6.apply(this, arguments);
+    return _extends$h.apply(this, arguments);
   }
   var parts$3 = ["table", "thead", "tbody", "tr", "th", "td", "caption"];
   var baseStyle$5 = {
@@ -11195,12 +12495,12 @@ SOFTWARE.
       colorScheme: c
     } = props;
     return {
-      th: _extends$6({
+      th: _extends$h({
         color: mode("gray.600", "gray.400")(props),
         borderBottom: "1px",
         borderColor: mode(c + ".100", c + ".700")(props)
       }, numericStyles),
-      td: _extends$6({
+      td: _extends$h({
         borderBottom: "1px",
         borderColor: mode(c + ".100", c + ".700")(props)
       }, numericStyles),
@@ -11224,12 +12524,12 @@ SOFTWARE.
       colorScheme: c
     } = props;
     return {
-      th: _extends$6({
+      th: _extends$h({
         color: mode("gray.600", "gray.400")(props),
         borderBottom: "1px",
         borderColor: mode(c + ".100", c + ".700")(props)
       }, numericStyles),
-      td: _extends$6({
+      td: _extends$h({
         borderBottom: "1px",
         borderColor: mode(c + ".100", c + ".700")(props)
       }, numericStyles),
@@ -11323,7 +12623,7 @@ SOFTWARE.
       }
     }
   };
-  var defaultProps$3 = {
+  var defaultProps$4 = {
     variant: "simple",
     size: "md",
     colorScheme: "gray"
@@ -11333,7 +12633,7 @@ SOFTWARE.
     baseStyle: baseStyle$5,
     variants: variants$3,
     sizes: sizes$3,
-    defaultProps: defaultProps$3
+    defaultProps: defaultProps$4
   };
 
   var parts$2 = ["root", "tablist", "tab", "tabpanels", "tabpanel", "indicator"];
@@ -11542,7 +12842,7 @@ SOFTWARE.
     "solid-rounded": variantSolidRounded,
     unstyled: variantUnstyled
   };
-  var defaultProps$2 = {
+  var defaultProps$3 = {
     size: "md",
     variant: "line",
     colorScheme: "blue"
@@ -11552,7 +12852,7 @@ SOFTWARE.
     baseStyle: baseStyle$4,
     sizes: sizes$2,
     variants: variants$2,
-    defaultProps: defaultProps$2
+    defaultProps: defaultProps$3
   };
 
   var parts$1 = ["container", "label", "closeButton"];
@@ -11640,7 +12940,7 @@ SOFTWARE.
       container: Badge.variants.outline(props)
     })
   };
-  var defaultProps$1 = {
+  var defaultProps$2 = {
     size: "md",
     variant: "subtle",
     colorScheme: "gray"
@@ -11650,11 +12950,11 @@ SOFTWARE.
     variants: variants$1,
     baseStyle: baseStyle$3,
     sizes: sizes$1,
-    defaultProps: defaultProps$1
+    defaultProps: defaultProps$2
   };
 
-  function _extends$5() {
-    _extends$5 = Object.assign || function (target) {
+  function _extends$g() {
+    _extends$g = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -11668,10 +12968,10 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$5.apply(this, arguments);
+    return _extends$g.apply(this, arguments);
   }
 
-  var baseStyle$2 = _extends$5({}, Input.baseStyle.field, {
+  var baseStyle$2 = _extends$g({}, Input.baseStyle.field, {
     paddingY: "8px",
     minHeight: "80px",
     lineHeight: "short",
@@ -11690,7 +12990,7 @@ SOFTWARE.
     md: Input.sizes.md.field,
     lg: Input.sizes.lg.field
   };
-  var defaultProps = {
+  var defaultProps$1 = {
     size: "md",
     variant: "outline"
   };
@@ -11698,7 +12998,7 @@ SOFTWARE.
     baseStyle: baseStyle$2,
     sizes,
     variants,
-    defaultProps
+    defaultProps: defaultProps$1
   };
 
   function baseStyle$1(props) {
@@ -11765,7 +13065,7 @@ SOFTWARE.
     Drawer,
     Editable,
     Form,
-    FormLabel,
+    FormLabel: FormLabel$1,
     Heading,
     Input,
     Kbd,
@@ -11778,13 +13078,13 @@ SOFTWARE.
     Popover,
     Progress,
     Radio,
-    Select,
+    Select: Select$1,
     Skeleton,
     SkipLink,
-    Slider,
+    Slider: Slider$1,
     Spinner: Spinner$1,
     Stat,
-    Switch,
+    Switch: Switch$1,
     Table,
     Tabs,
     Tag,
@@ -11821,7 +13121,7 @@ SOFTWARE.
    *
    * type Colors = DefaultChakraTheme["colors"]
    */
-  var colors$1 = {
+  var colors$2 = {
     transparent: "transparent",
     current: "currentColor",
     black: "#000000",
@@ -12043,7 +13343,7 @@ SOFTWARE.
       900: "#003F5E"
     }
   };
-  var colors$2 = colors$1;
+  var colors$3 = colors$2;
 
   var radii = {
     none: "0",
@@ -12151,8 +13451,8 @@ SOFTWARE.
   };
   var blur$1 = blur;
 
-  function _extends$4() {
-    _extends$4 = Object.assign || function (target) {
+  function _extends$f() {
+    _extends$f = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -12166,15 +13466,15 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$4.apply(this, arguments);
+    return _extends$f.apply(this, arguments);
   }
 
-  var foundations = _extends$4({
+  var foundations = _extends$f({
     breakpoints: breakpoints$1,
     zIndices: zIndices$1,
     radii: radii$1,
     blur: blur$1,
-    colors: colors$2
+    colors: colors$3
   }, typography$1, {
     sizes: sizes$m,
     shadows: shadows$1,
@@ -12215,8 +13515,8 @@ SOFTWARE.
     return requiredChakraThemeKeys.every(propertyName => Object.prototype.hasOwnProperty.call(unit, propertyName));
   }
 
-  function _extends$3() {
-    _extends$3 = Object.assign || function (target) {
+  function _extends$e() {
+    _extends$e = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -12230,7 +13530,7 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$3.apply(this, arguments);
+    return _extends$e.apply(this, arguments);
   }
   var direction = "ltr";
   var config = {
@@ -12238,14 +13538,14 @@ SOFTWARE.
     initialColorMode: "light",
     cssVarPrefix: "chakra"
   };
-  var theme = _extends$3({
+  var theme$a = _extends$e({
     direction
   }, foundations$1, {
     components,
     styles: styles$1,
     config
   });
-  var defaultTheme = theme;
+  var defaultTheme = theme$a;
 
   /**
    * Function to override or customize the Chakra UI theme conveniently.
@@ -12341,8 +13641,8 @@ SOFTWARE.
     baseStyle: visuallyHiddenStyle
   });
 
-  function _extends$2() {
-    _extends$2 = Object.assign || function (target) {
+  function _extends$d() {
+    _extends$d = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -12356,10 +13656,10 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$2.apply(this, arguments);
+    return _extends$d.apply(this, arguments);
   }
 
-  function _objectWithoutPropertiesLoose$2(source, excluded) {
+  function _objectWithoutPropertiesLoose$b(source, excluded) {
     if (source == null) return {};
     var target = {};
     var sourceKeys = Object.keys(source);
@@ -12399,11 +13699,11 @@ SOFTWARE.
       emptyColor = "transparent",
       className
     } = _omitThemingProps,
-        rest = _objectWithoutPropertiesLoose$2(_omitThemingProps, ["label", "thickness", "speed", "emptyColor", "className"]);
+        rest = _objectWithoutPropertiesLoose$b(_omitThemingProps, ["label", "thickness", "speed", "emptyColor", "className"]);
 
     var _className = cx("chakra-spinner", className);
 
-    var spinnerStyles = _extends$2({
+    var spinnerStyles = _extends$d({
       display: "inline-block",
       borderColor: "currentColor",
       borderStyle: "solid",
@@ -12414,7 +13714,7 @@ SOFTWARE.
       animation: spin + " " + speed + " linear infinite"
     }, styles);
 
-    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$2({
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$d({
       ref: ref,
       __css: spinnerStyles,
       className: _className
@@ -12426,7 +13726,7 @@ SOFTWARE.
     name: "ButtonGroupContext"
   });
 
-  function _objectWithoutPropertiesLoose$1(source, excluded) {
+  function _objectWithoutPropertiesLoose$a(source, excluded) {
     if (source == null) return {};
     var target = {};
     var sourceKeys = Object.keys(source);
@@ -12441,8 +13741,8 @@ SOFTWARE.
     return target;
   }
 
-  function _extends$1() {
-    _extends$1 = Object.assign || function (target) {
+  function _extends$c() {
+    _extends$c = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -12456,13 +13756,13 @@ SOFTWARE.
       return target;
     };
 
-    return _extends$1.apply(this, arguments);
+    return _extends$c.apply(this, arguments);
   }
   var Button = /*#__PURE__*/forwardRef((props, ref) => {
     var _styles$_focus;
 
     var group = useButtonGroup();
-    var styles = useStyleConfig("Button", _extends$1({}, group, props));
+    var styles = useStyleConfig("Button", _extends$c({}, group, props));
 
     var _omitThemingProps = omitThemingProps(props),
         {
@@ -12481,7 +13781,7 @@ SOFTWARE.
       className,
       as
     } = _omitThemingProps,
-        rest = _objectWithoutPropertiesLoose$1(_omitThemingProps, ["isDisabled", "isLoading", "isActive", "isFullWidth", "children", "leftIcon", "rightIcon", "loadingText", "iconSpacing", "type", "spinner", "spinnerPlacement", "className", "as"]);
+        rest = _objectWithoutPropertiesLoose$a(_omitThemingProps, ["isDisabled", "isLoading", "isActive", "isFullWidth", "children", "leftIcon", "rightIcon", "loadingText", "iconSpacing", "type", "spinner", "spinnerPlacement", "className", "as"]);
     /**
      * When button is used within ButtonGroup (i.e flushed with sibling buttons),
      * it is important to add a `zIndex` on focus.
@@ -12494,7 +13794,7 @@ SOFTWARE.
       zIndex: 1
     });
 
-    var buttonStyles = _extends$1({
+    var buttonStyles = _extends$c({
       display: "inline-flex",
       appearance: "none",
       alignItems: "center",
@@ -12513,7 +13813,7 @@ SOFTWARE.
       ref: _ref,
       type: defaultType
     } = useButtonType(as);
-    return /*#__PURE__*/React__namespace.createElement(chakra.button, _extends$1({
+    return /*#__PURE__*/React__namespace.createElement(chakra.button, _extends$c({
       disabled: isDisabled || isLoading,
       ref: mergeRefs(ref, _ref),
       as: as,
@@ -12557,7 +13857,7 @@ SOFTWARE.
       children,
       className
     } = props,
-        rest = _objectWithoutPropertiesLoose$1(props, ["children", "className"]);
+        rest = _objectWithoutPropertiesLoose$a(props, ["children", "className"]);
 
     var _children = /*#__PURE__*/React__namespace.isValidElement(children) ? /*#__PURE__*/React__namespace.cloneElement(children, {
       "aria-hidden": true,
@@ -12566,7 +13866,7 @@ SOFTWARE.
 
     var _className = cx("chakra-button__icon", className);
 
-    return /*#__PURE__*/React__namespace.createElement(chakra.span, _extends$1({
+    return /*#__PURE__*/React__namespace.createElement(chakra.span, _extends$c({
       display: "inline-flex",
       alignSelf: "center",
       flexShrink: 0
@@ -12587,13 +13887,13 @@ SOFTWARE.
       className,
       __css
     } = props,
-        rest = _objectWithoutPropertiesLoose$1(props, ["label", "placement", "spacing", "children", "className", "__css"]);
+        rest = _objectWithoutPropertiesLoose$a(props, ["label", "placement", "spacing", "children", "className", "__css"]);
 
     var _className = cx("chakra-button__spinner", className);
 
     var marginProp = placement === "start" ? "marginEnd" : "marginStart";
 
-    var spinnerStyles = _extends$1({
+    var spinnerStyles = _extends$c({
       display: "flex",
       alignItems: "center",
       position: label ? "relative" : "absolute",
@@ -12602,24 +13902,15 @@ SOFTWARE.
       lineHeight: "normal"
     }, __css);
 
-    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$1({
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$c({
       className: _className
     }, rest, {
       __css: spinnerStyles
     }), children);
   };
 
-  /**
-   * Box is the most abstract component on top of which other chakra
-   * components are built. It renders a `div` element by default.
-   *
-   * @see Docs https://chakra-ui.com/box
-   */
-
-  var Box = chakra("div");
-
-  function _extends() {
-    _extends = Object.assign || function (target) {
+  function _extends$b() {
+    _extends$b = Object.assign || function (target) {
       for (var i = 1; i < arguments.length; i++) {
         var source = arguments[i];
 
@@ -12633,10 +13924,710 @@ SOFTWARE.
       return target;
     };
 
-    return _extends.apply(this, arguments);
+    return _extends$b.apply(this, arguments);
   }
 
-  function _objectWithoutPropertiesLoose(source, excluded) {
+  function _objectWithoutPropertiesLoose$9(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  /**
+   * useCheckbox that provides all the state and focus management logic
+   * for a checkbox. It is consumed by the `Checkbox` component
+   *
+   * @see Docs https://chakra-ui.com/checkbox#hooks
+   */
+
+  function useCheckbox(props) {
+    if (props === void 0) {
+      props = {};
+    }
+
+    var {
+      defaultIsChecked,
+      defaultChecked = defaultIsChecked,
+      isChecked: checkedProp,
+      isFocusable,
+      isDisabled,
+      isReadOnly,
+      isRequired,
+      onChange,
+      isIndeterminate,
+      isInvalid,
+      name,
+      value,
+      id,
+      onBlur,
+      onFocus,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
+      "aria-invalid": ariaInvalid,
+      "aria-describedby": ariaDescribedBy
+    } = props,
+        htmlProps = _objectWithoutPropertiesLoose$9(props, ["defaultIsChecked", "defaultChecked", "isChecked", "isFocusable", "isDisabled", "isReadOnly", "isRequired", "onChange", "isIndeterminate", "isInvalid", "name", "value", "id", "onBlur", "onFocus", "aria-label", "aria-labelledby", "aria-invalid", "aria-describedby"]);
+
+    var onChangeProp = useCallbackRef(onChange);
+    var onBlurProp = useCallbackRef(onBlur);
+    var onFocusProp = useCallbackRef(onFocus);
+    var [isFocused, setFocused] = useBoolean();
+    var [isHovered, setHovered] = useBoolean();
+    var [isActive, setActive] = useBoolean();
+    var inputRef = React.useRef(null);
+    var [rootIsLabelElement, setRootIsLabelElement] = React.useState(true);
+    var [checkedState, setCheckedState] = React.useState(!!defaultChecked);
+    var [isControlled, isChecked] = useControllableProp(checkedProp, checkedState);
+    warn({
+      condition: !!defaultIsChecked,
+      message: 'The "defaultIsChecked" prop has been deprecated and will be removed in a future version. ' + 'Please use the "defaultChecked" prop instead, which mirrors default React checkbox behavior.'
+    });
+    var handleChange = React.useCallback(event => {
+      if (isReadOnly || isDisabled) {
+        event.preventDefault();
+        return;
+      }
+
+      if (!isControlled) {
+        if (isChecked) {
+          setCheckedState(event.target.checked);
+        } else {
+          setCheckedState(isIndeterminate ? true : event.target.checked);
+        }
+      }
+
+      onChangeProp == null ? void 0 : onChangeProp(event);
+    }, [isReadOnly, isDisabled, isChecked, isControlled, isIndeterminate, onChangeProp]);
+    useSafeLayoutEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.indeterminate = Boolean(isIndeterminate);
+      }
+    }, [isIndeterminate]);
+    var trulyDisabled = isDisabled && !isFocusable;
+    var onKeyDown = React.useCallback(event => {
+      if (event.key === " ") {
+        setActive.on();
+      }
+    }, [setActive]);
+    var onKeyUp = React.useCallback(event => {
+      if (event.key === " ") {
+        setActive.off();
+      }
+    }, [setActive]);
+    /**
+     * Sync state with uncontrolled form libraries like `react-hook-form`.
+     *
+     * These libraries set the checked value for input fields
+     * using their refs. For the checkbox, it sets `ref.current.checked = true | false` directly.
+     *
+     * This means the `isChecked` state will get out of sync with `ref.current.checked`,
+     * even though the input validation with work, the UI will not be up to date.
+     *
+     * Let's correct that by checking and syncing the state accordingly.
+     */
+
+    useSafeLayoutEffect(() => {
+      if (!inputRef.current) return;
+      var notInSync = inputRef.current.checked !== isChecked;
+
+      if (notInSync) {
+        setCheckedState(inputRef.current.checked);
+      }
+    }, [inputRef.current]);
+    var getCheckboxProps = React.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      var onPressDown = event => {
+        // On mousedown, the input blurs and returns focus to the `body`,
+        // we need to prevent this. Native checkboxes keeps focus on `input`
+        event.preventDefault();
+        setActive.on();
+      };
+
+      return _extends$b({}, props, {
+        ref: forwardedRef,
+        "data-active": dataAttr(isActive),
+        "data-hover": dataAttr(isHovered),
+        "data-checked": dataAttr(isChecked),
+        "data-focus": dataAttr(isFocused),
+        "data-indeterminate": dataAttr(isIndeterminate),
+        "data-disabled": dataAttr(isDisabled),
+        "data-invalid": dataAttr(isInvalid),
+        "data-readonly": dataAttr(isReadOnly),
+        "aria-hidden": true,
+        onMouseDown: callAllHandlers(props.onMouseDown, onPressDown),
+        onMouseUp: callAllHandlers(props.onMouseUp, setActive.off),
+        onMouseEnter: callAllHandlers(props.onMouseEnter, setHovered.on),
+        onMouseLeave: callAllHandlers(props.onMouseLeave, setHovered.off)
+      });
+    }, [isActive, isChecked, isDisabled, isFocused, isHovered, isIndeterminate, isInvalid, isReadOnly, setActive, setHovered.off, setHovered.on]);
+    var getRootProps = React.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      return _extends$b({}, htmlProps, props, {
+        ref: mergeRefs(forwardedRef, node => {
+          if (!node) return;
+          setRootIsLabelElement(node.tagName === "LABEL");
+        }),
+        onClick: callAllHandlers(props.onClick, () => {
+          /**
+           * Accessibility:
+           *
+           * Ideally, `getRootProps` should be spread unto a `label` element.
+           *
+           * If the element was changed using the `as` prop or changing
+           * the dom node `getRootProps` is spread unto (to a `div` or `span`), we'll trigger
+           * click on the input when the element is clicked.
+           * @see Issue https://github.com/chakra-ui/chakra-ui/issues/3480
+           */
+          if (!rootIsLabelElement) {
+            var _inputRef$current;
+
+            (_inputRef$current = inputRef.current) == null ? void 0 : _inputRef$current.click();
+            focus(inputRef.current, {
+              nextTick: true
+            });
+          }
+        }),
+        "data-disabled": dataAttr(isDisabled)
+      });
+    }, [htmlProps, isDisabled, rootIsLabelElement]);
+    var getInputProps = React.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      var onFocus = () => {
+        scheduleMicrotask(setFocused.on);
+      };
+
+      return _extends$b({}, props, {
+        ref: mergeRefs(inputRef, forwardedRef),
+        type: "checkbox",
+        name,
+        value,
+        id,
+        onChange: callAllHandlers(props.onChange, handleChange),
+        onBlur: callAllHandlers(props.onBlur, onBlurProp, setFocused.off),
+        onFocus: callAllHandlers(props.onFocus, onFocusProp, onFocus),
+        onKeyDown: callAllHandlers(props.onKeyDown, onKeyDown),
+        onKeyUp: callAllHandlers(props.onKeyUp, onKeyUp),
+        required: isRequired,
+        checked: isChecked,
+        disabled: trulyDisabled,
+        readOnly: isReadOnly,
+        "aria-label": ariaLabel,
+        "aria-labelledby": ariaLabelledBy,
+        "aria-invalid": ariaInvalid ? Boolean(ariaInvalid) : isInvalid,
+        "aria-describedby": ariaDescribedBy,
+        "aria-disabled": isDisabled,
+        style: visuallyHiddenStyle
+      });
+    }, [name, value, id, handleChange, setFocused.off, setFocused.on, onBlurProp, onFocusProp, onKeyDown, onKeyUp, isRequired, isChecked, trulyDisabled, isReadOnly, ariaLabel, ariaLabelledBy, ariaInvalid, isInvalid, ariaDescribedBy, isDisabled]);
+    var getLabelProps = React.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      return _extends$b({}, props, {
+        ref: forwardedRef,
+        onMouseDown: callAllHandlers(props.onMouseDown, stopEvent),
+        onTouchStart: callAllHandlers(props.onTouchStart, stopEvent),
+        "data-disabled": dataAttr(isDisabled),
+        "data-checked": dataAttr(isChecked),
+        "data-invalid": dataAttr(isInvalid)
+      });
+    }, [isChecked, isDisabled, isInvalid]);
+    return {
+      state: {
+        isInvalid,
+        isFocused,
+        isChecked,
+        isActive,
+        isHovered,
+        isIndeterminate,
+        isDisabled,
+        isReadOnly,
+        isRequired
+      },
+      getRootProps,
+      getCheckboxProps,
+      getInputProps,
+      getLabelProps,
+      htmlProps
+    };
+  }
+  /**
+   * Prevent `onBlur` being fired when the checkbox label is touched
+   */
+
+  function stopEvent(event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  function _extends$a() {
+    _extends$a = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$a.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose$8(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  var [FormControlProvider, useFormControlContext] = createContext({
+    strict: false,
+    name: "FormControlContext"
+  });
+
+  function useFormControlProvider(props) {
+    var {
+      id: idProp,
+      isRequired,
+      isInvalid,
+      isDisabled,
+      isReadOnly
+    } = props,
+        htmlProps = _objectWithoutPropertiesLoose$8(props, ["id", "isRequired", "isInvalid", "isDisabled", "isReadOnly"]); // Generate all the required ids
+
+
+    var uuid = useId();
+    var id = idProp || "field-" + uuid;
+    var labelId = id + "-label";
+    var feedbackId = id + "-feedback";
+    var helpTextId = id + "-helptext";
+    /**
+     * Track whether the `FormErrorMessage` has been rendered.
+     * We use this to append its id the the `aria-describedby` of the `input`.
+     */
+
+    var [hasFeedbackText, setHasFeedbackText] = React__namespace.useState(false);
+    /**
+     * Track whether the `FormHelperText` has been rendered.
+     * We use this to append its id the the `aria-describedby` of the `input`.
+     */
+
+    var [hasHelpText, setHasHelpText] = React__namespace.useState(false); // Track whether the form element (e.g, `input`) has focus.
+
+    var [isFocused, setFocus] = useBoolean();
+    var getHelpTextProps = React__namespace.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      return _extends$a({
+        id: helpTextId
+      }, props, {
+        /**
+         * Notify the field context when the help text is rendered on screen,
+         * so we can apply the correct `aria-describedby` to the field (e.g. input, textarea).
+         */
+        ref: mergeRefs(forwardedRef, node => {
+          if (!node) return;
+          setHasHelpText(true);
+        })
+      });
+    }, [helpTextId]);
+    var getLabelProps = React__namespace.useCallback(function (props, forwardedRef) {
+      var _props$id, _props$htmlFor;
+
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      return _extends$a({}, props, {
+        ref: forwardedRef,
+        "data-focus": dataAttr(isFocused),
+        "data-disabled": dataAttr(isDisabled),
+        "data-invalid": dataAttr(isInvalid),
+        "data-readonly": dataAttr(isReadOnly),
+        id: (_props$id = props.id) != null ? _props$id : labelId,
+        htmlFor: (_props$htmlFor = props.htmlFor) != null ? _props$htmlFor : id
+      });
+    }, [id, isDisabled, isFocused, isInvalid, isReadOnly, labelId]);
+    var getErrorMessageProps = React__namespace.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      return _extends$a({
+        id: feedbackId
+      }, props, {
+        /**
+         * Notify the field context when the error message is rendered on screen,
+         * so we can apply the correct `aria-describedby` to the field (e.g. input, textarea).
+         */
+        ref: mergeRefs(forwardedRef, node => {
+          if (!node) return;
+          setHasFeedbackText(true);
+        }),
+        "aria-live": "polite"
+      });
+    }, [feedbackId]);
+    var getRootProps = React__namespace.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      return _extends$a({}, props, htmlProps, {
+        ref: forwardedRef,
+        role: "group"
+      });
+    }, [htmlProps]);
+    var getRequiredIndicatorProps = React__namespace.useCallback(function (props, forwardedRef) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (forwardedRef === void 0) {
+        forwardedRef = null;
+      }
+
+      return _extends$a({}, props, {
+        ref: forwardedRef,
+        role: "presentation",
+        "aria-hidden": true,
+        children: props.children || "*"
+      });
+    }, []);
+    var onFocus = React__namespace.useCallback(() => {
+      scheduleMicrotask(setFocus.on);
+    }, [setFocus]);
+    return {
+      isRequired: !!isRequired,
+      isInvalid: !!isInvalid,
+      isReadOnly: !!isReadOnly,
+      isDisabled: !!isDisabled,
+      isFocused: !!isFocused,
+      onFocus,
+      onBlur: setFocus.off,
+      hasFeedbackText,
+      setHasFeedbackText,
+      hasHelpText,
+      setHasHelpText,
+      id,
+      labelId,
+      feedbackId,
+      helpTextId,
+      htmlProps,
+      getHelpTextProps,
+      getErrorMessageProps,
+      getRootProps,
+      getLabelProps,
+      getRequiredIndicatorProps
+    };
+  }
+  /**
+   * FormControl provides context such as
+   * `isInvalid`, `isDisabled`, and `isRequired` to form elements.
+   *
+   * This is commonly used in form elements such as `input`,
+   * `select`, `textarea`, etc.
+   */
+
+
+  var FormControl = /*#__PURE__*/forwardRef((props, ref) => {
+    var styles = useMultiStyleConfig("Form", props);
+    var ownProps = omitThemingProps(props);
+
+    var _useFormControlProvid = useFormControlProvider(ownProps),
+        {
+      getRootProps
+    } = _useFormControlProvid,
+        context = _objectWithoutPropertiesLoose$8(_useFormControlProvid, ["getRootProps", "htmlProps"]);
+
+    var className = cx("chakra-form-control", props.className);
+    var contextValue = React__namespace.useMemo(() => context, [context]);
+    return /*#__PURE__*/React__namespace.createElement(FormControlProvider, {
+      value: contextValue
+    }, /*#__PURE__*/React__namespace.createElement(StylesProvider, {
+      value: styles
+    }, /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$a({}, getRootProps({}, ref), {
+      className: className,
+      __css: {
+        width: "100%",
+        position: "relative"
+      }
+    }))));
+  });
+
+  function _extends$9() {
+    _extends$9 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$9.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose$7(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  /**
+   * React hook that provides the props that should be spread on to
+   * input fields (`input`, `select`, `textarea`, etc.).
+   *
+   * It provides a convenient way to control a form fields, validation
+   * and helper text.
+   */
+
+  function useFormControl(props) {
+    var _useFormControlProps = useFormControlProps(props),
+        {
+      isDisabled,
+      isInvalid,
+      isReadOnly,
+      isRequired
+    } = _useFormControlProps,
+        rest = _objectWithoutPropertiesLoose$7(_useFormControlProps, ["isDisabled", "isInvalid", "isReadOnly", "isRequired"]);
+
+    return _extends$9({}, rest, {
+      disabled: isDisabled,
+      readOnly: isReadOnly,
+      required: isRequired,
+      "aria-invalid": ariaAttr(isInvalid),
+      "aria-required": ariaAttr(isRequired),
+      "aria-readonly": ariaAttr(isReadOnly)
+    });
+  }
+  function useFormControlProps(props) {
+    var _ref, _ref2, _ref3;
+
+    var field = useFormControlContext();
+
+    var {
+      id,
+      disabled,
+      readOnly,
+      required,
+      isRequired,
+      isInvalid,
+      isReadOnly,
+      isDisabled,
+      onFocus,
+      onBlur
+    } = props,
+        rest = _objectWithoutPropertiesLoose$7(props, ["id", "disabled", "readOnly", "required", "isRequired", "isInvalid", "isReadOnly", "isDisabled", "onFocus", "onBlur"]);
+
+    var labelIds = []; // Error message must be described first in all scenarios.
+
+    if (field != null && field.hasFeedbackText && field != null && field.isInvalid) {
+      labelIds.push(field.feedbackId);
+    }
+
+    if (field != null && field.hasHelpText) {
+      labelIds.push(field.helpTextId);
+    }
+
+    return _extends$9({}, rest, {
+      "aria-describedby": labelIds.join(" ") || undefined,
+      id: id != null ? id : field == null ? void 0 : field.id,
+      isDisabled: (_ref = disabled != null ? disabled : isDisabled) != null ? _ref : field == null ? void 0 : field.isDisabled,
+      isReadOnly: (_ref2 = readOnly != null ? readOnly : isReadOnly) != null ? _ref2 : field == null ? void 0 : field.isReadOnly,
+      isRequired: (_ref3 = required != null ? required : isRequired) != null ? _ref3 : field == null ? void 0 : field.isRequired,
+      isInvalid: isInvalid != null ? isInvalid : field == null ? void 0 : field.isInvalid,
+      onFocus: callAllHandlers(field == null ? void 0 : field.onFocus, onFocus),
+      onBlur: callAllHandlers(field == null ? void 0 : field.onBlur, onBlur)
+    });
+  }
+
+  function _extends$8() {
+    _extends$8 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$8.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose$6(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  /**
+   * Used to enhance the usability of form controls.
+   *
+   * It is used to inform users as to what information
+   * is requested for a form field.
+   *
+   * ♿️ Accessibility: Every form field should have a form label.
+   */
+
+  var FormLabel = /*#__PURE__*/forwardRef((passedProps, ref) => {
+    var _field$getLabelProps;
+
+    var styles = useStyleConfig("FormLabel", passedProps);
+    var props = omitThemingProps(passedProps);
+
+    var {
+      children,
+      requiredIndicator = /*#__PURE__*/React__namespace.createElement(RequiredIndicator, null)
+    } = props,
+        rest = _objectWithoutPropertiesLoose$6(props, ["className", "children", "requiredIndicator"]);
+
+    var field = useFormControlContext();
+    var ownProps = (_field$getLabelProps = field == null ? void 0 : field.getLabelProps(rest, ref)) != null ? _field$getLabelProps : _extends$8({
+      ref
+    }, rest);
+    return /*#__PURE__*/React__namespace.createElement(chakra.label, _extends$8({}, ownProps, {
+      className: cx("chakra-form__label", props.className),
+      __css: _extends$8({
+        display: "block",
+        textAlign: "start"
+      }, styles)
+    }), children, field != null && field.isRequired ? requiredIndicator : null);
+  });
+  /**
+   * Used to show a "required" text or an asterisks (*) to indicate that
+   * a field is required.
+   */
+
+
+  var RequiredIndicator = /*#__PURE__*/forwardRef((props, ref) => {
+    var field = useFormControlContext();
+    var styles = useStyles();
+    if (!(field != null && field.isRequired)) return null;
+    var className = cx("chakra-form__required-indicator", props.className);
+    return /*#__PURE__*/React__namespace.createElement(chakra.span, _extends$8({}, field == null ? void 0 : field.getRequiredIndicatorProps(props, ref), {
+      __css: styles.requiredIndicator,
+      className: className
+    }));
+  });
+
+  /**
+   * Box is the most abstract component on top of which other chakra
+   * components are built. It renders a `div` element by default.
+   *
+   * @see Docs https://chakra-ui.com/box
+   */
+
+  var Box = chakra("div");
+
+  function _extends$7() {
+    _extends$7 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$7.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose$5(source, excluded) {
     if (source == null) return {};
     var target = {};
     var sourceKeys = Object.keys(source);
@@ -12669,7 +14660,7 @@ SOFTWARE.
       grow,
       shrink
     } = props,
-        rest = _objectWithoutPropertiesLoose(props, ["direction", "align", "justify", "wrap", "basis", "grow", "shrink"]);
+        rest = _objectWithoutPropertiesLoose$5(props, ["direction", "align", "justify", "wrap", "basis", "grow", "shrink"]);
 
     var styles = {
       display: "flex",
@@ -12681,10 +14672,1137 @@ SOFTWARE.
       flexGrow: grow,
       flexShrink: shrink
     };
-    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends({
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$7({
       ref: ref,
       __css: styles
     }, rest));
+  });
+
+  /**
+   * If we ever run into SSR issues with this, check this post to find a fix for it:
+   * @see https://medium.com/@emmenko/patching-lobotomized-owl-selector-for-emotion-ssr-5a582a3c424c
+   */
+
+  var selector = "& > *:not(style) ~ *:not(style)";
+  function getStackStyles(options) {
+    var {
+      spacing,
+      direction
+    } = options;
+    var directionStyles = {
+      column: {
+        marginTop: spacing,
+        marginEnd: 0,
+        marginBottom: 0,
+        marginStart: 0
+      },
+      row: {
+        marginTop: 0,
+        marginEnd: 0,
+        marginBottom: 0,
+        marginStart: spacing
+      },
+      "column-reverse": {
+        marginTop: 0,
+        marginEnd: 0,
+        marginBottom: spacing,
+        marginStart: 0
+      },
+      "row-reverse": {
+        marginTop: 0,
+        marginEnd: spacing,
+        marginBottom: 0,
+        marginStart: 0
+      }
+    };
+    return {
+      flexDirection: direction,
+      [selector]: mapResponsive(direction, value => directionStyles[value])
+    };
+  }
+  function getDividerStyles(options) {
+    var {
+      spacing,
+      direction
+    } = options;
+    var dividerStyles = {
+      column: {
+        my: spacing,
+        mx: 0,
+        borderLeftWidth: 0,
+        borderBottomWidth: "1px"
+      },
+      "column-reverse": {
+        my: spacing,
+        mx: 0,
+        borderLeftWidth: 0,
+        borderBottomWidth: "1px"
+      },
+      row: {
+        mx: spacing,
+        my: 0,
+        borderLeftWidth: "1px",
+        borderBottomWidth: 0
+      },
+      "row-reverse": {
+        mx: spacing,
+        my: 0,
+        borderLeftWidth: "1px",
+        borderBottomWidth: 0
+      }
+    };
+    return {
+      "&": mapResponsive(direction, value => dividerStyles[value])
+    };
+  }
+
+  function _objectWithoutPropertiesLoose$4(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+
+  function _extends$6() {
+    _extends$6 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$6.apply(this, arguments);
+  }
+  var StackItem = props => /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$6({
+    className: "chakra-stack__item"
+  }, props, {
+    __css: _extends$6({
+      display: "inline-block",
+      flex: "0 0 auto",
+      minWidth: 0
+    }, props["__css"])
+  }));
+  /**
+   * Stacks help you easily create flexible and automatically distributed layouts
+   *
+   * You can stack elements in the horizontal or vertical direction,
+   * and apply a space or/and divider between each element.
+   *
+   * It uses `display: flex` internally and renders a `div`.
+   *
+   * @see Docs https://chakra-ui.com/stack
+   *
+   */
+
+  var Stack = /*#__PURE__*/forwardRef((props, ref) => {
+    var {
+      isInline,
+      direction: directionProp,
+      align,
+      justify,
+      spacing = "0.5rem",
+      wrap,
+      children,
+      divider,
+      className,
+      shouldWrapChildren
+    } = props,
+        rest = _objectWithoutPropertiesLoose$4(props, ["isInline", "direction", "align", "justify", "spacing", "wrap", "children", "divider", "className", "shouldWrapChildren"]);
+
+    var direction = isInline ? "row" : directionProp != null ? directionProp : "column";
+    var styles = React__namespace.useMemo(() => getStackStyles({
+      direction,
+      spacing
+    }), [direction, spacing]);
+    var dividerStyle = React__namespace.useMemo(() => getDividerStyles({
+      spacing,
+      direction
+    }), [spacing, direction]);
+    var hasDivider = !!divider;
+    var shouldUseChildren = !shouldWrapChildren && !hasDivider;
+    var validChildren = getValidChildren(children);
+    var clones = shouldUseChildren ? validChildren : validChildren.map((child, index) => {
+      var isLast = index + 1 === validChildren.length;
+      var wrappedChild = /*#__PURE__*/React__namespace.createElement(StackItem, {
+        key: index
+      }, child);
+
+      var _child = shouldWrapChildren ? wrappedChild : child;
+
+      if (!hasDivider) return _child;
+      var clonedDivider = /*#__PURE__*/React__namespace.cloneElement(divider, {
+        __css: dividerStyle
+      });
+
+      var _divider = isLast ? null : clonedDivider;
+
+      return /*#__PURE__*/React__namespace.createElement(React__namespace.Fragment, {
+        key: index
+      }, _child, _divider);
+    });
+
+    var _className = cx("chakra-stack", className);
+
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$6({
+      ref: ref,
+      display: "flex",
+      alignItems: align,
+      justifyContent: justify,
+      flexDirection: styles.flexDirection,
+      flexWrap: wrap,
+      className: _className,
+      __css: hasDivider ? {} : {
+        [selector]: styles[selector]
+      }
+    }, rest), clones);
+  });
+
+  function _extends$5() {
+    _extends$5 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$5.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose$3(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  var SelectField = /*#__PURE__*/forwardRef((props, ref) => {
+    var {
+      children,
+      placeholder,
+      className
+    } = props,
+        rest = _objectWithoutPropertiesLoose$3(props, ["children", "placeholder", "className"]);
+
+    var ownProps = useFormControl(rest);
+    return /*#__PURE__*/React__namespace.createElement(chakra.select, _extends$5({}, ownProps, {
+      ref: ref,
+      className: cx("chakra-select", className)
+    }), placeholder && /*#__PURE__*/React__namespace.createElement("option", {
+      value: ""
+    }, placeholder), children);
+  });
+  /**
+   * React component used to select one item from a list of options.
+   */
+
+
+  var Select = /*#__PURE__*/forwardRef((props, ref) => {
+    var styles = useMultiStyleConfig("Select", props);
+
+    var _omitThemingProps = omitThemingProps(props),
+        {
+      rootProps,
+      placeholder,
+      icon,
+      color,
+      height,
+      h,
+      minH,
+      minHeight,
+      iconColor,
+      iconSize
+    } = _omitThemingProps,
+        rest = _objectWithoutPropertiesLoose$3(_omitThemingProps, ["rootProps", "placeholder", "icon", "color", "height", "h", "minH", "minHeight", "iconColor", "iconSize", "isFullWidth"]);
+
+    var [layoutProps, otherProps] = split(rest, layoutPropNames);
+    var rootStyles = {
+      width: "100%",
+      height: "fit-content",
+      position: "relative",
+      color
+    };
+    var fieldStyles = mergeWith({}, styles.field, {
+      paddingEnd: "2rem",
+      _focus: {
+        zIndex: "unset"
+      }
+    });
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$5({
+      className: "chakra-select__wrapper",
+      __css: rootStyles
+    }, layoutProps, rootProps), /*#__PURE__*/React__namespace.createElement(SelectField, _extends$5({
+      ref: ref,
+      height: h != null ? h : height,
+      minH: minH != null ? minH : minHeight,
+      placeholder: placeholder
+    }, otherProps, {
+      __css: fieldStyles
+    }), props.children), /*#__PURE__*/React__namespace.createElement(SelectIcon, _extends$5({
+      "data-disabled": props.isDisabled
+    }, (iconColor || color) && {
+      color: iconColor || color
+    }, {
+      __css: styles.icon
+    }, iconSize && {
+      fontSize: iconSize
+    }), icon));
+  });
+
+  var DefaultIcon = props => /*#__PURE__*/React__namespace.createElement("svg", _extends$5({
+    viewBox: "0 0 24 24"
+  }, props), /*#__PURE__*/React__namespace.createElement("path", {
+    fill: "currentColor",
+    d: "M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+  }));
+  var IconWrapper = chakra("div", {
+    baseStyle: {
+      position: "absolute",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      pointerEvents: "none",
+      top: "50%",
+      transform: "translateY(-50%)"
+    }
+  });
+
+  var SelectIcon = props => {
+    var {
+      children = /*#__PURE__*/React__namespace.createElement(DefaultIcon, null)
+    } = props,
+        rest = _objectWithoutPropertiesLoose$3(props, ["children"]);
+
+    var clone = /*#__PURE__*/React__namespace.cloneElement(children, {
+      role: "presentation",
+      className: "chakra-select__icon",
+      focusable: false,
+      "aria-hidden": true,
+      // force icon to adhere to `IconWrapper` styles
+      style: {
+        width: "1em",
+        height: "1em",
+        color: "currentColor"
+      }
+    });
+    return /*#__PURE__*/React__namespace.createElement(IconWrapper, _extends$5({}, rest, {
+      className: "chakra-select__icon-wrapper"
+    }), /*#__PURE__*/React__namespace.isValidElement(children) ? clone : null);
+  };
+
+  function _extends$4() {
+    _extends$4 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$4.apply(this, arguments);
+  }
+
+  function orient$1(options) {
+    var {
+      orientation,
+      vertical,
+      horizontal
+    } = options;
+    return orientation === "vertical" ? vertical : horizontal;
+  }
+
+  function getPartsStyle(options) {
+    var {
+      orientation,
+      trackPercent,
+      thumbRect,
+      isReversed
+    } = options;
+
+    var thumbStyle = _extends$4({
+      position: "absolute",
+      userSelect: "none",
+      WebkitUserSelect: "none",
+      MozUserSelect: "none",
+      msUserSelect: "none",
+      touchAction: "none"
+    }, orient$1({
+      orientation,
+      vertical: {
+        bottom: "calc(" + trackPercent + "% - " + thumbRect.height / 2 + "px)"
+      },
+      horizontal: {
+        left: "calc(" + trackPercent + "% - " + thumbRect.width / 2 + "px)"
+      }
+    }));
+
+    var rootStyle = _extends$4({
+      position: "relative",
+      touchAction: "none",
+      WebkitTapHighlightColor: "rgba(0,0,0,0)",
+      userSelect: "none",
+      outline: 0
+    }, orient$1({
+      orientation,
+      vertical: {
+        paddingLeft: thumbRect.width / 2,
+        paddingRight: thumbRect.width / 2
+      },
+      horizontal: {
+        paddingTop: thumbRect.height / 2,
+        paddingBottom: thumbRect.height / 2
+      }
+    }));
+
+    var trackStyle = _extends$4({
+      position: "absolute"
+    }, orient$1({
+      orientation,
+      vertical: {
+        left: "50%",
+        transform: "translateX(-50%)",
+        height: "100%"
+      },
+      horizontal: {
+        top: "50%",
+        transform: "translateY(-50%)",
+        width: "100%"
+      }
+    }));
+
+    var innerTrackStyle = _extends$4({}, trackStyle, orient$1({
+      orientation,
+      vertical: isReversed ? {
+        height: 100 - trackPercent + "%",
+        top: 0
+      } : {
+        height: trackPercent + "%",
+        bottom: 0
+      },
+      horizontal: isReversed ? {
+        width: 100 - trackPercent + "%",
+        right: 0
+      } : {
+        width: trackPercent + "%",
+        left: 0
+      }
+    }));
+
+    return {
+      trackStyle,
+      innerTrackStyle,
+      rootStyle,
+      thumbStyle
+    };
+  }
+
+  function _extends$3() {
+    _extends$3 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$3.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose$2(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  /**
+   * React hook that implements an accessible range slider.
+   *
+   * It is an alternative to `<input type="range" />`, and returns
+   * prop getters for the component parts
+   *
+   * @see Docs     https://chakra-ui.com/docs/form/slider
+   * @see WAI-ARIA https://www.w3.org/TR/wai-aria-practices-1.1/#slider
+   */
+
+  function useSlider(props) {
+    var _getAriaValueText;
+
+    var {
+      min = 0,
+      max = 100,
+      onChange,
+      value: valueProp,
+      defaultValue,
+      isReversed,
+      orientation = "horizontal",
+      id: idProp,
+      isDisabled,
+      isReadOnly,
+      onChangeStart: onChangeStartProp,
+      onChangeEnd: onChangeEndProp,
+      step = 1,
+      getAriaValueText: getAriaValueTextProp,
+      "aria-valuetext": ariaValueText,
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledBy,
+      name,
+      focusThumbOnChange = true
+    } = props,
+        htmlProps = _objectWithoutPropertiesLoose$2(props, ["min", "max", "onChange", "value", "defaultValue", "isReversed", "orientation", "id", "isDisabled", "isReadOnly", "onChangeStart", "onChangeEnd", "step", "getAriaValueText", "aria-valuetext", "aria-label", "aria-labelledby", "name", "focusThumbOnChange"]);
+
+    var onChangeStart = useCallbackRef(onChangeStartProp);
+    var onChangeEnd = useCallbackRef(onChangeEndProp);
+    var getAriaValueText = useCallbackRef(getAriaValueTextProp);
+    /**
+     * Enable the slider handle controlled and uncontrolled scenarios
+     */
+
+    var [computedValue, setValue] = useControllableState({
+      value: valueProp,
+      defaultValue: defaultValue != null ? defaultValue : getDefaultValue(min, max),
+      onChange
+    });
+    var [isDragging, setDragging] = useBoolean();
+    var prevIsDragging = usePrevious(isDragging);
+    var [isFocused, setFocused] = useBoolean();
+    var eventSourceRef = React.useRef(null);
+    var isInteractive = !(isDisabled || isReadOnly);
+    /**
+     * Constrain the value because it can't be less than min
+     * or greater than max
+     */
+
+    var value = clampValue(computedValue, min, max);
+    var valueRef = useLatestRef(value);
+    var prevRef = React.useRef(valueRef.current);
+    var reversedValue = max - value + min;
+    var trackValue = isReversed ? reversedValue : value;
+    var trackPercent = valueToPercent(trackValue, min, max);
+    var isVertical = orientation === "vertical";
+    /**
+     * Let's keep a reference to the slider track and thumb
+     */
+
+    var trackRef = React.useRef(null);
+    var thumbRef = React.useRef(null);
+    var rootRef = React.useRef(null);
+    /**
+     * Generate unique ids for component parts
+     */
+
+    var [thumbId, trackId] = useIds(idProp, "slider-thumb", "slider-track");
+    /**
+     * Get relative value of slider from the event by tracking
+     * how far you clicked within the track to determine the value
+     *
+     * @todo - Refactor this later on to use info from pan session
+     */
+
+    var getValueFromPointer = React.useCallback(event => {
+      var _event$touches$, _event$touches;
+
+      if (!trackRef.current) return;
+      eventSourceRef.current = "pointer";
+      var trackRect = getBox(trackRef.current).borderBox;
+      var {
+        clientX,
+        clientY
+      } = (_event$touches$ = (_event$touches = event.touches) == null ? void 0 : _event$touches[0]) != null ? _event$touches$ : event;
+      var diff = isVertical ? trackRect.bottom - clientY : clientX - trackRect.left;
+      var length = isVertical ? trackRect.height : trackRect.width;
+      var percent = diff / length;
+
+      if (isReversed) {
+        percent = 1 - percent;
+      }
+
+      var nextValue = percentToValue(percent, min, max);
+
+      if (step) {
+        nextValue = parseFloat(roundValueToStep(nextValue, min, step));
+      }
+
+      nextValue = clampValue(nextValue, min, max);
+      return nextValue;
+    }, [isVertical, isReversed, max, min, step]);
+    var tenSteps = (max - min) / 10;
+    var oneStep = step || (max - min) / 100;
+    var constrain = React.useCallback(value => {
+      if (!isInteractive) return;
+      value = parseFloat(roundValueToStep(value, min, oneStep));
+      value = clampValue(value, min, max);
+      setValue(value);
+    }, [oneStep, max, min, setValue, isInteractive]);
+    var actions = React.useMemo(() => ({
+      stepUp: function stepUp(step) {
+        if (step === void 0) {
+          step = oneStep;
+        }
+
+        var next = isReversed ? value - step : value + step;
+        constrain(next);
+      },
+      stepDown: function stepDown(step) {
+        if (step === void 0) {
+          step = oneStep;
+        }
+
+        var next = isReversed ? value + step : value - step;
+        constrain(next);
+      },
+      reset: () => constrain(defaultValue || 0),
+      stepTo: value => constrain(value)
+    }), [constrain, isReversed, value, oneStep, defaultValue]);
+    /**
+     * Keyboard interaction to ensure users can operate
+     * the slider using only their keyboard.
+     */
+
+    var onKeyDown = React.useCallback(event => {
+      var eventKey = normalizeEventKey(event);
+      var keyMap = {
+        ArrowRight: () => actions.stepUp(),
+        ArrowUp: () => actions.stepUp(),
+        ArrowLeft: () => actions.stepDown(),
+        ArrowDown: () => actions.stepDown(),
+        PageUp: () => actions.stepUp(tenSteps),
+        PageDown: () => actions.stepDown(tenSteps),
+        Home: () => constrain(min),
+        End: () => constrain(max)
+      };
+      var action = keyMap[eventKey];
+
+      if (action) {
+        event.preventDefault();
+        event.stopPropagation();
+        action(event);
+        eventSourceRef.current = "keyboard";
+      }
+    }, [actions, constrain, max, min, tenSteps]);
+    /**
+     * ARIA (Optional): To define a human readable representation of the value,
+     * we allow users pass aria-valuetext.
+     */
+
+    var valueText = (_getAriaValueText = getAriaValueText == null ? void 0 : getAriaValueText(value)) != null ? _getAriaValueText : ariaValueText;
+    /**
+     * Measure the dimensions of the thumb so
+     * we can center it within the track properly
+     */
+
+    var thumbBoxModel = useDimensions(thumbRef);
+    /**
+     * Compute styles for all component parts.
+     */
+
+    var {
+      thumbStyle,
+      rootStyle,
+      trackStyle,
+      innerTrackStyle
+    } = React.useMemo(() => {
+      var _thumbBoxModel$border;
+
+      var thumbRect = (_thumbBoxModel$border = thumbBoxModel == null ? void 0 : thumbBoxModel.borderBox) != null ? _thumbBoxModel$border : {
+        width: 0,
+        height: 0
+      };
+      return getPartsStyle({
+        isReversed,
+        orientation,
+        thumbRect,
+        trackPercent
+      });
+    }, [isReversed, orientation, thumbBoxModel == null ? void 0 : thumbBoxModel.borderBox, trackPercent]);
+    var focusThumb = React.useCallback(() => {
+      if (thumbRef.current && focusThumbOnChange) {
+        setTimeout(() => focus(thumbRef.current));
+      }
+    }, [focusThumbOnChange]);
+    useUpdateEffect(() => {
+      focusThumb();
+
+      if (eventSourceRef.current === "keyboard") {
+        onChangeEndProp == null ? void 0 : onChangeEndProp(valueRef.current);
+      }
+    }, [value, onChangeEndProp]);
+
+    var setValueFromPointer = event => {
+      var nextValue = getValueFromPointer(event);
+
+      if (nextValue != null && nextValue !== valueRef.current) {
+        setValue(nextValue);
+      }
+    };
+
+    usePanGesture(rootRef, {
+      onPanSessionStart(event) {
+        if (!isInteractive) return;
+        setValueFromPointer(event);
+      },
+
+      onPanSessionEnd() {
+        if (!isInteractive) return;
+
+        if (!prevIsDragging && prevRef.current !== valueRef.current) {
+          onChangeEnd == null ? void 0 : onChangeEnd(valueRef.current);
+          prevRef.current = valueRef.current;
+        }
+      },
+
+      onPanStart() {
+        if (!isInteractive) return;
+        setDragging.on();
+        onChangeStart == null ? void 0 : onChangeStart(valueRef.current);
+      },
+
+      onPan(event) {
+        if (!isInteractive) return;
+        setValueFromPointer(event);
+      },
+
+      onPanEnd() {
+        if (!isInteractive) return;
+        setDragging.off();
+        onChangeEnd == null ? void 0 : onChangeEnd(valueRef.current);
+      }
+
+    });
+    var getRootProps = React.useCallback(function (props, ref) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (ref === void 0) {
+        ref = null;
+      }
+
+      return _extends$3({}, props, htmlProps, {
+        ref: mergeRefs(ref, rootRef),
+        tabIndex: -1,
+        "aria-disabled": ariaAttr(isDisabled),
+        "data-focused": dataAttr(isFocused),
+        style: _extends$3({}, props.style, rootStyle)
+      });
+    }, [htmlProps, isDisabled, isFocused, rootStyle]);
+    var getTrackProps = React.useCallback(function (props, ref) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (ref === void 0) {
+        ref = null;
+      }
+
+      return _extends$3({}, props, {
+        ref: mergeRefs(ref, trackRef),
+        id: trackId,
+        "data-disabled": dataAttr(isDisabled),
+        style: _extends$3({}, props.style, trackStyle)
+      });
+    }, [isDisabled, trackId, trackStyle]);
+    var getInnerTrackProps = React.useCallback(function (props, ref) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (ref === void 0) {
+        ref = null;
+      }
+
+      return _extends$3({}, props, {
+        ref,
+        style: _extends$3({}, props.style, innerTrackStyle)
+      });
+    }, [innerTrackStyle]);
+    var getThumbProps = React.useCallback(function (props, ref) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (ref === void 0) {
+        ref = null;
+      }
+
+      return _extends$3({}, props, {
+        ref: mergeRefs(ref, thumbRef),
+        role: "slider",
+        tabIndex: isInteractive ? 0 : undefined,
+        id: thumbId,
+        "data-active": dataAttr(isDragging),
+        "aria-valuetext": valueText,
+        "aria-valuemin": min,
+        "aria-valuemax": max,
+        "aria-valuenow": value,
+        "aria-orientation": orientation,
+        "aria-disabled": ariaAttr(isDisabled),
+        "aria-readonly": ariaAttr(isReadOnly),
+        "aria-label": ariaLabel,
+        "aria-labelledby": ariaLabel ? undefined : ariaLabelledBy,
+        style: _extends$3({}, props.style, thumbStyle),
+        onKeyDown: callAllHandlers(props.onKeyDown, onKeyDown),
+        onFocus: callAllHandlers(props.onFocus, setFocused.on),
+        onBlur: callAllHandlers(props.onBlur, setFocused.off)
+      });
+    }, [ariaLabel, ariaLabelledBy, isDisabled, isDragging, isReadOnly, isInteractive, max, min, onKeyDown, orientation, setFocused.off, setFocused.on, thumbId, thumbStyle, value, valueText]);
+    var getMarkerProps = React.useCallback(function (props, ref) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (ref === void 0) {
+        ref = null;
+      }
+
+      var isInRange = !(props.value < min || props.value > max);
+      var isHighlighted = value >= props.value;
+      var markerPercent = valueToPercent(props.value, min, max);
+
+      var markerStyle = _extends$3({
+        position: "absolute",
+        pointerEvents: "none"
+      }, orient({
+        orientation,
+        vertical: {
+          bottom: isReversed ? 100 - markerPercent + "%" : markerPercent + "%"
+        },
+        horizontal: {
+          left: isReversed ? 100 - markerPercent + "%" : markerPercent + "%"
+        }
+      }));
+
+      return _extends$3({}, props, {
+        ref,
+        role: "presentation",
+        "aria-hidden": true,
+        "data-disabled": dataAttr(isDisabled),
+        "data-invalid": dataAttr(!isInRange),
+        "data-highlighted": dataAttr(isHighlighted),
+        style: _extends$3({}, props.style, markerStyle)
+      });
+    }, [isDisabled, isReversed, max, min, orientation, value]);
+    var getInputProps = React.useCallback(function (props, ref) {
+      if (props === void 0) {
+        props = {};
+      }
+
+      if (ref === void 0) {
+        ref = null;
+      }
+
+      return _extends$3({}, props, {
+        ref,
+        type: "hidden",
+        value,
+        name
+      });
+    }, [name, value]);
+    return {
+      state: {
+        value,
+        isFocused,
+        isDragging
+      },
+      actions,
+      getRootProps,
+      getTrackProps,
+      getInnerTrackProps,
+      getThumbProps,
+      getMarkerProps,
+      getInputProps
+    };
+  }
+
+  function orient(options) {
+    var {
+      orientation,
+      vertical,
+      horizontal
+    } = options;
+    return orientation === "vertical" ? vertical : horizontal;
+  }
+  /**
+   * The browser <input type="range" /> calculates
+   * the default value of a slider by using mid-point
+   * between the min and the max.
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range
+   */
+
+
+  function getDefaultValue(min, max) {
+    return max < min ? min : min + (max - min) / 2;
+  }
+
+  function _extends$2() {
+    _extends$2 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$2.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose$1(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  var [SliderProvider, useSliderContext] = createContext({
+    name: "SliderContext",
+    errorMessage: "useSliderContext: `context` is undefined. Seems you forgot to wrap all slider components within <Slider />"
+  });
+  /**
+   * The Slider is used to allow users to make selections from a range of values.
+   * It provides context and functionality for all slider components
+   *
+   * @see Docs     https://chakra-ui.com/docs/form/slider
+   * @see WAI-ARIA https://www.w3.org/TR/wai-aria-practices/#slider
+   */
+
+  var Slider = /*#__PURE__*/forwardRef((props, ref) => {
+    var styles = useMultiStyleConfig("Slider", props);
+    var ownProps = omitThemingProps(props);
+
+    var _useSlider = useSlider(ownProps),
+        {
+      getInputProps,
+      getRootProps
+    } = _useSlider,
+        context = _objectWithoutPropertiesLoose$1(_useSlider, ["getInputProps", "getRootProps"]);
+
+    var rootProps = getRootProps();
+    var inputProps = getInputProps({}, ref);
+
+    var rootStyles = _extends$2({
+      display: "inline-block",
+      position: "relative",
+      cursor: "pointer"
+    }, styles.container);
+
+    return /*#__PURE__*/React__namespace.createElement(SliderProvider, {
+      value: context
+    }, /*#__PURE__*/React__namespace.createElement(StylesProvider, {
+      value: styles
+    }, /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$2({}, rootProps, {
+      className: "chakra-slider",
+      __css: rootStyles
+    }), props.children, /*#__PURE__*/React__namespace.createElement("input", inputProps))));
+  });
+  Slider.defaultProps = {
+    orientation: "horizontal"
+  };
+  /**
+   * Slider component that acts as the handle used to select predefined
+   * values by dragging its handle along the track
+   */
+
+
+  var SliderThumb = /*#__PURE__*/forwardRef((props, ref) => {
+    var {
+      getThumbProps
+    } = useSliderContext();
+    var styles = useStyles();
+
+    var thumbStyles = _extends$2({
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      position: "absolute",
+      outline: 0
+    }, styles.thumb);
+
+    var thumbProps = getThumbProps(props, ref);
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$2({}, thumbProps, {
+      className: cx("chakra-slider__thumb", props.className),
+      __css: thumbStyles
+    }));
+  });
+
+  var SliderTrack = /*#__PURE__*/forwardRef((props, ref) => {
+    var {
+      getTrackProps
+    } = useSliderContext();
+    var styles = useStyles();
+
+    var trackStyles = _extends$2({
+      overflow: "hidden"
+    }, styles.track);
+
+    var trackProps = getTrackProps(props, ref);
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$2({}, trackProps, {
+      className: cx("chakra-slider__track", props.className),
+      __css: trackStyles
+    }));
+  });
+
+  var SliderFilledTrack = /*#__PURE__*/forwardRef((props, ref) => {
+    var {
+      getInnerTrackProps
+    } = useSliderContext();
+    var styles = useStyles();
+
+    var trackStyles = _extends$2({
+      width: "inherit",
+      height: "inherit"
+    }, styles.filledTrack);
+
+    var trackProps = getInnerTrackProps(props, ref);
+    return /*#__PURE__*/React__namespace.createElement(chakra.div, _extends$2({}, trackProps, {
+      className: "chakra-slider__filled-track",
+      __css: trackStyles
+    }));
+  });
+
+  function _extends$1() {
+    _extends$1 = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends$1.apply(this, arguments);
+  }
+
+  function _objectWithoutPropertiesLoose(source, excluded) {
+    if (source == null) return {};
+    var target = {};
+    var sourceKeys = Object.keys(source);
+    var key, i;
+
+    for (i = 0; i < sourceKeys.length; i++) {
+      key = sourceKeys[i];
+      if (excluded.indexOf(key) >= 0) continue;
+      target[key] = source[key];
+    }
+
+    return target;
+  }
+  var Switch = /*#__PURE__*/forwardRef((props, ref) => {
+    var styles = useMultiStyleConfig("Switch", props);
+
+    var _omitThemingProps = omitThemingProps(props),
+        {
+      spacing = "0.5rem",
+      children
+    } = _omitThemingProps,
+        ownProps = _objectWithoutPropertiesLoose(_omitThemingProps, ["spacing", "children"]);
+
+    var {
+      state,
+      getInputProps,
+      getCheckboxProps,
+      getRootProps,
+      getLabelProps
+    } = useCheckbox(ownProps);
+    var containerStyles = React__namespace.useMemo(() => _extends$1({
+      display: "inline-block",
+      verticalAlign: "middle",
+      lineHeight: "normal"
+    }, styles.container), [styles.container]);
+    var trackStyles = React__namespace.useMemo(() => _extends$1({
+      display: "inline-flex",
+      flexShrink: 0,
+      justifyContent: "flex-start",
+      boxSizing: "content-box",
+      cursor: "pointer"
+    }, styles.track), [styles.track]);
+    var labelStyles = React__namespace.useMemo(() => _extends$1({
+      userSelect: "none",
+      marginStart: spacing
+    }, styles.label), [spacing, styles.label]);
+    return /*#__PURE__*/React__namespace.createElement(chakra.label, _extends$1({}, getRootProps(), {
+      className: cx("chakra-switch", props.className),
+      __css: containerStyles
+    }), /*#__PURE__*/React__namespace.createElement("input", _extends$1({
+      className: "chakra-switch__input"
+    }, getInputProps({}, ref))), /*#__PURE__*/React__namespace.createElement(chakra.span, _extends$1({}, getCheckboxProps(), {
+      className: "chakra-switch__track",
+      __css: trackStyles
+    }), /*#__PURE__*/React__namespace.createElement(chakra.span, {
+      __css: styles.thumb,
+      className: "chakra-switch__thumb",
+      "data-checked": dataAttr(state.isChecked),
+      "data-hover": dataAttr(state.isHovered)
+    })), children && /*#__PURE__*/React__namespace.createElement(chakra.span, _extends$1({
+      className: "chakra-switch__label"
+    }, getLabelProps(), {
+      __css: labelStyles
+    }), children));
   });
 
   function insertWithoutScoping(cache, serialized) {
@@ -12829,6 +15947,4040 @@ SOFTWARE.
       css = _createEmotion.css;
 
   /**
+   * Prism: Lightweight, robust, elegant syntax highlighting
+   * MIT license http://www.opensource.org/licenses/mit-license.php/
+   * @author Lea Verou http://lea.verou.me
+   */
+
+  /**
+   * prism-react-renderer:
+   * This file has been modified to remove:
+   * - globals and window dependency
+   * - worker support
+   * - highlightAll and other element dependent methods
+   * - _.hooks helpers
+   * - UMD/node-specific hacks
+   * It has also been run through prettier
+   */
+  var Prism = function () {
+    var uniqueId = 0;
+    var _ = {
+      util: {
+        encode: function (tokens) {
+          if (tokens instanceof Token) {
+            return new Token(tokens.type, _.util.encode(tokens.content), tokens.alias);
+          } else if (_.util.type(tokens) === "Array") {
+            return tokens.map(_.util.encode);
+          } else {
+            return tokens.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/\u00a0/g, " ");
+          }
+        },
+        type: function (o) {
+          return Object.prototype.toString.call(o).match(/\[object (\w+)\]/)[1];
+        },
+        objId: function (obj) {
+          if (!obj["__id"]) {
+            Object.defineProperty(obj, "__id", {
+              value: ++uniqueId
+            });
+          }
+
+          return obj["__id"];
+        },
+        // Deep clone a language definition (e.g. to extend it)
+        clone: function (o, visited) {
+          var type = _.util.type(o);
+
+          visited = visited || {};
+
+          switch (type) {
+            case "Object":
+              if (visited[_.util.objId(o)]) {
+                return visited[_.util.objId(o)];
+              }
+
+              var clone = {};
+              visited[_.util.objId(o)] = clone;
+
+              for (var key in o) {
+                if (o.hasOwnProperty(key)) {
+                  clone[key] = _.util.clone(o[key], visited);
+                }
+              }
+
+              return clone;
+
+            case "Array":
+              if (visited[_.util.objId(o)]) {
+                return visited[_.util.objId(o)];
+              }
+
+              var clone = [];
+              visited[_.util.objId(o)] = clone;
+              o.forEach(function (v, i) {
+                clone[i] = _.util.clone(v, visited);
+              });
+              return clone;
+          }
+
+          return o;
+        }
+      },
+      languages: {
+        extend: function (id, redef) {
+          var lang = _.util.clone(_.languages[id]);
+
+          for (var key in redef) {
+            lang[key] = redef[key];
+          }
+
+          return lang;
+        },
+
+        /**
+         * Insert a token before another token in a language literal
+         * As this needs to recreate the object (we cannot actually insert before keys in object literals),
+         * we cannot just provide an object, we need anobject and a key.
+         * @param inside The key (or language id) of the parent
+         * @param before The key to insert before. If not provided, the function appends instead.
+         * @param insert Object with the key/value pairs to insert
+         * @param root The object that contains `inside`. If equal to Prism.languages, it can be omitted.
+         */
+        insertBefore: function (inside, before, insert, root) {
+          root = root || _.languages;
+          var grammar = root[inside];
+
+          if (arguments.length == 2) {
+            insert = arguments[1];
+
+            for (var newToken in insert) {
+              if (insert.hasOwnProperty(newToken)) {
+                grammar[newToken] = insert[newToken];
+              }
+            }
+
+            return grammar;
+          }
+
+          var ret = {};
+
+          for (var token in grammar) {
+            if (grammar.hasOwnProperty(token)) {
+              if (token == before) {
+                for (var newToken in insert) {
+                  if (insert.hasOwnProperty(newToken)) {
+                    ret[newToken] = insert[newToken];
+                  }
+                }
+              }
+
+              ret[token] = grammar[token];
+            }
+          } // Update references in other language definitions
+
+
+          _.languages.DFS(_.languages, function (key, value) {
+            if (value === root[inside] && key != inside) {
+              this[key] = ret;
+            }
+          });
+
+          return root[inside] = ret;
+        },
+        // Traverse a language definition with Depth First Search
+        DFS: function (o, callback, type, visited) {
+          visited = visited || {};
+
+          for (var i in o) {
+            if (o.hasOwnProperty(i)) {
+              callback.call(o, i, o[i], type || i);
+
+              if (_.util.type(o[i]) === "Object" && !visited[_.util.objId(o[i])]) {
+                visited[_.util.objId(o[i])] = true;
+
+                _.languages.DFS(o[i], callback, null, visited);
+              } else if (_.util.type(o[i]) === "Array" && !visited[_.util.objId(o[i])]) {
+                visited[_.util.objId(o[i])] = true;
+
+                _.languages.DFS(o[i], callback, i, visited);
+              }
+            }
+          }
+        }
+      },
+      plugins: {},
+      highlight: function (text, grammar, language) {
+        var env = {
+          code: text,
+          grammar: grammar,
+          language: language
+        };
+
+        _.hooks.run("before-tokenize", env);
+
+        env.tokens = _.tokenize(env.code, env.grammar);
+
+        _.hooks.run("after-tokenize", env);
+
+        return Token.stringify(_.util.encode(env.tokens), env.language);
+      },
+      matchGrammar: function (text, strarr, grammar, index, startPos, oneshot, target) {
+        var Token = _.Token;
+
+        for (var token in grammar) {
+          if (!grammar.hasOwnProperty(token) || !grammar[token]) {
+            continue;
+          }
+
+          if (token == target) {
+            return;
+          }
+
+          var patterns = grammar[token];
+          patterns = _.util.type(patterns) === "Array" ? patterns : [patterns];
+
+          for (var j = 0; j < patterns.length; ++j) {
+            var pattern = patterns[j],
+                inside = pattern.inside,
+                lookbehind = !!pattern.lookbehind,
+                greedy = !!pattern.greedy,
+                lookbehindLength = 0,
+                alias = pattern.alias;
+
+            if (greedy && !pattern.pattern.global) {
+              // Without the global flag, lastIndex won't work
+              var flags = pattern.pattern.toString().match(/[imuy]*$/)[0];
+              pattern.pattern = RegExp(pattern.pattern.source, flags + "g");
+            }
+
+            pattern = pattern.pattern || pattern; // Don’t cache length as it changes during the loop
+
+            for (var i = index, pos = startPos; i < strarr.length; pos += strarr[i].length, ++i) {
+              var str = strarr[i];
+
+              if (strarr.length > text.length) {
+                // Something went terribly wrong, ABORT, ABORT!
+                return;
+              }
+
+              if (str instanceof Token) {
+                continue;
+              }
+
+              if (greedy && i != strarr.length - 1) {
+                pattern.lastIndex = pos;
+                var match = pattern.exec(text);
+
+                if (!match) {
+                  break;
+                }
+
+                var from = match.index + (lookbehind ? match[1].length : 0),
+                    to = match.index + match[0].length,
+                    k = i,
+                    p = pos;
+
+                for (var len = strarr.length; k < len && (p < to || !strarr[k].type && !strarr[k - 1].greedy); ++k) {
+                  p += strarr[k].length; // Move the index i to the element in strarr that is closest to from
+
+                  if (from >= p) {
+                    ++i;
+                    pos = p;
+                  }
+                } // If strarr[i] is a Token, then the match starts inside another Token, which is invalid
+
+
+                if (strarr[i] instanceof Token) {
+                  continue;
+                } // Number of tokens to delete and replace with the new match
+
+
+                delNum = k - i;
+                str = text.slice(pos, p);
+                match.index -= pos;
+              } else {
+                pattern.lastIndex = 0;
+                var match = pattern.exec(str),
+                    delNum = 1;
+              }
+
+              if (!match) {
+                if (oneshot) {
+                  break;
+                }
+
+                continue;
+              }
+
+              if (lookbehind) {
+                lookbehindLength = match[1] ? match[1].length : 0;
+              }
+
+              var from = match.index + lookbehindLength,
+                  match = match[0].slice(lookbehindLength),
+                  to = from + match.length,
+                  before = str.slice(0, from),
+                  after = str.slice(to);
+              var args = [i, delNum];
+
+              if (before) {
+                ++i;
+                pos += before.length;
+                args.push(before);
+              }
+
+              var wrapped = new Token(token, inside ? _.tokenize(match, inside) : match, alias, match, greedy);
+              args.push(wrapped);
+
+              if (after) {
+                args.push(after);
+              }
+
+              Array.prototype.splice.apply(strarr, args);
+
+              if (delNum != 1) {
+                _.matchGrammar(text, strarr, grammar, i, pos, true, token);
+              }
+
+              if (oneshot) {
+                break;
+              }
+            }
+          }
+        }
+      },
+      hooks: {
+        add: function () {},
+        run: function (name, env) {}
+      },
+      tokenize: function (text, grammar, language) {
+        var strarr = [text];
+        var rest = grammar.rest;
+
+        if (rest) {
+          for (var token in rest) {
+            grammar[token] = rest[token];
+          }
+
+          delete grammar.rest;
+        }
+
+        _.matchGrammar(text, strarr, grammar, 0, 0, false);
+
+        return strarr;
+      }
+    };
+
+    var Token = _.Token = function (type, content, alias, matchedStr, greedy) {
+      this.type = type;
+      this.content = content;
+      this.alias = alias; // Copy of the full string this token was created from
+
+      this.length = (matchedStr || "").length | 0;
+      this.greedy = !!greedy;
+    };
+
+    Token.stringify = function (o, language, parent) {
+      if (typeof o == "string") {
+        return o;
+      }
+
+      if (_.util.type(o) === "Array") {
+        return o.map(function (element) {
+          return Token.stringify(element, language, o);
+        }).join("");
+      }
+
+      var env = {
+        type: o.type,
+        content: Token.stringify(o.content, language, parent),
+        tag: "span",
+        classes: ["token", o.type],
+        attributes: {},
+        language: language,
+        parent: parent
+      };
+
+      if (o.alias) {
+        var aliases = _.util.type(o.alias) === "Array" ? o.alias : [o.alias];
+        Array.prototype.push.apply(env.classes, aliases);
+      }
+
+      var attributes = Object.keys(env.attributes).map(function (name) {
+        return name + '="' + (env.attributes[name] || "").replace(/"/g, "&quot;") + '"';
+      }).join(" ");
+      return "<" + env.tag + ' class="' + env.classes.join(" ") + '"' + (attributes ? " " + attributes : "") + ">" + env.content + "</" + env.tag + ">";
+    };
+
+    return _;
+  }();
+  /* This content is auto-generated to include some prismjs language components: */
+
+  /* "prismjs/components/prism-markup" */
+
+
+  Prism.languages.markup = {
+    'comment': /<!--[\s\S]*?-->/,
+    'prolog': /<\?[\s\S]+?\?>/,
+    'doctype': {
+      // https://www.w3.org/TR/xml/#NT-doctypedecl
+      pattern: /<!DOCTYPE(?:[^>"'[\]]|"[^"]*"|'[^']*')+(?:\[(?:[^<"'\]]|"[^"]*"|'[^']*'|<(?!!--)|<!--(?:[^-]|-(?!->))*-->)*\]\s*)?>/i,
+      greedy: true,
+      inside: {
+        'internal-subset': {
+          pattern: /(\[)[\s\S]+(?=\]>$)/,
+          lookbehind: true,
+          greedy: true,
+          inside: null // see below
+
+        },
+        'string': {
+          pattern: /"[^"]*"|'[^']*'/,
+          greedy: true
+        },
+        'punctuation': /^<!|>$|[[\]]/,
+        'doctype-tag': /^DOCTYPE/,
+        'name': /[^\s<>'"]+/
+      }
+    },
+    'cdata': /<!\[CDATA\[[\s\S]*?]]>/i,
+    'tag': {
+      pattern: /<\/?(?!\d)[^\s>\/=$<%]+(?:\s(?:\s*[^\s>\/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+(?=[\s>]))|(?=[\s/>])))+)?\s*\/?>/,
+      greedy: true,
+      inside: {
+        'tag': {
+          pattern: /^<\/?[^\s>\/]+/,
+          inside: {
+            'punctuation': /^<\/?/,
+            'namespace': /^[^\s>\/:]+:/
+          }
+        },
+        'attr-value': {
+          pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+)/,
+          inside: {
+            'punctuation': [{
+              pattern: /^=/,
+              alias: 'attr-equals'
+            }, /"|'/]
+          }
+        },
+        'punctuation': /\/?>/,
+        'attr-name': {
+          pattern: /[^\s>\/]+/,
+          inside: {
+            'namespace': /^[^\s>\/:]+:/
+          }
+        }
+      }
+    },
+    'entity': [{
+      pattern: /&[\da-z]{1,8};/i,
+      alias: 'named-entity'
+    }, /&#x?[\da-f]{1,8};/i]
+  };
+  Prism.languages.markup['tag'].inside['attr-value'].inside['entity'] = Prism.languages.markup['entity'];
+  Prism.languages.markup['doctype'].inside['internal-subset'].inside = Prism.languages.markup; // Plugin to make entity title show the real entity, idea by Roman Komarov
+
+  Prism.hooks.add('wrap', function (env) {
+    if (env.type === 'entity') {
+      env.attributes['title'] = env.content.replace(/&amp;/, '&');
+    }
+  });
+  Object.defineProperty(Prism.languages.markup.tag, 'addInlined', {
+    /**
+     * Adds an inlined language to markup.
+     *
+     * An example of an inlined language is CSS with `<style>` tags.
+     *
+     * @param {string} tagName The name of the tag that contains the inlined language. This name will be treated as
+     * case insensitive.
+     * @param {string} lang The language key.
+     * @example
+     * addInlined('style', 'css');
+     */
+    value: function addInlined(tagName, lang) {
+      var includedCdataInside = {};
+      includedCdataInside['language-' + lang] = {
+        pattern: /(^<!\[CDATA\[)[\s\S]+?(?=\]\]>$)/i,
+        lookbehind: true,
+        inside: Prism.languages[lang]
+      };
+      includedCdataInside['cdata'] = /^<!\[CDATA\[|\]\]>$/i;
+      var inside = {
+        'included-cdata': {
+          pattern: /<!\[CDATA\[[\s\S]*?\]\]>/i,
+          inside: includedCdataInside
+        }
+      };
+      inside['language-' + lang] = {
+        pattern: /[\s\S]+/,
+        inside: Prism.languages[lang]
+      };
+      var def = {};
+      def[tagName] = {
+        pattern: RegExp(/(<__[^>]*>)(?:<!\[CDATA\[(?:[^\]]|\](?!\]>))*\]\]>|(?!<!\[CDATA\[)[\s\S])*?(?=<\/__>)/.source.replace(/__/g, function () {
+          return tagName;
+        }), 'i'),
+        lookbehind: true,
+        greedy: true,
+        inside: inside
+      };
+      Prism.languages.insertBefore('markup', 'cdata', def);
+    }
+  });
+  Prism.languages.html = Prism.languages.markup;
+  Prism.languages.mathml = Prism.languages.markup;
+  Prism.languages.svg = Prism.languages.markup;
+  Prism.languages.xml = Prism.languages.extend('markup', {});
+  Prism.languages.ssml = Prism.languages.xml;
+  Prism.languages.atom = Prism.languages.xml;
+  Prism.languages.rss = Prism.languages.xml;
+  /* "prismjs/components/prism-bash" */
+
+  (function (Prism) {
+    // $ set | grep '^[A-Z][^[:space:]]*=' | cut -d= -f1 | tr '\n' '|'
+    // + LC_ALL, RANDOM, REPLY, SECONDS.
+    // + make sure PS1..4 are here as they are not always set,
+    // - some useless things.
+    var envVars = '\\b(?:BASH|BASHOPTS|BASH_ALIASES|BASH_ARGC|BASH_ARGV|BASH_CMDS|BASH_COMPLETION_COMPAT_DIR|BASH_LINENO|BASH_REMATCH|BASH_SOURCE|BASH_VERSINFO|BASH_VERSION|COLORTERM|COLUMNS|COMP_WORDBREAKS|DBUS_SESSION_BUS_ADDRESS|DEFAULTS_PATH|DESKTOP_SESSION|DIRSTACK|DISPLAY|EUID|GDMSESSION|GDM_LANG|GNOME_KEYRING_CONTROL|GNOME_KEYRING_PID|GPG_AGENT_INFO|GROUPS|HISTCONTROL|HISTFILE|HISTFILESIZE|HISTSIZE|HOME|HOSTNAME|HOSTTYPE|IFS|INSTANCE|JOB|LANG|LANGUAGE|LC_ADDRESS|LC_ALL|LC_IDENTIFICATION|LC_MEASUREMENT|LC_MONETARY|LC_NAME|LC_NUMERIC|LC_PAPER|LC_TELEPHONE|LC_TIME|LESSCLOSE|LESSOPEN|LINES|LOGNAME|LS_COLORS|MACHTYPE|MAILCHECK|MANDATORY_PATH|NO_AT_BRIDGE|OLDPWD|OPTERR|OPTIND|ORBIT_SOCKETDIR|OSTYPE|PAPERSIZE|PATH|PIPESTATUS|PPID|PS1|PS2|PS3|PS4|PWD|RANDOM|REPLY|SECONDS|SELINUX_INIT|SESSION|SESSIONTYPE|SESSION_MANAGER|SHELL|SHELLOPTS|SHLVL|SSH_AUTH_SOCK|TERM|UID|UPSTART_EVENTS|UPSTART_INSTANCE|UPSTART_JOB|UPSTART_SESSION|USER|WINDOWID|XAUTHORITY|XDG_CONFIG_DIRS|XDG_CURRENT_DESKTOP|XDG_DATA_DIRS|XDG_GREETER_DATA_DIR|XDG_MENU_PREFIX|XDG_RUNTIME_DIR|XDG_SEAT|XDG_SEAT_PATH|XDG_SESSION_DESKTOP|XDG_SESSION_ID|XDG_SESSION_PATH|XDG_SESSION_TYPE|XDG_VTNR|XMODIFIERS)\\b';
+    var commandAfterHeredoc = {
+      pattern: /(^(["']?)\w+\2)[ \t]+\S.*/,
+      lookbehind: true,
+      alias: 'punctuation',
+      // this looks reasonably well in all themes
+      inside: null // see below
+
+    };
+    var insideString = {
+      'bash': commandAfterHeredoc,
+      'environment': {
+        pattern: RegExp("\\$" + envVars),
+        alias: 'constant'
+      },
+      'variable': [// [0]: Arithmetic Environment
+      {
+        pattern: /\$?\(\([\s\S]+?\)\)/,
+        greedy: true,
+        inside: {
+          // If there is a $ sign at the beginning highlight $(( and )) as variable
+          'variable': [{
+            pattern: /(^\$\(\([\s\S]+)\)\)/,
+            lookbehind: true
+          }, /^\$\(\(/],
+          'number': /\b0x[\dA-Fa-f]+\b|(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:[Ee]-?\d+)?/,
+          // Operators according to https://www.gnu.org/software/bash/manual/bashref.html#Shell-Arithmetic
+          'operator': /--?|-=|\+\+?|\+=|!=?|~|\*\*?|\*=|\/=?|%=?|<<=?|>>=?|<=?|>=?|==?|&&?|&=|\^=?|\|\|?|\|=|\?|:/,
+          // If there is no $ sign at the beginning highlight (( and )) as punctuation
+          'punctuation': /\(\(?|\)\)?|,|;/
+        }
+      }, // [1]: Command Substitution
+      {
+        pattern: /\$\((?:\([^)]+\)|[^()])+\)|`[^`]+`/,
+        greedy: true,
+        inside: {
+          'variable': /^\$\(|^`|\)$|`$/
+        }
+      }, // [2]: Brace expansion
+      {
+        pattern: /\$\{[^}]+\}/,
+        greedy: true,
+        inside: {
+          'operator': /:[-=?+]?|[!\/]|##?|%%?|\^\^?|,,?/,
+          'punctuation': /[\[\]]/,
+          'environment': {
+            pattern: RegExp("(\\{)" + envVars),
+            lookbehind: true,
+            alias: 'constant'
+          }
+        }
+      }, /\$(?:\w+|[#?*!@$])/],
+      // Escape sequences from echo and printf's manuals, and escaped quotes.
+      'entity': /\\(?:[abceEfnrtv\\"]|O?[0-7]{1,3}|x[0-9a-fA-F]{1,2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})/
+    };
+    Prism.languages.bash = {
+      'shebang': {
+        pattern: /^#!\s*\/.*/,
+        alias: 'important'
+      },
+      'comment': {
+        pattern: /(^|[^"{\\$])#.*/,
+        lookbehind: true
+      },
+      'function-name': [// a) function foo {
+      // b) foo() {
+      // c) function foo() {
+      // but not “foo {”
+      {
+        // a) and c)
+        pattern: /(\bfunction\s+)\w+(?=(?:\s*\(?:\s*\))?\s*\{)/,
+        lookbehind: true,
+        alias: 'function'
+      }, {
+        // b)
+        pattern: /\b\w+(?=\s*\(\s*\)\s*\{)/,
+        alias: 'function'
+      }],
+      // Highlight variable names as variables in for and select beginnings.
+      'for-or-select': {
+        pattern: /(\b(?:for|select)\s+)\w+(?=\s+in\s)/,
+        alias: 'variable',
+        lookbehind: true
+      },
+      // Highlight variable names as variables in the left-hand part
+      // of assignments (“=” and “+=”).
+      'assign-left': {
+        pattern: /(^|[\s;|&]|[<>]\()\w+(?=\+?=)/,
+        inside: {
+          'environment': {
+            pattern: RegExp("(^|[\\s;|&]|[<>]\\()" + envVars),
+            lookbehind: true,
+            alias: 'constant'
+          }
+        },
+        alias: 'variable',
+        lookbehind: true
+      },
+      'string': [// Support for Here-documents https://en.wikipedia.org/wiki/Here_document
+      {
+        pattern: /((?:^|[^<])<<-?\s*)(\w+?)\s[\s\S]*?(?:\r?\n|\r)\2/,
+        lookbehind: true,
+        greedy: true,
+        inside: insideString
+      }, // Here-document with quotes around the tag
+      // → No expansion (so no “inside”).
+      {
+        pattern: /((?:^|[^<])<<-?\s*)(["'])(\w+)\2\s[\s\S]*?(?:\r?\n|\r)\3/,
+        lookbehind: true,
+        greedy: true,
+        inside: {
+          'bash': commandAfterHeredoc
+        }
+      }, // “Normal” string
+      {
+        pattern: /(^|[^\\](?:\\\\)*)(["'])(?:\\[\s\S]|\$\([^)]+\)|\$(?!\()|`[^`]+`|(?!\2)[^\\`$])*\2/,
+        lookbehind: true,
+        greedy: true,
+        inside: insideString
+      }],
+      'environment': {
+        pattern: RegExp("\\$?" + envVars),
+        alias: 'constant'
+      },
+      'variable': insideString.variable,
+      'function': {
+        pattern: /(^|[\s;|&]|[<>]\()(?:add|apropos|apt|aptitude|apt-cache|apt-get|aspell|automysqlbackup|awk|basename|bash|bc|bconsole|bg|bzip2|cal|cat|cfdisk|chgrp|chkconfig|chmod|chown|chroot|cksum|clear|cmp|column|comm|composer|cp|cron|crontab|csplit|curl|cut|date|dc|dd|ddrescue|debootstrap|df|diff|diff3|dig|dir|dircolors|dirname|dirs|dmesg|du|egrep|eject|env|ethtool|expand|expect|expr|fdformat|fdisk|fg|fgrep|file|find|fmt|fold|format|free|fsck|ftp|fuser|gawk|git|gparted|grep|groupadd|groupdel|groupmod|groups|grub-mkconfig|gzip|halt|head|hg|history|host|hostname|htop|iconv|id|ifconfig|ifdown|ifup|import|install|ip|jobs|join|kill|killall|less|link|ln|locate|logname|logrotate|look|lpc|lpr|lprint|lprintd|lprintq|lprm|ls|lsof|lynx|make|man|mc|mdadm|mkconfig|mkdir|mke2fs|mkfifo|mkfs|mkisofs|mknod|mkswap|mmv|more|most|mount|mtools|mtr|mutt|mv|nano|nc|netstat|nice|nl|nohup|notify-send|npm|nslookup|op|open|parted|passwd|paste|pathchk|ping|pkill|pnpm|popd|pr|printcap|printenv|ps|pushd|pv|quota|quotacheck|quotactl|ram|rar|rcp|reboot|remsync|rename|renice|rev|rm|rmdir|rpm|rsync|scp|screen|sdiff|sed|sendmail|seq|service|sftp|sh|shellcheck|shuf|shutdown|sleep|slocate|sort|split|ssh|stat|strace|su|sudo|sum|suspend|swapon|sync|tac|tail|tar|tee|time|timeout|top|touch|tr|traceroute|tsort|tty|umount|uname|unexpand|uniq|units|unrar|unshar|unzip|update-grub|uptime|useradd|userdel|usermod|users|uudecode|uuencode|v|vdir|vi|vim|virsh|vmstat|wait|watch|wc|wget|whereis|which|who|whoami|write|xargs|xdg-open|yarn|yes|zenity|zip|zsh|zypper)(?=$|[)\s;|&])/,
+        lookbehind: true
+      },
+      'keyword': {
+        pattern: /(^|[\s;|&]|[<>]\()(?:if|then|else|elif|fi|for|while|in|case|esac|function|select|do|done|until)(?=$|[)\s;|&])/,
+        lookbehind: true
+      },
+      // https://www.gnu.org/software/bash/manual/html_node/Shell-Builtin-Commands.html
+      'builtin': {
+        pattern: /(^|[\s;|&]|[<>]\()(?:\.|:|break|cd|continue|eval|exec|exit|export|getopts|hash|pwd|readonly|return|shift|test|times|trap|umask|unset|alias|bind|builtin|caller|command|declare|echo|enable|help|let|local|logout|mapfile|printf|read|readarray|source|type|typeset|ulimit|unalias|set|shopt)(?=$|[)\s;|&])/,
+        lookbehind: true,
+        // Alias added to make those easier to distinguish from strings.
+        alias: 'class-name'
+      },
+      'boolean': {
+        pattern: /(^|[\s;|&]|[<>]\()(?:true|false)(?=$|[)\s;|&])/,
+        lookbehind: true
+      },
+      'file-descriptor': {
+        pattern: /\B&\d\b/,
+        alias: 'important'
+      },
+      'operator': {
+        // Lots of redirections here, but not just that.
+        pattern: /\d?<>|>\||\+=|==?|!=?|=~|<<[<-]?|[&\d]?>>|\d?[<>]&?|&[>&]?|\|[&|]?|<=?|>=?/,
+        inside: {
+          'file-descriptor': {
+            pattern: /^\d/,
+            alias: 'important'
+          }
+        }
+      },
+      'punctuation': /\$?\(\(?|\)\)?|\.\.|[{}[\];\\]/,
+      'number': {
+        pattern: /(^|\s)(?:[1-9]\d*|0)(?:[.,]\d+)?\b/,
+        lookbehind: true
+      }
+    };
+    commandAfterHeredoc.inside = Prism.languages.bash;
+    /* Patterns in command substitution. */
+
+    var toBeCopied = ['comment', 'function-name', 'for-or-select', 'assign-left', 'string', 'environment', 'function', 'keyword', 'builtin', 'boolean', 'file-descriptor', 'operator', 'punctuation', 'number'];
+    var inside = insideString.variable[1].inside;
+
+    for (var i = 0; i < toBeCopied.length; i++) {
+      inside[toBeCopied[i]] = Prism.languages.bash[toBeCopied[i]];
+    }
+
+    Prism.languages.shell = Prism.languages.bash;
+  })(Prism);
+  /* "prismjs/components/prism-clike" */
+
+
+  Prism.languages.clike = {
+    'comment': [{
+      pattern: /(^|[^\\])\/\*[\s\S]*?(?:\*\/|$)/,
+      lookbehind: true,
+      greedy: true
+    }, {
+      pattern: /(^|[^\\:])\/\/.*/,
+      lookbehind: true,
+      greedy: true
+    }],
+    'string': {
+      pattern: /(["'])(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/,
+      greedy: true
+    },
+    'class-name': {
+      pattern: /(\b(?:class|interface|extends|implements|trait|instanceof|new)\s+|\bcatch\s+\()[\w.\\]+/i,
+      lookbehind: true,
+      inside: {
+        'punctuation': /[.\\]/
+      }
+    },
+    'keyword': /\b(?:if|else|while|do|for|return|in|instanceof|function|new|try|throw|catch|finally|null|break|continue)\b/,
+    'boolean': /\b(?:true|false)\b/,
+    'function': /\w+(?=\()/,
+    'number': /\b0x[\da-f]+\b|(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:e[+-]?\d+)?/i,
+    'operator': /[<>]=?|[!=]=?=?|--?|\+\+?|&&?|\|\|?|[?*/~^%]/,
+    'punctuation': /[{}[\];(),.:]/
+  };
+  /* "prismjs/components/prism-c" */
+
+  Prism.languages.c = Prism.languages.extend('clike', {
+    'comment': {
+      pattern: /\/\/(?:[^\r\n\\]|\\(?:\r\n?|\n|(?![\r\n])))*|\/\*[\s\S]*?(?:\*\/|$)/,
+      greedy: true
+    },
+    'class-name': {
+      pattern: /(\b(?:enum|struct)\s+(?:__attribute__\s*\(\([\s\S]*?\)\)\s*)?)\w+|\b[a-z]\w*_t\b/,
+      lookbehind: true
+    },
+    'keyword': /\b(?:__attribute__|_Alignas|_Alignof|_Atomic|_Bool|_Complex|_Generic|_Imaginary|_Noreturn|_Static_assert|_Thread_local|asm|typeof|inline|auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while)\b/,
+    'function': /[a-z_]\w*(?=\s*\()/i,
+    'number': /(?:\b0x(?:[\da-f]+(?:\.[\da-f]*)?|\.[\da-f]+)(?:p[+-]?\d+)?|(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:e[+-]?\d+)?)[ful]{0,4}/i,
+    'operator': />>=?|<<=?|->|([-+&|:])\1|[?:~]|[-+*/%&|^!=<>]=?/
+  });
+  Prism.languages.insertBefore('c', 'string', {
+    'macro': {
+      // allow for multiline macro definitions
+      // spaces after the # character compile fine with gcc
+      pattern: /(^\s*)#\s*[a-z](?:[^\r\n\\/]|\/(?!\*)|\/\*(?:[^*]|\*(?!\/))*\*\/|\\(?:\r\n|[\s\S]))*/im,
+      lookbehind: true,
+      greedy: true,
+      alias: 'property',
+      inside: {
+        'string': [{
+          // highlight the path of the include statement as a string
+          pattern: /^(#\s*include\s*)<[^>]+>/,
+          lookbehind: true
+        }, Prism.languages.c['string']],
+        'comment': Prism.languages.c['comment'],
+        'macro-name': [{
+          pattern: /(^#\s*define\s+)\w+\b(?!\()/i,
+          lookbehind: true
+        }, {
+          pattern: /(^#\s*define\s+)\w+\b(?=\()/i,
+          lookbehind: true,
+          alias: 'function'
+        }],
+        // highlight macro directives as keywords
+        'directive': {
+          pattern: /^(#\s*)[a-z]+/,
+          lookbehind: true,
+          alias: 'keyword'
+        },
+        'directive-hash': /^#/,
+        'punctuation': /##|\\(?=[\r\n])/,
+        'expression': {
+          pattern: /\S[\s\S]*/,
+          inside: Prism.languages.c
+        }
+      }
+    },
+    // highlight predefined macros as constants
+    'constant': /\b(?:__FILE__|__LINE__|__DATE__|__TIME__|__TIMESTAMP__|__func__|EOF|NULL|SEEK_CUR|SEEK_END|SEEK_SET|stdin|stdout|stderr)\b/
+  });
+  delete Prism.languages.c['boolean'];
+  /* "prismjs/components/prism-cpp" */
+
+  (function (Prism) {
+    var keyword = /\b(?:alignas|alignof|asm|auto|bool|break|case|catch|char|char8_t|char16_t|char32_t|class|compl|concept|const|consteval|constexpr|constinit|const_cast|continue|co_await|co_return|co_yield|decltype|default|delete|do|double|dynamic_cast|else|enum|explicit|export|extern|float|for|friend|goto|if|inline|int|int8_t|int16_t|int32_t|int64_t|uint8_t|uint16_t|uint32_t|uint64_t|long|mutable|namespace|new|noexcept|nullptr|operator|private|protected|public|register|reinterpret_cast|requires|return|short|signed|sizeof|static|static_assert|static_cast|struct|switch|template|this|thread_local|throw|try|typedef|typeid|typename|union|unsigned|using|virtual|void|volatile|wchar_t|while)\b/;
+    Prism.languages.cpp = Prism.languages.extend('c', {
+      'class-name': [{
+        pattern: RegExp(/(\b(?:class|concept|enum|struct|typename)\s+)(?!<keyword>)\w+/.source.replace(/<keyword>/g, function () {
+          return keyword.source;
+        })),
+        lookbehind: true
+      }, // This is intended to capture the class name of method implementations like:
+      //   void foo::bar() const {}
+      // However! The `foo` in the above example could also be a namespace, so we only capture the class name if
+      // it starts with an uppercase letter. This approximation should give decent results.
+      /\b[A-Z]\w*(?=\s*::\s*\w+\s*\()/, // This will capture the class name before destructors like:
+      //   Foo::~Foo() {}
+      /\b[A-Z_]\w*(?=\s*::\s*~\w+\s*\()/i, // This also intends to capture the class name of method implementations but here the class has template
+      // parameters, so it can't be a namespace (until C++ adds generic namespaces).
+      /\w+(?=\s*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>\s*::\s*\w+\s*\()/],
+      'keyword': keyword,
+      'number': {
+        pattern: /(?:\b0b[01']+|\b0x(?:[\da-f']+(?:\.[\da-f']*)?|\.[\da-f']+)(?:p[+-]?[\d']+)?|(?:\b[\d']+(?:\.[\d']*)?|\B\.[\d']+)(?:e[+-]?[\d']+)?)[ful]{0,4}/i,
+        greedy: true
+      },
+      'operator': />>=?|<<=?|->|([-+&|:])\1|[?:~]|<=>|[-+*/%&|^!=<>]=?|\b(?:and|and_eq|bitand|bitor|not|not_eq|or|or_eq|xor|xor_eq)\b/,
+      'boolean': /\b(?:true|false)\b/
+    });
+    Prism.languages.insertBefore('cpp', 'string', {
+      'raw-string': {
+        pattern: /R"([^()\\ ]{0,16})\([\s\S]*?\)\1"/,
+        alias: 'string',
+        greedy: true
+      }
+    });
+    Prism.languages.insertBefore('cpp', 'class-name', {
+      // the base clause is an optional list of parent classes
+      // https://en.cppreference.com/w/cpp/language/class
+      'base-clause': {
+        pattern: /(\b(?:class|struct)\s+\w+\s*:\s*)[^;{}"'\s]+(?:\s+[^;{}"'\s]+)*(?=\s*[;{])/,
+        lookbehind: true,
+        greedy: true,
+        inside: Prism.languages.extend('cpp', {})
+      }
+    });
+    Prism.languages.insertBefore('inside', 'operator', {
+      // All untokenized words that are not namespaces should be class names
+      'class-name': /\b[a-z_]\w*\b(?!\s*::)/i
+    }, Prism.languages.cpp['base-clause']);
+  })(Prism);
+  /* "prismjs/components/prism-css" */
+
+
+  (function (Prism) {
+    var string = /("|')(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/;
+    Prism.languages.css = {
+      'comment': /\/\*[\s\S]*?\*\//,
+      'atrule': {
+        pattern: /@[\w-](?:[^;{\s]|\s+(?![\s{]))*(?:;|(?=\s*\{))/,
+        inside: {
+          'rule': /^@[\w-]+/,
+          'selector-function-argument': {
+            pattern: /(\bselector\s*\(\s*(?![\s)]))(?:[^()\s]|\s+(?![\s)])|\((?:[^()]|\([^()]*\))*\))+(?=\s*\))/,
+            lookbehind: true,
+            alias: 'selector'
+          },
+          'keyword': {
+            pattern: /(^|[^\w-])(?:and|not|only|or)(?![\w-])/,
+            lookbehind: true
+          } // See rest below
+
+        }
+      },
+      'url': {
+        // https://drafts.csswg.org/css-values-3/#urls
+        pattern: RegExp('\\burl\\((?:' + string.source + '|' + /(?:[^\\\r\n()"']|\\[\s\S])*/.source + ')\\)', 'i'),
+        greedy: true,
+        inside: {
+          'function': /^url/i,
+          'punctuation': /^\(|\)$/,
+          'string': {
+            pattern: RegExp('^' + string.source + '$'),
+            alias: 'url'
+          }
+        }
+      },
+      'selector': RegExp('[^{}\\s](?:[^{};"\'\\s]|\\s+(?![\\s{])|' + string.source + ')*(?=\\s*\\{)'),
+      'string': {
+        pattern: string,
+        greedy: true
+      },
+      'property': /(?!\s)[-_a-z\xA0-\uFFFF](?:(?!\s)[-\w\xA0-\uFFFF])*(?=\s*:)/i,
+      'important': /!important\b/i,
+      'function': /[-a-z0-9]+(?=\()/i,
+      'punctuation': /[(){};:,]/
+    };
+    Prism.languages.css['atrule'].inside.rest = Prism.languages.css;
+    var markup = Prism.languages.markup;
+
+    if (markup) {
+      markup.tag.addInlined('style', 'css');
+      Prism.languages.insertBefore('inside', 'attr-value', {
+        'style-attr': {
+          pattern: /(^|["'\s])style\s*=\s*(?:"[^"]*"|'[^']*')/i,
+          lookbehind: true,
+          inside: {
+            'attr-value': {
+              pattern: /=\s*(?:"[^"]*"|'[^']*'|[^\s'">=]+)/,
+              inside: {
+                'style': {
+                  pattern: /(["'])[\s\S]+(?=["']$)/,
+                  lookbehind: true,
+                  alias: 'language-css',
+                  inside: Prism.languages.css
+                },
+                'punctuation': [{
+                  pattern: /^=/,
+                  alias: 'attr-equals'
+                }, /"|'/]
+              }
+            },
+            'attr-name': /^style/i
+          }
+        }
+      }, markup.tag);
+    }
+  })(Prism);
+  /* "prismjs/components/prism-css-extras" */
+
+
+  (function (Prism) {
+    var string = /("|')(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/;
+    var selectorInside;
+    Prism.languages.css.selector = {
+      pattern: Prism.languages.css.selector,
+      inside: selectorInside = {
+        'pseudo-element': /:(?:after|before|first-letter|first-line|selection)|::[-\w]+/,
+        'pseudo-class': /:[-\w]+/,
+        'class': /\.[-\w]+/,
+        'id': /#[-\w]+/,
+        'attribute': {
+          pattern: RegExp('\\[(?:[^[\\]"\']|' + string.source + ')*\\]'),
+          greedy: true,
+          inside: {
+            'punctuation': /^\[|\]$/,
+            'case-sensitivity': {
+              pattern: /(\s)[si]$/i,
+              lookbehind: true,
+              alias: 'keyword'
+            },
+            'namespace': {
+              pattern: /^(\s*)(?:(?!\s)[-*\w\xA0-\uFFFF])*\|(?!=)/,
+              lookbehind: true,
+              inside: {
+                'punctuation': /\|$/
+              }
+            },
+            'attr-name': {
+              pattern: /^(\s*)(?:(?!\s)[-\w\xA0-\uFFFF])+/,
+              lookbehind: true
+            },
+            'attr-value': [string, {
+              pattern: /(=\s*)(?:(?!\s)[-\w\xA0-\uFFFF])+(?=\s*$)/,
+              lookbehind: true
+            }],
+            'operator': /[|~*^$]?=/
+          }
+        },
+        'n-th': [{
+          pattern: /(\(\s*)[+-]?\d*[\dn](?:\s*[+-]\s*\d+)?(?=\s*\))/,
+          lookbehind: true,
+          inside: {
+            'number': /[\dn]+/,
+            'operator': /[+-]/
+          }
+        }, {
+          pattern: /(\(\s*)(?:even|odd)(?=\s*\))/i,
+          lookbehind: true
+        }],
+        'combinator': />|\+|~|\|\|/,
+        // the `tag` token has been existed and removed.
+        // because we can't find a perfect tokenize to match it.
+        // if you want to add it, please read https://github.com/PrismJS/prism/pull/2373 first.
+        'punctuation': /[(),]/
+      }
+    };
+    Prism.languages.css['atrule'].inside['selector-function-argument'].inside = selectorInside;
+    Prism.languages.insertBefore('css', 'property', {
+      'variable': {
+        pattern: /(^|[^-\w\xA0-\uFFFF])--(?!\s)[-_a-z\xA0-\uFFFF](?:(?!\s)[-\w\xA0-\uFFFF])*/i,
+        lookbehind: true
+      }
+    });
+    var unit = {
+      pattern: /(\b\d+)(?:%|[a-z]+\b)/,
+      lookbehind: true
+    }; // 123 -123 .123 -.123 12.3 -12.3
+
+    var number = {
+      pattern: /(^|[^\w.-])-?(?:\d+(?:\.\d+)?|\.\d+)/,
+      lookbehind: true
+    };
+    Prism.languages.insertBefore('css', 'function', {
+      'operator': {
+        pattern: /(\s)[+\-*\/](?=\s)/,
+        lookbehind: true
+      },
+      // CAREFUL!
+      // Previewers and Inline color use hexcode and color.
+      'hexcode': {
+        pattern: /\B#(?:[\da-f]{1,2}){3,4}\b/i,
+        alias: 'color'
+      },
+      'color': [/\b(?:AliceBlue|AntiqueWhite|Aqua|Aquamarine|Azure|Beige|Bisque|Black|BlanchedAlmond|Blue|BlueViolet|Brown|BurlyWood|CadetBlue|Chartreuse|Chocolate|Coral|CornflowerBlue|Cornsilk|Crimson|Cyan|DarkBlue|DarkCyan|DarkGoldenRod|DarkGr[ae]y|DarkGreen|DarkKhaki|DarkMagenta|DarkOliveGreen|DarkOrange|DarkOrchid|DarkRed|DarkSalmon|DarkSeaGreen|DarkSlateBlue|DarkSlateGr[ae]y|DarkTurquoise|DarkViolet|DeepPink|DeepSkyBlue|DimGr[ae]y|DodgerBlue|FireBrick|FloralWhite|ForestGreen|Fuchsia|Gainsboro|GhostWhite|Gold|GoldenRod|Gr[ae]y|Green|GreenYellow|HoneyDew|HotPink|IndianRed|Indigo|Ivory|Khaki|Lavender|LavenderBlush|LawnGreen|LemonChiffon|LightBlue|LightCoral|LightCyan|LightGoldenRodYellow|LightGr[ae]y|LightGreen|LightPink|LightSalmon|LightSeaGreen|LightSkyBlue|LightSlateGr[ae]y|LightSteelBlue|LightYellow|Lime|LimeGreen|Linen|Magenta|Maroon|MediumAquaMarine|MediumBlue|MediumOrchid|MediumPurple|MediumSeaGreen|MediumSlateBlue|MediumSpringGreen|MediumTurquoise|MediumVioletRed|MidnightBlue|MintCream|MistyRose|Moccasin|NavajoWhite|Navy|OldLace|Olive|OliveDrab|Orange|OrangeRed|Orchid|PaleGoldenRod|PaleGreen|PaleTurquoise|PaleVioletRed|PapayaWhip|PeachPuff|Peru|Pink|Plum|PowderBlue|Purple|Red|RosyBrown|RoyalBlue|SaddleBrown|Salmon|SandyBrown|SeaGreen|SeaShell|Sienna|Silver|SkyBlue|SlateBlue|SlateGr[ae]y|Snow|SpringGreen|SteelBlue|Tan|Teal|Thistle|Tomato|Transparent|Turquoise|Violet|Wheat|White|WhiteSmoke|Yellow|YellowGreen)\b/i, {
+        pattern: /\b(?:rgb|hsl)\(\s*\d{1,3}\s*,\s*\d{1,3}%?\s*,\s*\d{1,3}%?\s*\)\B|\b(?:rgb|hsl)a\(\s*\d{1,3}\s*,\s*\d{1,3}%?\s*,\s*\d{1,3}%?\s*,\s*(?:0|0?\.\d+|1)\s*\)\B/i,
+        inside: {
+          'unit': unit,
+          'number': number,
+          'function': /[\w-]+(?=\()/,
+          'punctuation': /[(),]/
+        }
+      }],
+      // it's important that there is no boundary assertion after the hex digits
+      'entity': /\\[\da-f]{1,8}/i,
+      'unit': unit,
+      'number': number
+    });
+  })(Prism);
+  /* "prismjs/components/prism-javascript" */
+
+
+  Prism.languages.javascript = Prism.languages.extend('clike', {
+    'class-name': [Prism.languages.clike['class-name'], {
+      pattern: /(^|[^$\w\xA0-\uFFFF])(?!\s)[_$A-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\.(?:prototype|constructor))/,
+      lookbehind: true
+    }],
+    'keyword': [{
+      pattern: /((?:^|})\s*)(?:catch|finally)\b/,
+      lookbehind: true
+    }, {
+      pattern: /(^|[^.]|\.\.\.\s*)\b(?:as|async(?=\s*(?:function\b|\(|[$\w\xA0-\uFFFF]|$))|await|break|case|class|const|continue|debugger|default|delete|do|else|enum|export|extends|for|from|function|(?:get|set)(?=\s*[\[$\w\xA0-\uFFFF])|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)\b/,
+      lookbehind: true
+    }],
+    // Allow for all non-ASCII characters (See http://stackoverflow.com/a/2008444)
+    'function': /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*(?:\.\s*(?:apply|bind|call)\s*)?\()/,
+    'number': /\b(?:(?:0[xX](?:[\dA-Fa-f](?:_[\dA-Fa-f])?)+|0[bB](?:[01](?:_[01])?)+|0[oO](?:[0-7](?:_[0-7])?)+)n?|(?:\d(?:_\d)?)+n|NaN|Infinity)\b|(?:\b(?:\d(?:_\d)?)+\.?(?:\d(?:_\d)?)*|\B\.(?:\d(?:_\d)?)+)(?:[Ee][+-]?(?:\d(?:_\d)?)+)?/,
+    'operator': /--|\+\+|\*\*=?|=>|&&=?|\|\|=?|[!=]==|<<=?|>>>?=?|[-+*/%&|^!=<>]=?|\.{3}|\?\?=?|\?\.?|[~:]/
+  });
+  Prism.languages.javascript['class-name'][0].pattern = /(\b(?:class|interface|extends|implements|instanceof|new)\s+)[\w.\\]+/;
+  Prism.languages.insertBefore('javascript', 'keyword', {
+    'regex': {
+      pattern: /((?:^|[^$\w\xA0-\uFFFF."'\])\s]|\b(?:return|yield))\s*)\/(?:\[(?:[^\]\\\r\n]|\\.)*]|\\.|[^/\\\[\r\n])+\/[gimyus]{0,6}(?=(?:\s|\/\*(?:[^*]|\*(?!\/))*\*\/)*(?:$|[\r\n,.;:})\]]|\/\/))/,
+      lookbehind: true,
+      greedy: true,
+      inside: {
+        'regex-source': {
+          pattern: /^(\/)[\s\S]+(?=\/[a-z]*$)/,
+          lookbehind: true,
+          alias: 'language-regex',
+          inside: Prism.languages.regex
+        },
+        'regex-flags': /[a-z]+$/,
+        'regex-delimiter': /^\/|\/$/
+      }
+    },
+    // This must be declared before keyword because we use "function" inside the look-forward
+    'function-variable': {
+      pattern: /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*[=:]\s*(?:async\s*)?(?:\bfunction\b|(?:\((?:[^()]|\([^()]*\))*\)|(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)\s*=>))/,
+      alias: 'function'
+    },
+    'parameter': [{
+      pattern: /(function(?:\s+(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*)?\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\))/,
+      lookbehind: true,
+      inside: Prism.languages.javascript
+    }, {
+      pattern: /(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*=>)/i,
+      inside: Prism.languages.javascript
+    }, {
+      pattern: /(\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*=>)/,
+      lookbehind: true,
+      inside: Prism.languages.javascript
+    }, {
+      pattern: /((?:\b|\s|^)(?!(?:as|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|let|new|null|of|package|private|protected|public|return|set|static|super|switch|this|throw|try|typeof|undefined|var|void|while|with|yield)(?![$\w\xA0-\uFFFF]))(?:(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*\s*)\(\s*|\]\s*\(\s*)(?!\s)(?:[^()\s]|\s+(?![\s)])|\([^()]*\))+(?=\s*\)\s*\{)/,
+      lookbehind: true,
+      inside: Prism.languages.javascript
+    }],
+    'constant': /\b[A-Z](?:[A-Z_]|\dx?)*\b/
+  });
+  Prism.languages.insertBefore('javascript', 'string', {
+    'template-string': {
+      pattern: /`(?:\\[\s\S]|\${(?:[^{}]|{(?:[^{}]|{[^}]*})*})+}|(?!\${)[^\\`])*`/,
+      greedy: true,
+      inside: {
+        'template-punctuation': {
+          pattern: /^`|`$/,
+          alias: 'string'
+        },
+        'interpolation': {
+          pattern: /((?:^|[^\\])(?:\\{2})*)\${(?:[^{}]|{(?:[^{}]|{[^}]*})*})+}/,
+          lookbehind: true,
+          inside: {
+            'interpolation-punctuation': {
+              pattern: /^\${|}$/,
+              alias: 'punctuation'
+            },
+            rest: Prism.languages.javascript
+          }
+        },
+        'string': /[\s\S]+/
+      }
+    }
+  });
+
+  if (Prism.languages.markup) {
+    Prism.languages.markup.tag.addInlined('script', 'javascript');
+  }
+
+  Prism.languages.js = Prism.languages.javascript;
+  /* "prismjs/components/prism-jsx" */
+
+  (function (Prism) {
+    var javascript = Prism.util.clone(Prism.languages.javascript);
+    Prism.languages.jsx = Prism.languages.extend('markup', javascript);
+    Prism.languages.jsx.tag.pattern = /<\/?(?:[\w.:-]+(?:\s+(?:[\w.:$-]+(?:=(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s{'">=]+|\{(?:\{(?:\{[^{}]*\}|[^{}])*\}|[^{}])+\}))?|\{\s*\.{3}\s*[a-z_$][\w$]*(?:\.[a-z_$][\w$]*)*\s*\}))*\s*\/?)?>/i;
+    Prism.languages.jsx.tag.inside['tag'].pattern = /^<\/?[^\s>\/]*/i;
+    Prism.languages.jsx.tag.inside['attr-value'].pattern = /=(?!\{)(?:"(?:\\[^]|[^\\"])*"|'(?:\\[^]|[^\\'])*'|[^\s'">]+)/i;
+    Prism.languages.jsx.tag.inside['tag'].inside['class-name'] = /^[A-Z]\w*(?:\.[A-Z]\w*)*$/;
+    Prism.languages.insertBefore('inside', 'attr-name', {
+      'spread': {
+        pattern: /\{\s*\.{3}\s*[a-z_$][\w$]*(?:\.[a-z_$][\w$]*)*\s*\}/,
+        inside: {
+          'punctuation': /\.{3}|[{}.]/,
+          'attr-value': /\w+/
+        }
+      }
+    }, Prism.languages.jsx.tag);
+    Prism.languages.insertBefore('inside', 'attr-value', {
+      'script': {
+        // Allow for two levels of nesting
+        pattern: /=(?:\{(?:\{(?:\{[^{}]*\}|[^{}])*\}|[^{}])+\})/i,
+        inside: {
+          'script-punctuation': {
+            pattern: /^=(?={)/,
+            alias: 'punctuation'
+          },
+          rest: Prism.languages.jsx
+        },
+        'alias': 'language-javascript'
+      }
+    }, Prism.languages.jsx.tag); // The following will handle plain text inside tags
+
+    var stringifyToken = function (token) {
+      if (!token) {
+        return '';
+      }
+
+      if (typeof token === 'string') {
+        return token;
+      }
+
+      if (typeof token.content === 'string') {
+        return token.content;
+      }
+
+      return token.content.map(stringifyToken).join('');
+    };
+
+    var walkTokens = function (tokens) {
+      var openedTags = [];
+
+      for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+        var notTagNorBrace = false;
+
+        if (typeof token !== 'string') {
+          if (token.type === 'tag' && token.content[0] && token.content[0].type === 'tag') {
+            // We found a tag, now find its kind
+            if (token.content[0].content[0].content === '</') {
+              // Closing tag
+              if (openedTags.length > 0 && openedTags[openedTags.length - 1].tagName === stringifyToken(token.content[0].content[1])) {
+                // Pop matching opening tag
+                openedTags.pop();
+              }
+            } else {
+              if (token.content[token.content.length - 1].content === '/>') ;else {
+                // Opening tag
+                openedTags.push({
+                  tagName: stringifyToken(token.content[0].content[1]),
+                  openedBraces: 0
+                });
+              }
+            }
+          } else if (openedTags.length > 0 && token.type === 'punctuation' && token.content === '{') {
+            // Here we might have entered a JSX context inside a tag
+            openedTags[openedTags.length - 1].openedBraces++;
+          } else if (openedTags.length > 0 && openedTags[openedTags.length - 1].openedBraces > 0 && token.type === 'punctuation' && token.content === '}') {
+            // Here we might have left a JSX context inside a tag
+            openedTags[openedTags.length - 1].openedBraces--;
+          } else {
+            notTagNorBrace = true;
+          }
+        }
+
+        if (notTagNorBrace || typeof token === 'string') {
+          if (openedTags.length > 0 && openedTags[openedTags.length - 1].openedBraces === 0) {
+            // Here we are inside a tag, and not inside a JSX context.
+            // That's plain text: drop any tokens matched.
+            var plainText = stringifyToken(token); // And merge text with adjacent text
+
+            if (i < tokens.length - 1 && (typeof tokens[i + 1] === 'string' || tokens[i + 1].type === 'plain-text')) {
+              plainText += stringifyToken(tokens[i + 1]);
+              tokens.splice(i + 1, 1);
+            }
+
+            if (i > 0 && (typeof tokens[i - 1] === 'string' || tokens[i - 1].type === 'plain-text')) {
+              plainText = stringifyToken(tokens[i - 1]) + plainText;
+              tokens.splice(i - 1, 1);
+              i--;
+            }
+
+            tokens[i] = new Prism.Token('plain-text', plainText, null, plainText);
+          }
+        }
+
+        if (token.content && typeof token.content !== 'string') {
+          walkTokens(token.content);
+        }
+      }
+    };
+
+    Prism.hooks.add('after-tokenize', function (env) {
+      if (env.language !== 'jsx' && env.language !== 'tsx') {
+        return;
+      }
+
+      walkTokens(env.tokens);
+    });
+  })(Prism);
+  /* "prismjs/components/prism-js-extras" */
+
+
+  (function (Prism) {
+    Prism.languages.insertBefore('javascript', 'function-variable', {
+      'method-variable': {
+        pattern: RegExp('(\\.\\s*)' + Prism.languages.javascript['function-variable'].pattern.source),
+        lookbehind: true,
+        alias: ['function-variable', 'method', 'function', 'property-access']
+      }
+    });
+    Prism.languages.insertBefore('javascript', 'function', {
+      'method': {
+        pattern: RegExp('(\\.\\s*)' + Prism.languages.javascript['function'].source),
+        lookbehind: true,
+        alias: ['function', 'property-access']
+      }
+    });
+    Prism.languages.insertBefore('javascript', 'constant', {
+      'known-class-name': [{
+        // standard built-ins
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
+        pattern: /\b(?:(?:(?:Uint|Int)(?:8|16|32)|Uint8Clamped|Float(?:32|64))?Array|ArrayBuffer|BigInt|Boolean|DataView|Date|Error|Function|Intl|JSON|Math|Number|Object|Promise|Proxy|Reflect|RegExp|String|Symbol|(?:Weak)?(?:Set|Map)|WebAssembly)\b/,
+        alias: 'class-name'
+      }, {
+        // errors
+        pattern: /\b(?:[A-Z]\w*)Error\b/,
+        alias: 'class-name'
+      }]
+    });
+    /**
+     * Replaces the `<ID>` placeholder in the given pattern with a pattern for general JS identifiers.
+     *
+     * @param {string} source
+     * @param {string} [flags]
+     * @returns {RegExp}
+     */
+
+    function withId(source, flags) {
+      return RegExp(source.replace(/<ID>/g, function () {
+        return /(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*/.source;
+      }), flags);
+    }
+
+    Prism.languages.insertBefore('javascript', 'keyword', {
+      'imports': {
+        // https://tc39.es/ecma262/#sec-imports
+        pattern: withId(/(\bimport\b\s*)(?:<ID>(?:\s*,\s*(?:\*\s*as\s+<ID>|\{[^{}]*\}))?|\*\s*as\s+<ID>|\{[^{}]*\})(?=\s*\bfrom\b)/.source),
+        lookbehind: true,
+        inside: Prism.languages.javascript
+      },
+      'exports': {
+        // https://tc39.es/ecma262/#sec-exports
+        pattern: withId(/(\bexport\b\s*)(?:\*(?:\s*as\s+<ID>)?(?=\s*\bfrom\b)|\{[^{}]*\})/.source),
+        lookbehind: true,
+        inside: Prism.languages.javascript
+      }
+    });
+    Prism.languages.javascript['keyword'].unshift({
+      pattern: /\b(?:as|default|export|from|import)\b/,
+      alias: 'module'
+    }, {
+      pattern: /\b(?:await|break|catch|continue|do|else|for|finally|if|return|switch|throw|try|while|yield)\b/,
+      alias: 'control-flow'
+    }, {
+      pattern: /\bnull\b/,
+      alias: ['null', 'nil']
+    }, {
+      pattern: /\bundefined\b/,
+      alias: 'nil'
+    });
+    Prism.languages.insertBefore('javascript', 'operator', {
+      'spread': {
+        pattern: /\.{3}/,
+        alias: 'operator'
+      },
+      'arrow': {
+        pattern: /=>/,
+        alias: 'operator'
+      }
+    });
+    Prism.languages.insertBefore('javascript', 'punctuation', {
+      'property-access': {
+        pattern: withId(/(\.\s*)#?<ID>/.source),
+        lookbehind: true
+      },
+      'maybe-class-name': {
+        pattern: /(^|[^$\w\xA0-\uFFFF])[A-Z][$\w\xA0-\uFFFF]+/,
+        lookbehind: true
+      },
+      'dom': {
+        // this contains only a few commonly used DOM variables
+        pattern: /\b(?:document|location|navigator|performance|(?:local|session)Storage|window)\b/,
+        alias: 'variable'
+      },
+      'console': {
+        pattern: /\bconsole(?=\s*\.)/,
+        alias: 'class-name'
+      }
+    }); // add 'maybe-class-name' to tokens which might be a class name
+
+    var maybeClassNameTokens = ['function', 'function-variable', 'method', 'method-variable', 'property-access'];
+
+    for (var i = 0; i < maybeClassNameTokens.length; i++) {
+      var token = maybeClassNameTokens[i];
+      var value = Prism.languages.javascript[token]; // convert regex to object
+
+      if (Prism.util.type(value) === 'RegExp') {
+        value = Prism.languages.javascript[token] = {
+          pattern: value
+        };
+      } // keep in mind that we don't support arrays
+
+
+      var inside = value.inside || {};
+      value.inside = inside;
+      inside['maybe-class-name'] = /^[A-Z][\s\S]*/;
+    }
+  })(Prism);
+  /* "prismjs/components/prism-coffeescript" */
+
+
+  (function (Prism) {
+    // Ignore comments starting with { to privilege string interpolation highlighting
+    var comment = /#(?!\{).+/,
+        interpolation = {
+      pattern: /#\{[^}]+\}/,
+      alias: 'variable'
+    };
+    Prism.languages.coffeescript = Prism.languages.extend('javascript', {
+      'comment': comment,
+      'string': [// Strings are multiline
+      {
+        pattern: /'(?:\\[\s\S]|[^\\'])*'/,
+        greedy: true
+      }, {
+        // Strings are multiline
+        pattern: /"(?:\\[\s\S]|[^\\"])*"/,
+        greedy: true,
+        inside: {
+          'interpolation': interpolation
+        }
+      }],
+      'keyword': /\b(?:and|break|by|catch|class|continue|debugger|delete|do|each|else|extend|extends|false|finally|for|if|in|instanceof|is|isnt|let|loop|namespace|new|no|not|null|of|off|on|or|own|return|super|switch|then|this|throw|true|try|typeof|undefined|unless|until|when|while|window|with|yes|yield)\b/,
+      'class-member': {
+        pattern: /@(?!\d)\w+/,
+        alias: 'variable'
+      }
+    });
+    Prism.languages.insertBefore('coffeescript', 'comment', {
+      'multiline-comment': {
+        pattern: /###[\s\S]+?###/,
+        alias: 'comment'
+      },
+      // Block regexp can contain comments and interpolation
+      'block-regex': {
+        pattern: /\/{3}[\s\S]*?\/{3}/,
+        alias: 'regex',
+        inside: {
+          'comment': comment,
+          'interpolation': interpolation
+        }
+      }
+    });
+    Prism.languages.insertBefore('coffeescript', 'string', {
+      'inline-javascript': {
+        pattern: /`(?:\\[\s\S]|[^\\`])*`/,
+        inside: {
+          'delimiter': {
+            pattern: /^`|`$/,
+            alias: 'punctuation'
+          },
+          'script': {
+            pattern: /[\s\S]+/,
+            alias: 'language-javascript',
+            inside: Prism.languages.javascript
+          }
+        }
+      },
+      // Block strings
+      'multiline-string': [{
+        pattern: /'''[\s\S]*?'''/,
+        greedy: true,
+        alias: 'string'
+      }, {
+        pattern: /"""[\s\S]*?"""/,
+        greedy: true,
+        alias: 'string',
+        inside: {
+          interpolation: interpolation
+        }
+      }]
+    });
+    Prism.languages.insertBefore('coffeescript', 'keyword', {
+      // Object property
+      'property': /(?!\d)\w+(?=\s*:(?!:))/
+    });
+    delete Prism.languages.coffeescript['template-string'];
+    Prism.languages.coffee = Prism.languages.coffeescript;
+  })(Prism);
+  /* "prismjs/components/prism-diff" */
+
+
+  (function (Prism) {
+    Prism.languages.diff = {
+      'coord': [// Match all kinds of coord lines (prefixed by "+++", "---" or "***").
+      /^(?:\*{3}|-{3}|\+{3}).*$/m, // Match "@@ ... @@" coord lines in unified diff.
+      /^@@.*@@$/m, // Match coord lines in normal diff (starts with a number).
+      /^\d.*$/m] // deleted, inserted, unchanged, diff
+
+    };
+    /**
+     * A map from the name of a block to its line prefix.
+     *
+     * @type {Object<string, string>}
+     */
+
+    var PREFIXES = {
+      'deleted-sign': '-',
+      'deleted-arrow': '<',
+      'inserted-sign': '+',
+      'inserted-arrow': '>',
+      'unchanged': ' ',
+      'diff': '!'
+    }; // add a token for each prefix
+
+    Object.keys(PREFIXES).forEach(function (name) {
+      var prefix = PREFIXES[name];
+      var alias = [];
+
+      if (!/^\w+$/.test(name)) {
+        // "deleted-sign" -> "deleted"
+        alias.push(/\w+/.exec(name)[0]);
+      }
+
+      if (name === "diff") {
+        alias.push("bold");
+      }
+
+      Prism.languages.diff[name] = {
+        pattern: RegExp('^(?:[' + prefix + '].*(?:\r\n?|\n|(?![\\s\\S])))+', 'm'),
+        alias: alias,
+        inside: {
+          'line': {
+            pattern: /(.)(?=[\s\S]).*(?:\r\n?|\n)?/,
+            lookbehind: true
+          },
+          'prefix': {
+            pattern: /[\s\S]/,
+            alias: /\w+/.exec(name)[0]
+          }
+        }
+      };
+    }); // make prefixes available to Diff plugin
+
+    Object.defineProperty(Prism.languages.diff, 'PREFIXES', {
+      value: PREFIXES
+    });
+  })(Prism);
+  /* "prismjs/components/prism-git" */
+
+
+  Prism.languages.git = {
+    /*
+     * A simple one line comment like in a git status command
+     * For instance:
+     * $ git status
+     * # On branch infinite-scroll
+     * # Your branch and 'origin/sharedBranches/frontendTeam/infinite-scroll' have diverged,
+     * # and have 1 and 2 different commits each, respectively.
+     * nothing to commit (working directory clean)
+     */
+    'comment': /^#.*/m,
+
+    /*
+     * Regexp to match the changed lines in a git diff output. Check the example below.
+     */
+    'deleted': /^[-–].*/m,
+    'inserted': /^\+.*/m,
+
+    /*
+     * a string (double and simple quote)
+     */
+    'string': /("|')(?:\\.|(?!\1)[^\\\r\n])*\1/m,
+
+    /*
+     * a git command. It starts with a random prompt finishing by a $, then "git" then some other parameters
+     * For instance:
+     * $ git add file.txt
+     */
+    'command': {
+      pattern: /^.*\$ git .*$/m,
+      inside: {
+        /*
+         * A git command can contain a parameter starting by a single or a double dash followed by a string
+         * For instance:
+         * $ git diff --cached
+         * $ git log -p
+         */
+        'parameter': /\s--?\w+/m
+      }
+    },
+
+    /*
+     * Coordinates displayed in a git diff command
+     * For instance:
+     * $ git diff
+     * diff --git file.txt file.txt
+     * index 6214953..1d54a52 100644
+     * --- file.txt
+     * +++ file.txt
+     * @@ -1 +1,2 @@
+     * -Here's my tetx file
+     * +Here's my text file
+     * +And this is the second line
+     */
+    'coord': /^@@.*@@$/m,
+
+    /*
+     * Match a "commit [SHA1]" line in a git log output.
+     * For instance:
+     * $ git log
+     * commit a11a14ef7e26f2ca62d4b35eac455ce636d0dc09
+     * Author: lgiraudel
+     * Date:   Mon Feb 17 11:18:34 2014 +0100
+     *
+     *     Add of a new line
+     */
+    'commit-sha1': /^commit \w{40}$/m
+  };
+  /* "prismjs/components/prism-go" */
+
+  Prism.languages.go = Prism.languages.extend('clike', {
+    'string': {
+      pattern: /(["'`])(?:\\[\s\S]|(?!\1)[^\\])*\1/,
+      greedy: true
+    },
+    'keyword': /\b(?:break|case|chan|const|continue|default|defer|else|fallthrough|for|func|go(?:to)?|if|import|interface|map|package|range|return|select|struct|switch|type|var)\b/,
+    'boolean': /\b(?:_|iota|nil|true|false)\b/,
+    'number': /(?:\b0x[a-f\d]+|(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:e[-+]?\d+)?)i?/i,
+    'operator': /[*\/%^!=]=?|\+[=+]?|-[=-]?|\|[=|]?|&(?:=|&|\^=?)?|>(?:>=?|=)?|<(?:<=?|=|-)?|:=|\.\.\./,
+    'builtin': /\b(?:bool|byte|complex(?:64|128)|error|float(?:32|64)|rune|string|u?int(?:8|16|32|64)?|uintptr|append|cap|close|complex|copy|delete|imag|len|make|new|panic|print(?:ln)?|real|recover)\b/
+  });
+  delete Prism.languages.go['class-name'];
+  /* "prismjs/components/prism-graphql" */
+
+  Prism.languages.graphql = {
+    'comment': /#.*/,
+    'description': {
+      pattern: /(?:"""(?:[^"]|(?!""")")*"""|"(?:\\.|[^\\"\r\n])*")(?=\s*[a-z_])/i,
+      greedy: true,
+      alias: 'string',
+      inside: {
+        'language-markdown': {
+          pattern: /(^"(?:"")?)(?!\1)[\s\S]+(?=\1$)/,
+          lookbehind: true,
+          inside: Prism.languages.markdown
+        }
+      }
+    },
+    'string': {
+      pattern: /"""(?:[^"]|(?!""")")*"""|"(?:\\.|[^\\"\r\n])*"/,
+      greedy: true
+    },
+    'number': /(?:\B-|\b)\d+(?:\.\d+)?(?:e[+-]?\d+)?\b/i,
+    'boolean': /\b(?:true|false)\b/,
+    'variable': /\$[a-z_]\w*/i,
+    'directive': {
+      pattern: /@[a-z_]\w*/i,
+      alias: 'function'
+    },
+    'attr-name': {
+      pattern: /[a-z_]\w*(?=\s*(?:\((?:[^()"]|"(?:\\.|[^\\"\r\n])*")*\))?:)/i,
+      greedy: true
+    },
+    'class-name': {
+      pattern: /(\b(?:enum|implements|interface|on|scalar|type|union)\s+|&\s*)[a-zA-Z_]\w*/,
+      lookbehind: true
+    },
+    'fragment': {
+      pattern: /(\bfragment\s+|\.{3}\s*(?!on\b))[a-zA-Z_]\w*/,
+      lookbehind: true,
+      alias: 'function'
+    },
+    'keyword': /\b(?:directive|enum|extend|fragment|implements|input|interface|mutation|on|query|repeatable|scalar|schema|subscription|type|union)\b/,
+    'operator': /[!=|&]|\.{3}/,
+    'punctuation': /[!(){}\[\]:=,]/,
+    'constant': /\b(?!ID\b)[A-Z][A-Z_\d]*\b/
+  };
+  /* "prismjs/components/prism-markup-templating" */
+
+  (function (Prism) {
+    /**
+     * Returns the placeholder for the given language id and index.
+     *
+     * @param {string} language
+     * @param {string|number} index
+     * @returns {string}
+     */
+    function getPlaceholder(language, index) {
+      return '___' + language.toUpperCase() + index + '___';
+    }
+
+    Object.defineProperties(Prism.languages['markup-templating'] = {}, {
+      buildPlaceholders: {
+        /**
+         * Tokenize all inline templating expressions matching `placeholderPattern`.
+         *
+         * If `replaceFilter` is provided, only matches of `placeholderPattern` for which `replaceFilter` returns
+         * `true` will be replaced.
+         *
+         * @param {object} env The environment of the `before-tokenize` hook.
+         * @param {string} language The language id.
+         * @param {RegExp} placeholderPattern The matches of this pattern will be replaced by placeholders.
+         * @param {(match: string) => boolean} [replaceFilter]
+         */
+        value: function (env, language, placeholderPattern, replaceFilter) {
+          if (env.language !== language) {
+            return;
+          }
+
+          var tokenStack = env.tokenStack = [];
+          env.code = env.code.replace(placeholderPattern, function (match) {
+            if (typeof replaceFilter === 'function' && !replaceFilter(match)) {
+              return match;
+            }
+
+            var i = tokenStack.length;
+            var placeholder; // Check for existing strings
+
+            while (env.code.indexOf(placeholder = getPlaceholder(language, i)) !== -1) {
+              ++i;
+            } // Create a sparse array
+
+
+            tokenStack[i] = match;
+            return placeholder;
+          }); // Switch the grammar to markup
+
+          env.grammar = Prism.languages.markup;
+        }
+      },
+      tokenizePlaceholders: {
+        /**
+         * Replace placeholders with proper tokens after tokenizing.
+         *
+         * @param {object} env The environment of the `after-tokenize` hook.
+         * @param {string} language The language id.
+         */
+        value: function (env, language) {
+          if (env.language !== language || !env.tokenStack) {
+            return;
+          } // Switch the grammar back
+
+
+          env.grammar = Prism.languages[language];
+          var j = 0;
+          var keys = Object.keys(env.tokenStack);
+
+          function walkTokens(tokens) {
+            for (var i = 0; i < tokens.length; i++) {
+              // all placeholders are replaced already
+              if (j >= keys.length) {
+                break;
+              }
+
+              var token = tokens[i];
+
+              if (typeof token === 'string' || token.content && typeof token.content === 'string') {
+                var k = keys[j];
+                var t = env.tokenStack[k];
+                var s = typeof token === 'string' ? token : token.content;
+                var placeholder = getPlaceholder(language, k);
+                var index = s.indexOf(placeholder);
+
+                if (index > -1) {
+                  ++j;
+                  var before = s.substring(0, index);
+                  var middle = new Prism.Token(language, Prism.tokenize(t, env.grammar), 'language-' + language, t);
+                  var after = s.substring(index + placeholder.length);
+                  var replacement = [];
+
+                  if (before) {
+                    replacement.push.apply(replacement, walkTokens([before]));
+                  }
+
+                  replacement.push(middle);
+
+                  if (after) {
+                    replacement.push.apply(replacement, walkTokens([after]));
+                  }
+
+                  if (typeof token === 'string') {
+                    tokens.splice.apply(tokens, [i, 1].concat(replacement));
+                  } else {
+                    token.content = replacement;
+                  }
+                }
+              } else if (token.content
+              /* && typeof token.content !== 'string' */
+              ) {
+                walkTokens(token.content);
+              }
+            }
+
+            return tokens;
+          }
+
+          walkTokens(env.tokens);
+        }
+      }
+    });
+  })(Prism);
+  /* "prismjs/components/prism-handlebars" */
+
+
+  (function (Prism) {
+    Prism.languages.handlebars = {
+      'comment': /\{\{![\s\S]*?\}\}/,
+      'delimiter': {
+        pattern: /^\{\{\{?|\}\}\}?$/i,
+        alias: 'punctuation'
+      },
+      'string': /(["'])(?:\\.|(?!\1)[^\\\r\n])*\1/,
+      'number': /\b0x[\dA-Fa-f]+\b|(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:[Ee][+-]?\d+)?/,
+      'boolean': /\b(?:true|false)\b/,
+      'block': {
+        pattern: /^(\s*(?:~\s*)?)[#\/]\S+?(?=\s*(?:~\s*)?$|\s)/i,
+        lookbehind: true,
+        alias: 'keyword'
+      },
+      'brackets': {
+        pattern: /\[[^\]]+\]/,
+        inside: {
+          punctuation: /\[|\]/,
+          variable: /[\s\S]+/
+        }
+      },
+      'punctuation': /[!"#%&':()*+,.\/;<=>@\[\\\]^`{|}~]/,
+      'variable': /[^!"#%&'()*+,\/;<=>@\[\\\]^`{|}~\s]+/
+    };
+    Prism.hooks.add('before-tokenize', function (env) {
+      var handlebarsPattern = /\{\{\{[\s\S]+?\}\}\}|\{\{[\s\S]+?\}\}/g;
+      Prism.languages['markup-templating'].buildPlaceholders(env, 'handlebars', handlebarsPattern);
+    });
+    Prism.hooks.add('after-tokenize', function (env) {
+      Prism.languages['markup-templating'].tokenizePlaceholders(env, 'handlebars');
+    });
+  })(Prism);
+  /* "prismjs/components/prism-json" */
+  // https://www.json.org/json-en.html
+
+
+  Prism.languages.json = {
+    'property': {
+      pattern: /"(?:\\.|[^\\"\r\n])*"(?=\s*:)/,
+      greedy: true
+    },
+    'string': {
+      pattern: /"(?:\\.|[^\\"\r\n])*"(?!\s*:)/,
+      greedy: true
+    },
+    'comment': {
+      pattern: /\/\/.*|\/\*[\s\S]*?(?:\*\/|$)/,
+      greedy: true
+    },
+    'number': /-?\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b/i,
+    'punctuation': /[{}[\],]/,
+    'operator': /:/,
+    'boolean': /\b(?:true|false)\b/,
+    'null': {
+      pattern: /\bnull\b/,
+      alias: 'keyword'
+    }
+  };
+  Prism.languages.webmanifest = Prism.languages.json;
+  /* "prismjs/components/prism-less" */
+
+  /* FIXME :
+   :extend() is not handled specifically : its highlighting is buggy.
+   Mixin usage must be inside a ruleset to be highlighted.
+   At-rules (e.g. import) containing interpolations are buggy.
+   Detached rulesets are highlighted as at-rules.
+   A comment before a mixin usage prevents the latter to be properly highlighted.
+   */
+
+  Prism.languages.less = Prism.languages.extend('css', {
+    'comment': [/\/\*[\s\S]*?\*\//, {
+      pattern: /(^|[^\\])\/\/.*/,
+      lookbehind: true
+    }],
+    'atrule': {
+      pattern: /@[\w-](?:\((?:[^(){}]|\([^(){}]*\))*\)|[^(){};\s]|\s+(?!\s))*?(?=\s*\{)/,
+      inside: {
+        'punctuation': /[:()]/
+      }
+    },
+    // selectors and mixins are considered the same
+    'selector': {
+      pattern: /(?:@\{[\w-]+\}|[^{};\s@])(?:@\{[\w-]+\}|\((?:[^(){}]|\([^(){}]*\))*\)|[^(){};@\s]|\s+(?!\s))*?(?=\s*\{)/,
+      inside: {
+        // mixin parameters
+        'variable': /@+[\w-]+/
+      }
+    },
+    'property': /(?:@\{[\w-]+\}|[\w-])+(?:\+_?)?(?=\s*:)/i,
+    'operator': /[+\-*\/]/
+  });
+  Prism.languages.insertBefore('less', 'property', {
+    'variable': [// Variable declaration (the colon must be consumed!)
+    {
+      pattern: /@[\w-]+\s*:/,
+      inside: {
+        "punctuation": /:/
+      }
+    }, // Variable usage
+    /@@?[\w-]+/],
+    'mixin-usage': {
+      pattern: /([{;]\s*)[.#](?!\d)[\w-].*?(?=[(;])/,
+      lookbehind: true,
+      alias: 'function'
+    }
+  });
+  /* "prismjs/components/prism-makefile" */
+
+  Prism.languages.makefile = {
+    'comment': {
+      pattern: /(^|[^\\])#(?:\\(?:\r\n|[\s\S])|[^\\\r\n])*/,
+      lookbehind: true
+    },
+    'string': {
+      pattern: /(["'])(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1/,
+      greedy: true
+    },
+    // Built-in target names
+    'builtin': /\.[A-Z][^:#=\s]+(?=\s*:(?!=))/,
+    // Targets
+    'symbol': {
+      pattern: /^(?:[^:=\s]|[ \t]+(?![\s:]))+(?=\s*:(?!=))/m,
+      inside: {
+        'variable': /\$+(?:(?!\$)[^(){}:#=\s]+|(?=[({]))/
+      }
+    },
+    'variable': /\$+(?:(?!\$)[^(){}:#=\s]+|\([@*%<^+?][DF]\)|(?=[({]))/,
+    'keyword': [// Directives
+    /-include\b|\b(?:define|else|endef|endif|export|ifn?def|ifn?eq|include|override|private|sinclude|undefine|unexport|vpath)\b/, // Functions
+    {
+      pattern: /(\()(?:addsuffix|abspath|and|basename|call|dir|error|eval|file|filter(?:-out)?|findstring|firstword|flavor|foreach|guile|if|info|join|lastword|load|notdir|or|origin|patsubst|realpath|shell|sort|strip|subst|suffix|value|warning|wildcard|word(?:s|list)?)(?=[ \t])/,
+      lookbehind: true
+    }],
+    'operator': /(?:::|[?:+!])?=|[|@]/,
+    'punctuation': /[:;(){}]/
+  };
+  /* "prismjs/components/prism-markdown" */
+
+  (function (Prism) {
+    // Allow only one line break
+    var inner = /(?:\\.|[^\\\n\r]|(?:\n|\r\n?)(?!\n|\r\n?))/.source;
+    /**
+     * This function is intended for the creation of the bold or italic pattern.
+     *
+     * This also adds a lookbehind group to the given pattern to ensure that the pattern is not backslash-escaped.
+     *
+     * _Note:_ Keep in mind that this adds a capturing group.
+     *
+     * @param {string} pattern
+     * @returns {RegExp}
+     */
+
+    function createInline(pattern) {
+      pattern = pattern.replace(/<inner>/g, function () {
+        return inner;
+      });
+      return RegExp(/((?:^|[^\\])(?:\\{2})*)/.source + '(?:' + pattern + ')');
+    }
+
+    var tableCell = /(?:\\.|``(?:[^`\r\n]|`(?!`))+``|`[^`\r\n]+`|[^\\|\r\n`])+/.source;
+    var tableRow = /\|?__(?:\|__)+\|?(?:(?:\n|\r\n?)|(?![\s\S]))/.source.replace(/__/g, function () {
+      return tableCell;
+    });
+    var tableLine = /\|?[ \t]*:?-{3,}:?[ \t]*(?:\|[ \t]*:?-{3,}:?[ \t]*)+\|?(?:\n|\r\n?)/.source;
+    Prism.languages.markdown = Prism.languages.extend('markup', {});
+    Prism.languages.insertBefore('markdown', 'prolog', {
+      'front-matter-block': {
+        pattern: /(^(?:\s*[\r\n])?)---(?!.)[\s\S]*?[\r\n]---(?!.)/,
+        lookbehind: true,
+        greedy: true,
+        inside: {
+          'punctuation': /^---|---$/,
+          'font-matter': {
+            pattern: /\S+(?:\s+\S+)*/,
+            alias: ['yaml', 'language-yaml'],
+            inside: Prism.languages.yaml
+          }
+        }
+      },
+      'blockquote': {
+        // > ...
+        pattern: /^>(?:[\t ]*>)*/m,
+        alias: 'punctuation'
+      },
+      'table': {
+        pattern: RegExp('^' + tableRow + tableLine + '(?:' + tableRow + ')*', 'm'),
+        inside: {
+          'table-data-rows': {
+            pattern: RegExp('^(' + tableRow + tableLine + ')(?:' + tableRow + ')*$'),
+            lookbehind: true,
+            inside: {
+              'table-data': {
+                pattern: RegExp(tableCell),
+                inside: Prism.languages.markdown
+              },
+              'punctuation': /\|/
+            }
+          },
+          'table-line': {
+            pattern: RegExp('^(' + tableRow + ')' + tableLine + '$'),
+            lookbehind: true,
+            inside: {
+              'punctuation': /\||:?-{3,}:?/
+            }
+          },
+          'table-header-row': {
+            pattern: RegExp('^' + tableRow + '$'),
+            inside: {
+              'table-header': {
+                pattern: RegExp(tableCell),
+                alias: 'important',
+                inside: Prism.languages.markdown
+              },
+              'punctuation': /\|/
+            }
+          }
+        }
+      },
+      'code': [{
+        // Prefixed by 4 spaces or 1 tab and preceded by an empty line
+        pattern: /((?:^|\n)[ \t]*\n|(?:^|\r\n?)[ \t]*\r\n?)(?: {4}|\t).+(?:(?:\n|\r\n?)(?: {4}|\t).+)*/,
+        lookbehind: true,
+        alias: 'keyword'
+      }, {
+        // `code`
+        // ``code``
+        pattern: /``.+?``|`[^`\r\n]+`/,
+        alias: 'keyword'
+      }, {
+        // ```optional language
+        // code block
+        // ```
+        pattern: /^```[\s\S]*?^```$/m,
+        greedy: true,
+        inside: {
+          'code-block': {
+            pattern: /^(```.*(?:\n|\r\n?))[\s\S]+?(?=(?:\n|\r\n?)^```$)/m,
+            lookbehind: true
+          },
+          'code-language': {
+            pattern: /^(```).+/,
+            lookbehind: true
+          },
+          'punctuation': /```/
+        }
+      }],
+      'title': [{
+        // title 1
+        // =======
+        // title 2
+        // -------
+        pattern: /\S.*(?:\n|\r\n?)(?:==+|--+)(?=[ \t]*$)/m,
+        alias: 'important',
+        inside: {
+          punctuation: /==+$|--+$/
+        }
+      }, {
+        // # title 1
+        // ###### title 6
+        pattern: /(^\s*)#.+/m,
+        lookbehind: true,
+        alias: 'important',
+        inside: {
+          punctuation: /^#+|#+$/
+        }
+      }],
+      'hr': {
+        // ***
+        // ---
+        // * * *
+        // -----------
+        pattern: /(^\s*)([*-])(?:[\t ]*\2){2,}(?=\s*$)/m,
+        lookbehind: true,
+        alias: 'punctuation'
+      },
+      'list': {
+        // * item
+        // + item
+        // - item
+        // 1. item
+        pattern: /(^\s*)(?:[*+-]|\d+\.)(?=[\t ].)/m,
+        lookbehind: true,
+        alias: 'punctuation'
+      },
+      'url-reference': {
+        // [id]: http://example.com "Optional title"
+        // [id]: http://example.com 'Optional title'
+        // [id]: http://example.com (Optional title)
+        // [id]: <http://example.com> "Optional title"
+        pattern: /!?\[[^\]]+\]:[\t ]+(?:\S+|<(?:\\.|[^>\\])+>)(?:[\t ]+(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\((?:\\.|[^)\\])*\)))?/,
+        inside: {
+          'variable': {
+            pattern: /^(!?\[)[^\]]+/,
+            lookbehind: true
+          },
+          'string': /(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\((?:\\.|[^)\\])*\))$/,
+          'punctuation': /^[\[\]!:]|[<>]/
+        },
+        alias: 'url'
+      },
+      'bold': {
+        // **strong**
+        // __strong__
+        // allow one nested instance of italic text using the same delimiter
+        pattern: createInline(/\b__(?:(?!_)<inner>|_(?:(?!_)<inner>)+_)+__\b|\*\*(?:(?!\*)<inner>|\*(?:(?!\*)<inner>)+\*)+\*\*/.source),
+        lookbehind: true,
+        greedy: true,
+        inside: {
+          'content': {
+            pattern: /(^..)[\s\S]+(?=..$)/,
+            lookbehind: true,
+            inside: {} // see below
+
+          },
+          'punctuation': /\*\*|__/
+        }
+      },
+      'italic': {
+        // *em*
+        // _em_
+        // allow one nested instance of bold text using the same delimiter
+        pattern: createInline(/\b_(?:(?!_)<inner>|__(?:(?!_)<inner>)+__)+_\b|\*(?:(?!\*)<inner>|\*\*(?:(?!\*)<inner>)+\*\*)+\*/.source),
+        lookbehind: true,
+        greedy: true,
+        inside: {
+          'content': {
+            pattern: /(^.)[\s\S]+(?=.$)/,
+            lookbehind: true,
+            inside: {} // see below
+
+          },
+          'punctuation': /[*_]/
+        }
+      },
+      'strike': {
+        // ~~strike through~~
+        // ~strike~
+        pattern: createInline(/(~~?)(?:(?!~)<inner>)+?\2/.source),
+        lookbehind: true,
+        greedy: true,
+        inside: {
+          'content': {
+            pattern: /(^~~?)[\s\S]+(?=\1$)/,
+            lookbehind: true,
+            inside: {} // see below
+
+          },
+          'punctuation': /~~?/
+        }
+      },
+      'url': {
+        // [example](http://example.com "Optional title")
+        // [example][id]
+        // [example] [id]
+        pattern: createInline(/!?\[(?:(?!\])<inner>)+\](?:\([^\s)]+(?:[\t ]+"(?:\\.|[^"\\])*")?\)|[ \t]?\[(?:(?!\])<inner>)+\])/.source),
+        lookbehind: true,
+        greedy: true,
+        inside: {
+          'operator': /^!/,
+          'content': {
+            pattern: /(^\[)[^\]]+(?=\])/,
+            lookbehind: true,
+            inside: {} // see below
+
+          },
+          'variable': {
+            pattern: /(^\][ \t]?\[)[^\]]+(?=\]$)/,
+            lookbehind: true
+          },
+          'url': {
+            pattern: /(^\]\()[^\s)]+/,
+            lookbehind: true
+          },
+          'string': {
+            pattern: /(^[ \t]+)"(?:\\.|[^"\\])*"(?=\)$)/,
+            lookbehind: true
+          }
+        }
+      }
+    });
+    ['url', 'bold', 'italic', 'strike'].forEach(function (token) {
+      ['url', 'bold', 'italic', 'strike'].forEach(function (inside) {
+        if (token !== inside) {
+          Prism.languages.markdown[token].inside.content.inside[inside] = Prism.languages.markdown[inside];
+        }
+      });
+    });
+    Prism.hooks.add('after-tokenize', function (env) {
+      if (env.language !== 'markdown' && env.language !== 'md') {
+        return;
+      }
+
+      function walkTokens(tokens) {
+        if (!tokens || typeof tokens === 'string') {
+          return;
+        }
+
+        for (var i = 0, l = tokens.length; i < l; i++) {
+          var token = tokens[i];
+
+          if (token.type !== 'code') {
+            walkTokens(token.content);
+            continue;
+          }
+          /*
+           * Add the correct `language-xxxx` class to this code block. Keep in mind that the `code-language` token
+           * is optional. But the grammar is defined so that there is only one case we have to handle:
+           *
+           * token.content = [
+           *     <span class="punctuation">```</span>,
+           *     <span class="code-language">xxxx</span>,
+           *     '\n', // exactly one new lines (\r or \n or \r\n)
+           *     <span class="code-block">...</span>,
+           *     '\n', // exactly one new lines again
+           *     <span class="punctuation">```</span>
+           * ];
+           */
+
+
+          var codeLang = token.content[1];
+          var codeBlock = token.content[3];
+
+          if (codeLang && codeBlock && codeLang.type === 'code-language' && codeBlock.type === 'code-block' && typeof codeLang.content === 'string') {
+            // this might be a language that Prism does not support
+            // do some replacements to support C++, C#, and F#
+            var lang = codeLang.content.replace(/\b#/g, 'sharp').replace(/\b\+\+/g, 'pp'); // only use the first word
+
+            lang = (/[a-z][\w-]*/i.exec(lang) || [''])[0].toLowerCase();
+            var alias = 'language-' + lang; // add alias
+
+            if (!codeBlock.alias) {
+              codeBlock.alias = [alias];
+            } else if (typeof codeBlock.alias === 'string') {
+              codeBlock.alias = [codeBlock.alias, alias];
+            } else {
+              codeBlock.alias.push(alias);
+            }
+          }
+        }
+      }
+
+      walkTokens(env.tokens);
+    });
+    Prism.hooks.add('wrap', function (env) {
+      if (env.type !== 'code-block') {
+        return;
+      }
+
+      var codeLang = '';
+
+      for (var i = 0, l = env.classes.length; i < l; i++) {
+        var cls = env.classes[i];
+        var match = /language-(.+)/.exec(cls);
+
+        if (match) {
+          codeLang = match[1];
+          break;
+        }
+      }
+
+      var grammar = Prism.languages[codeLang];
+
+      if (!grammar) {
+        if (codeLang && codeLang !== 'none' && Prism.plugins.autoloader) {
+          var id = 'md-' + new Date().valueOf() + '-' + Math.floor(Math.random() * 1e16);
+          env.attributes['id'] = id;
+          Prism.plugins.autoloader.loadLanguages(codeLang, function () {
+            var ele = document.getElementById(id);
+
+            if (ele) {
+              ele.innerHTML = Prism.highlight(ele.textContent, Prism.languages[codeLang], codeLang);
+            }
+          });
+        }
+      } else {
+        // reverse Prism.util.encode
+        var code = env.content.replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+        env.content = Prism.highlight(code, grammar, codeLang);
+      }
+    });
+    Prism.languages.md = Prism.languages.markdown;
+  })(Prism);
+  /* "prismjs/components/prism-objectivec" */
+
+
+  Prism.languages.objectivec = Prism.languages.extend('c', {
+    'string': /("|')(?:\\(?:\r\n|[\s\S])|(?!\1)[^\\\r\n])*\1|@"(?:\\(?:\r\n|[\s\S])|[^"\\\r\n])*"/,
+    'keyword': /\b(?:asm|typeof|inline|auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|in|self|super)\b|(?:@interface|@end|@implementation|@protocol|@class|@public|@protected|@private|@property|@try|@catch|@finally|@throw|@synthesize|@dynamic|@selector)\b/,
+    'operator': /-[->]?|\+\+?|!=?|<<?=?|>>?=?|==?|&&?|\|\|?|[~^%?*\/@]/
+  });
+  delete Prism.languages.objectivec['class-name'];
+  Prism.languages.objc = Prism.languages.objectivec;
+  /* "prismjs/components/prism-ocaml" */
+
+  Prism.languages.ocaml = {
+    'comment': /\(\*[\s\S]*?\*\)/,
+    'string': [{
+      pattern: /"(?:\\.|[^\\\r\n"])*"/,
+      greedy: true
+    }, {
+      pattern: /(['`])(?:\\(?:\d+|x[\da-f]+|.)|(?!\1)[^\\\r\n])\1/i,
+      greedy: true
+    }],
+    'number': /\b(?:0x[\da-f][\da-f_]+|(?:0[bo])?\d[\d_]*(?:\.[\d_]*)?(?:e[+-]?[\d_]+)?)/i,
+    'directive': {
+      pattern: /\B#\w+/,
+      alias: 'important'
+    },
+    'label': {
+      pattern: /\B~\w+/,
+      alias: 'function'
+    },
+    'type-variable': {
+      pattern: /\B'\w+/,
+      alias: 'function'
+    },
+    'variant': {
+      pattern: /`\w+/,
+      alias: 'variable'
+    },
+    'module': {
+      pattern: /\b[A-Z]\w+/,
+      alias: 'variable'
+    },
+    // For the list of keywords and operators,
+    // see: http://caml.inria.fr/pub/docs/manual-ocaml/lex.html#sec84
+    'keyword': /\b(?:as|assert|begin|class|constraint|do|done|downto|else|end|exception|external|for|fun|function|functor|if|in|include|inherit|initializer|lazy|let|match|method|module|mutable|new|nonrec|object|of|open|private|rec|sig|struct|then|to|try|type|val|value|virtual|when|where|while|with)\b/,
+    'boolean': /\b(?:false|true)\b/,
+    // Custom operators are allowed
+    'operator': /:=|[=<>@^|&+\-*\/$%!?~][!$%&*+\-.\/:<=>?@^|~]*|\b(?:and|asr|land|lor|lsl|lsr|lxor|mod|or)\b/,
+    'punctuation': /[(){}\[\]|.,:;]|\b_\b/
+  };
+  /* "prismjs/components/prism-python" */
+
+  Prism.languages.python = {
+    'comment': {
+      pattern: /(^|[^\\])#.*/,
+      lookbehind: true
+    },
+    'string-interpolation': {
+      pattern: /(?:f|rf|fr)(?:("""|''')[\s\S]*?\1|("|')(?:\\.|(?!\2)[^\\\r\n])*\2)/i,
+      greedy: true,
+      inside: {
+        'interpolation': {
+          // "{" <expression> <optional "!s", "!r", or "!a"> <optional ":" format specifier> "}"
+          pattern: /((?:^|[^{])(?:{{)*){(?!{)(?:[^{}]|{(?!{)(?:[^{}]|{(?!{)(?:[^{}])+})+})+}/,
+          lookbehind: true,
+          inside: {
+            'format-spec': {
+              pattern: /(:)[^:(){}]+(?=}$)/,
+              lookbehind: true
+            },
+            'conversion-option': {
+              pattern: /![sra](?=[:}]$)/,
+              alias: 'punctuation'
+            },
+            rest: null
+          }
+        },
+        'string': /[\s\S]+/
+      }
+    },
+    'triple-quoted-string': {
+      pattern: /(?:[rub]|rb|br)?("""|''')[\s\S]*?\1/i,
+      greedy: true,
+      alias: 'string'
+    },
+    'string': {
+      pattern: /(?:[rub]|rb|br)?("|')(?:\\.|(?!\1)[^\\\r\n])*\1/i,
+      greedy: true
+    },
+    'function': {
+      pattern: /((?:^|\s)def[ \t]+)[a-zA-Z_]\w*(?=\s*\()/g,
+      lookbehind: true
+    },
+    'class-name': {
+      pattern: /(\bclass\s+)\w+/i,
+      lookbehind: true
+    },
+    'decorator': {
+      pattern: /(^\s*)@\w+(?:\.\w+)*/im,
+      lookbehind: true,
+      alias: ['annotation', 'punctuation'],
+      inside: {
+        'punctuation': /\./
+      }
+    },
+    'keyword': /\b(?:and|as|assert|async|await|break|class|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|print|raise|return|try|while|with|yield)\b/,
+    'builtin': /\b(?:__import__|abs|all|any|apply|ascii|basestring|bin|bool|buffer|bytearray|bytes|callable|chr|classmethod|cmp|coerce|compile|complex|delattr|dict|dir|divmod|enumerate|eval|execfile|file|filter|float|format|frozenset|getattr|globals|hasattr|hash|help|hex|id|input|int|intern|isinstance|issubclass|iter|len|list|locals|long|map|max|memoryview|min|next|object|oct|open|ord|pow|property|range|raw_input|reduce|reload|repr|reversed|round|set|setattr|slice|sorted|staticmethod|str|sum|super|tuple|type|unichr|unicode|vars|xrange|zip)\b/,
+    'boolean': /\b(?:True|False|None)\b/,
+    'number': /(?:\b(?=\d)|\B(?=\.))(?:0[bo])?(?:(?:\d|0x[\da-f])[\da-f]*(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?j?\b/i,
+    'operator': /[-+%=]=?|!=|\*\*?=?|\/\/?=?|<[<=>]?|>[=>]?|[&|^~]/,
+    'punctuation': /[{}[\];(),.:]/
+  };
+  Prism.languages.python['string-interpolation'].inside['interpolation'].inside.rest = Prism.languages.python;
+  Prism.languages.py = Prism.languages.python;
+  /* "prismjs/components/prism-reason" */
+
+  Prism.languages.reason = Prism.languages.extend('clike', {
+    'string': {
+      pattern: /"(?:\\(?:\r\n|[\s\S])|[^\\\r\n"])*"/,
+      greedy: true
+    },
+    // 'class-name' must be matched *after* 'constructor' defined below
+    'class-name': /\b[A-Z]\w*/,
+    'keyword': /\b(?:and|as|assert|begin|class|constraint|do|done|downto|else|end|exception|external|for|fun|function|functor|if|in|include|inherit|initializer|lazy|let|method|module|mutable|new|nonrec|object|of|open|or|private|rec|sig|struct|switch|then|to|try|type|val|virtual|when|while|with)\b/,
+    'operator': /\.{3}|:[:=]|\|>|->|=(?:==?|>)?|<=?|>=?|[|^?'#!~`]|[+\-*\/]\.?|\b(?:mod|land|lor|lxor|lsl|lsr|asr)\b/
+  });
+  Prism.languages.insertBefore('reason', 'class-name', {
+    'character': {
+      pattern: /'(?:\\x[\da-f]{2}|\\o[0-3][0-7][0-7]|\\\d{3}|\\.|[^'\\\r\n])'/,
+      alias: 'string'
+    },
+    'constructor': {
+      // Negative look-ahead prevents from matching things like String.capitalize
+      pattern: /\b[A-Z]\w*\b(?!\s*\.)/,
+      alias: 'variable'
+    },
+    'label': {
+      pattern: /\b[a-z]\w*(?=::)/,
+      alias: 'symbol'
+    }
+  }); // We can't match functions property, so let's not even try.
+
+  delete Prism.languages.reason.function;
+  /* "prismjs/components/prism-sass" */
+
+  (function (Prism) {
+    Prism.languages.sass = Prism.languages.extend('css', {
+      // Sass comments don't need to be closed, only indented
+      'comment': {
+        pattern: /^([ \t]*)\/[\/*].*(?:(?:\r?\n|\r)\1[ \t].+)*/m,
+        lookbehind: true
+      }
+    });
+    Prism.languages.insertBefore('sass', 'atrule', {
+      // We want to consume the whole line
+      'atrule-line': {
+        // Includes support for = and + shortcuts
+        pattern: /^(?:[ \t]*)[@+=].+/m,
+        inside: {
+          'atrule': /(?:@[\w-]+|[+=])/m
+        }
+      }
+    });
+    delete Prism.languages.sass.atrule;
+    var variable = /\$[-\w]+|#\{\$[-\w]+\}/;
+    var operator = [/[+*\/%]|[=!]=|<=?|>=?|\b(?:and|or|not)\b/, {
+      pattern: /(\s+)-(?=\s)/,
+      lookbehind: true
+    }];
+    Prism.languages.insertBefore('sass', 'property', {
+      // We want to consume the whole line
+      'variable-line': {
+        pattern: /^[ \t]*\$.+/m,
+        inside: {
+          'punctuation': /:/,
+          'variable': variable,
+          'operator': operator
+        }
+      },
+      // We want to consume the whole line
+      'property-line': {
+        pattern: /^[ \t]*(?:[^:\s]+ *:.*|:[^:\s].*)/m,
+        inside: {
+          'property': [/[^:\s]+(?=\s*:)/, {
+            pattern: /(:)[^:\s]+/,
+            lookbehind: true
+          }],
+          'punctuation': /:/,
+          'variable': variable,
+          'operator': operator,
+          'important': Prism.languages.sass.important
+        }
+      }
+    });
+    delete Prism.languages.sass.property;
+    delete Prism.languages.sass.important; // Now that whole lines for other patterns are consumed,
+    // what's left should be selectors
+
+    Prism.languages.insertBefore('sass', 'punctuation', {
+      'selector': {
+        pattern: /([ \t]*)\S(?:,[^,\r\n]+|[^,\r\n]*)(?:,[^,\r\n]+)*(?:,(?:\r?\n|\r)\1[ \t]+\S(?:,[^,\r\n]+|[^,\r\n]*)(?:,[^,\r\n]+)*)*/,
+        lookbehind: true
+      }
+    });
+  })(Prism);
+  /* "prismjs/components/prism-scss" */
+
+
+  Prism.languages.scss = Prism.languages.extend('css', {
+    'comment': {
+      pattern: /(^|[^\\])(?:\/\*[\s\S]*?\*\/|\/\/.*)/,
+      lookbehind: true
+    },
+    'atrule': {
+      pattern: /@[\w-](?:\([^()]+\)|[^()\s]|\s+(?!\s))*?(?=\s+[{;])/,
+      inside: {
+        'rule': /@[\w-]+/ // See rest below
+
+      }
+    },
+    // url, compassified
+    'url': /(?:[-a-z]+-)?url(?=\()/i,
+    // CSS selector regex is not appropriate for Sass
+    // since there can be lot more things (var, @ directive, nesting..)
+    // a selector must start at the end of a property or after a brace (end of other rules or nesting)
+    // it can contain some characters that aren't used for defining rules or end of selector, & (parent selector), or interpolated variable
+    // the end of a selector is found when there is no rules in it ( {} or {\s}) or if there is a property (because an interpolated var
+    // can "pass" as a selector- e.g: proper#{$erty})
+    // this one was hard to do, so please be careful if you edit this one :)
+    'selector': {
+      // Initial look-ahead is used to prevent matching of blank selectors
+      pattern: /(?=\S)[^@;{}()]?(?:[^@;{}()\s]|\s+(?!\s)|#\{\$[-\w]+\})+(?=\s*\{(?:\}|\s|[^}][^:{}]*[:{][^}]+))/m,
+      inside: {
+        'parent': {
+          pattern: /&/,
+          alias: 'important'
+        },
+        'placeholder': /%[-\w]+/,
+        'variable': /\$[-\w]+|#\{\$[-\w]+\}/
+      }
+    },
+    'property': {
+      pattern: /(?:[-\w]|\$[-\w]|#\{\$[-\w]+\})+(?=\s*:)/,
+      inside: {
+        'variable': /\$[-\w]+|#\{\$[-\w]+\}/
+      }
+    }
+  });
+  Prism.languages.insertBefore('scss', 'atrule', {
+    'keyword': [/@(?:if|else(?: if)?|forward|for|each|while|import|use|extend|debug|warn|mixin|include|function|return|content)\b/i, {
+      pattern: /( +)(?:from|through)(?= )/,
+      lookbehind: true
+    }]
+  });
+  Prism.languages.insertBefore('scss', 'important', {
+    // var and interpolated vars
+    'variable': /\$[-\w]+|#\{\$[-\w]+\}/
+  });
+  Prism.languages.insertBefore('scss', 'function', {
+    'module-modifier': {
+      pattern: /\b(?:as|with|show|hide)\b/i,
+      alias: 'keyword'
+    },
+    'placeholder': {
+      pattern: /%[-\w]+/,
+      alias: 'selector'
+    },
+    'statement': {
+      pattern: /\B!(?:default|optional)\b/i,
+      alias: 'keyword'
+    },
+    'boolean': /\b(?:true|false)\b/,
+    'null': {
+      pattern: /\bnull\b/,
+      alias: 'keyword'
+    },
+    'operator': {
+      pattern: /(\s)(?:[-+*\/%]|[=!]=|<=?|>=?|and|or|not)(?=\s)/,
+      lookbehind: true
+    }
+  });
+  Prism.languages.scss['atrule'].inside.rest = Prism.languages.scss;
+  /* "prismjs/components/prism-sql" */
+
+  Prism.languages.sql = {
+    'comment': {
+      pattern: /(^|[^\\])(?:\/\*[\s\S]*?\*\/|(?:--|\/\/|#).*)/,
+      lookbehind: true
+    },
+    'variable': [{
+      pattern: /@(["'`])(?:\\[\s\S]|(?!\1)[^\\])+\1/,
+      greedy: true
+    }, /@[\w.$]+/],
+    'string': {
+      pattern: /(^|[^@\\])("|')(?:\\[\s\S]|(?!\2)[^\\]|\2\2)*\2/,
+      greedy: true,
+      lookbehind: true
+    },
+    'function': /\b(?:AVG|COUNT|FIRST|FORMAT|LAST|LCASE|LEN|MAX|MID|MIN|MOD|NOW|ROUND|SUM|UCASE)(?=\s*\()/i,
+    // Should we highlight user defined functions too?
+    'keyword': /\b(?:ACTION|ADD|AFTER|ALGORITHM|ALL|ALTER|ANALYZE|ANY|APPLY|AS|ASC|AUTHORIZATION|AUTO_INCREMENT|BACKUP|BDB|BEGIN|BERKELEYDB|BIGINT|BINARY|BIT|BLOB|BOOL|BOOLEAN|BREAK|BROWSE|BTREE|BULK|BY|CALL|CASCADED?|CASE|CHAIN|CHAR(?:ACTER|SET)?|CHECK(?:POINT)?|CLOSE|CLUSTERED|COALESCE|COLLATE|COLUMNS?|COMMENT|COMMIT(?:TED)?|COMPUTE|CONNECT|CONSISTENT|CONSTRAINT|CONTAINS(?:TABLE)?|CONTINUE|CONVERT|CREATE|CROSS|CURRENT(?:_DATE|_TIME|_TIMESTAMP|_USER)?|CURSOR|CYCLE|DATA(?:BASES?)?|DATE(?:TIME)?|DAY|DBCC|DEALLOCATE|DEC|DECIMAL|DECLARE|DEFAULT|DEFINER|DELAYED|DELETE|DELIMITERS?|DENY|DESC|DESCRIBE|DETERMINISTIC|DISABLE|DISCARD|DISK|DISTINCT|DISTINCTROW|DISTRIBUTED|DO|DOUBLE|DROP|DUMMY|DUMP(?:FILE)?|DUPLICATE|ELSE(?:IF)?|ENABLE|ENCLOSED|END|ENGINE|ENUM|ERRLVL|ERRORS|ESCAPED?|EXCEPT|EXEC(?:UTE)?|EXISTS|EXIT|EXPLAIN|EXTENDED|FETCH|FIELDS|FILE|FILLFACTOR|FIRST|FIXED|FLOAT|FOLLOWING|FOR(?: EACH ROW)?|FORCE|FOREIGN|FREETEXT(?:TABLE)?|FROM|FULL|FUNCTION|GEOMETRY(?:COLLECTION)?|GLOBAL|GOTO|GRANT|GROUP|HANDLER|HASH|HAVING|HOLDLOCK|HOUR|IDENTITY(?:_INSERT|COL)?|IF|IGNORE|IMPORT|INDEX|INFILE|INNER|INNODB|INOUT|INSERT|INT|INTEGER|INTERSECT|INTERVAL|INTO|INVOKER|ISOLATION|ITERATE|JOIN|KEYS?|KILL|LANGUAGE|LAST|LEAVE|LEFT|LEVEL|LIMIT|LINENO|LINES|LINESTRING|LOAD|LOCAL|LOCK|LONG(?:BLOB|TEXT)|LOOP|MATCH(?:ED)?|MEDIUM(?:BLOB|INT|TEXT)|MERGE|MIDDLEINT|MINUTE|MODE|MODIFIES|MODIFY|MONTH|MULTI(?:LINESTRING|POINT|POLYGON)|NATIONAL|NATURAL|NCHAR|NEXT|NO|NONCLUSTERED|NULLIF|NUMERIC|OFF?|OFFSETS?|ON|OPEN(?:DATASOURCE|QUERY|ROWSET)?|OPTIMIZE|OPTION(?:ALLY)?|ORDER|OUT(?:ER|FILE)?|OVER|PARTIAL|PARTITION|PERCENT|PIVOT|PLAN|POINT|POLYGON|PRECEDING|PRECISION|PREPARE|PREV|PRIMARY|PRINT|PRIVILEGES|PROC(?:EDURE)?|PUBLIC|PURGE|QUICK|RAISERROR|READS?|REAL|RECONFIGURE|REFERENCES|RELEASE|RENAME|REPEAT(?:ABLE)?|REPLACE|REPLICATION|REQUIRE|RESIGNAL|RESTORE|RESTRICT|RETURN(?:S|ING)?|REVOKE|RIGHT|ROLLBACK|ROUTINE|ROW(?:COUNT|GUIDCOL|S)?|RTREE|RULE|SAVE(?:POINT)?|SCHEMA|SECOND|SELECT|SERIAL(?:IZABLE)?|SESSION(?:_USER)?|SET(?:USER)?|SHARE|SHOW|SHUTDOWN|SIMPLE|SMALLINT|SNAPSHOT|SOME|SONAME|SQL|START(?:ING)?|STATISTICS|STATUS|STRIPED|SYSTEM_USER|TABLES?|TABLESPACE|TEMP(?:ORARY|TABLE)?|TERMINATED|TEXT(?:SIZE)?|THEN|TIME(?:STAMP)?|TINY(?:BLOB|INT|TEXT)|TOP?|TRAN(?:SACTIONS?)?|TRIGGER|TRUNCATE|TSEQUAL|TYPES?|UNBOUNDED|UNCOMMITTED|UNDEFINED|UNION|UNIQUE|UNLOCK|UNPIVOT|UNSIGNED|UPDATE(?:TEXT)?|USAGE|USE|USER|USING|VALUES?|VAR(?:BINARY|CHAR|CHARACTER|YING)|VIEW|WAITFOR|WARNINGS|WHEN|WHERE|WHILE|WITH(?: ROLLUP|IN)?|WORK|WRITE(?:TEXT)?|YEAR)\b/i,
+    'boolean': /\b(?:TRUE|FALSE|NULL)\b/i,
+    'number': /\b0x[\da-f]+\b|\b\d+(?:\.\d*)?|\B\.\d+\b/i,
+    'operator': /[-+*\/=%^~]|&&?|\|\|?|!=?|<(?:=>?|<|>)?|>[>=]?|\b(?:AND|BETWEEN|IN|LIKE|NOT|OR|IS|DIV|REGEXP|RLIKE|SOUNDS LIKE|XOR)\b/i,
+    'punctuation': /[;[\]()`,.]/
+  };
+  /* "prismjs/components/prism-stylus" */
+
+  (function (Prism) {
+    var unit = {
+      pattern: /(\b\d+)(?:%|[a-z]+)/,
+      lookbehind: true
+    }; // 123 -123 .123 -.123 12.3 -12.3
+
+    var number = {
+      pattern: /(^|[^\w.-])-?(?:\d+(?:\.\d+)?|\.\d+)/,
+      lookbehind: true
+    };
+    var inside = {
+      'comment': {
+        pattern: /(^|[^\\])(?:\/\*[\s\S]*?\*\/|\/\/.*)/,
+        lookbehind: true
+      },
+      'url': {
+        pattern: /url\((["']?).*?\1\)/i,
+        greedy: true
+      },
+      'string': {
+        pattern: /("|')(?:(?!\1)[^\\\r\n]|\\(?:\r\n|[\s\S]))*\1/,
+        greedy: true
+      },
+      'interpolation': null,
+      // See below
+      'func': null,
+      // See below
+      'important': /\B!(?:important|optional)\b/i,
+      'keyword': {
+        pattern: /(^|\s+)(?:(?:if|else|for|return|unless)(?=\s+|$)|@[\w-]+)/,
+        lookbehind: true
+      },
+      'hexcode': /#[\da-f]{3,6}/i,
+      'color': [/\b(?:AliceBlue|AntiqueWhite|Aqua|Aquamarine|Azure|Beige|Bisque|Black|BlanchedAlmond|Blue|BlueViolet|Brown|BurlyWood|CadetBlue|Chartreuse|Chocolate|Coral|CornflowerBlue|Cornsilk|Crimson|Cyan|DarkBlue|DarkCyan|DarkGoldenRod|DarkGr[ae]y|DarkGreen|DarkKhaki|DarkMagenta|DarkOliveGreen|DarkOrange|DarkOrchid|DarkRed|DarkSalmon|DarkSeaGreen|DarkSlateBlue|DarkSlateGr[ae]y|DarkTurquoise|DarkViolet|DeepPink|DeepSkyBlue|DimGr[ae]y|DodgerBlue|FireBrick|FloralWhite|ForestGreen|Fuchsia|Gainsboro|GhostWhite|Gold|GoldenRod|Gr[ae]y|Green|GreenYellow|HoneyDew|HotPink|IndianRed|Indigo|Ivory|Khaki|Lavender|LavenderBlush|LawnGreen|LemonChiffon|LightBlue|LightCoral|LightCyan|LightGoldenRodYellow|LightGr[ae]y|LightGreen|LightPink|LightSalmon|LightSeaGreen|LightSkyBlue|LightSlateGr[ae]y|LightSteelBlue|LightYellow|Lime|LimeGreen|Linen|Magenta|Maroon|MediumAquaMarine|MediumBlue|MediumOrchid|MediumPurple|MediumSeaGreen|MediumSlateBlue|MediumSpringGreen|MediumTurquoise|MediumVioletRed|MidnightBlue|MintCream|MistyRose|Moccasin|NavajoWhite|Navy|OldLace|Olive|OliveDrab|Orange|OrangeRed|Orchid|PaleGoldenRod|PaleGreen|PaleTurquoise|PaleVioletRed|PapayaWhip|PeachPuff|Peru|Pink|Plum|PowderBlue|Purple|Red|RosyBrown|RoyalBlue|SaddleBrown|Salmon|SandyBrown|SeaGreen|SeaShell|Sienna|Silver|SkyBlue|SlateBlue|SlateGr[ae]y|Snow|SpringGreen|SteelBlue|Tan|Teal|Thistle|Tomato|Transparent|Turquoise|Violet|Wheat|White|WhiteSmoke|Yellow|YellowGreen)\b/i, {
+        pattern: /\b(?:rgb|hsl)\(\s*\d{1,3}\s*,\s*\d{1,3}%?\s*,\s*\d{1,3}%?\s*\)\B|\b(?:rgb|hsl)a\(\s*\d{1,3}\s*,\s*\d{1,3}%?\s*,\s*\d{1,3}%?\s*,\s*(?:0|0?\.\d+|1)\s*\)\B/i,
+        inside: {
+          'unit': unit,
+          'number': number,
+          'function': /[\w-]+(?=\()/,
+          'punctuation': /[(),]/
+        }
+      }],
+      'entity': /\\[\da-f]{1,8}/i,
+      'unit': unit,
+      'boolean': /\b(?:true|false)\b/,
+      'operator': [// We want non-word chars around "-" because it is
+      // accepted in property names.
+      /~|[+!\/%<>?=]=?|[-:]=|\*[*=]?|\.{2,3}|&&|\|\||\B-\B|\b(?:and|in|is(?: a| defined| not|nt)?|not|or)\b/],
+      'number': number,
+      'punctuation': /[{}()\[\];:,]/
+    };
+    inside['interpolation'] = {
+      pattern: /\{[^\r\n}:]+\}/,
+      alias: 'variable',
+      inside: {
+        'delimiter': {
+          pattern: /^{|}$/,
+          alias: 'punctuation'
+        },
+        rest: inside
+      }
+    };
+    inside['func'] = {
+      pattern: /[\w-]+\([^)]*\).*/,
+      inside: {
+        'function': /^[^(]+/,
+        rest: inside
+      }
+    };
+    Prism.languages.stylus = {
+      'atrule-declaration': {
+        pattern: /(^\s*)@.+/m,
+        lookbehind: true,
+        inside: {
+          'atrule': /^@[\w-]+/,
+          rest: inside
+        }
+      },
+      'variable-declaration': {
+        pattern: /(^[ \t]*)[\w$-]+\s*.?=[ \t]*(?:\{[^{}]*\}|\S.*|$)/m,
+        lookbehind: true,
+        inside: {
+          'variable': /^\S+/,
+          rest: inside
+        }
+      },
+      'statement': {
+        pattern: /(^[ \t]*)(?:if|else|for|return|unless)[ \t].+/m,
+        lookbehind: true,
+        inside: {
+          'keyword': /^\S+/,
+          rest: inside
+        }
+      },
+      // A property/value pair cannot end with a comma or a brace
+      // It cannot have indented content unless it ended with a semicolon
+      'property-declaration': {
+        pattern: /((?:^|\{)([ \t]*))(?:[\w-]|\{[^}\r\n]+\})+(?:\s*:\s*|[ \t]+)(?!\s)[^{\r\n]*(?:;|[^{\r\n,](?=$)(?!(?:\r?\n|\r)(?:\{|\2[ \t]+)))/m,
+        lookbehind: true,
+        inside: {
+          'property': {
+            pattern: /^[^\s:]+/,
+            inside: {
+              'interpolation': inside.interpolation
+            }
+          },
+          rest: inside
+        }
+      },
+      // A selector can contain parentheses only as part of a pseudo-element
+      // It can span multiple lines.
+      // It must end with a comma or an accolade or have indented content.
+      'selector': {
+        pattern: /(^[ \t]*)(?:(?=\S)(?:[^{}\r\n:()]|::?[\w-]+(?:\([^)\r\n]*\)|(?![\w-]))|\{[^}\r\n]+\})+)(?:(?:\r?\n|\r)(?:\1(?:(?=\S)(?:[^{}\r\n:()]|::?[\w-]+(?:\([^)\r\n]*\)|(?![\w-]))|\{[^}\r\n]+\})+)))*(?:,$|\{|(?=(?:\r?\n|\r)(?:\{|\1[ \t]+)))/m,
+        lookbehind: true,
+        inside: {
+          'interpolation': inside.interpolation,
+          'comment': inside.comment,
+          'punctuation': /[{},]/
+        }
+      },
+      'func': inside.func,
+      'string': inside.string,
+      'comment': {
+        pattern: /(^|[^\\])(?:\/\*[\s\S]*?\*\/|\/\/.*)/,
+        lookbehind: true,
+        greedy: true
+      },
+      'interpolation': inside.interpolation,
+      'punctuation': /[{}()\[\];:.]/
+    };
+  })(Prism);
+  /* "prismjs/components/prism-typescript" */
+
+
+  (function (Prism) {
+    Prism.languages.typescript = Prism.languages.extend('javascript', {
+      'class-name': {
+        pattern: /(\b(?:class|extends|implements|instanceof|interface|new|type)\s+)(?!keyof\b)(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?:\s*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?/,
+        lookbehind: true,
+        greedy: true,
+        inside: null // see below
+
+      },
+      // From JavaScript Prism keyword list and TypeScript language spec: https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md#221-reserved-words
+      'keyword': /\b(?:abstract|as|asserts|async|await|break|case|catch|class|const|constructor|continue|debugger|declare|default|delete|do|else|enum|export|extends|finally|for|from|function|get|if|implements|import|in|instanceof|interface|is|keyof|let|module|namespace|new|null|of|package|private|protected|public|readonly|return|require|set|static|super|switch|this|throw|try|type|typeof|undefined|var|void|while|with|yield)\b/,
+      'builtin': /\b(?:string|Function|any|number|boolean|Array|symbol|console|Promise|unknown|never)\b/
+    }); // doesn't work with TS because TS is too complex
+
+    delete Prism.languages.typescript['parameter']; // a version of typescript specifically for highlighting types
+
+    var typeInside = Prism.languages.extend('typescript', {});
+    delete typeInside['class-name'];
+    Prism.languages.typescript['class-name'].inside = typeInside;
+    Prism.languages.insertBefore('typescript', 'function', {
+      'generic-function': {
+        // e.g. foo<T extends "bar" | "baz">( ...
+        pattern: /#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*\s*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>(?=\s*\()/,
+        greedy: true,
+        inside: {
+          'function': /^#?(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*/,
+          'generic': {
+            pattern: /<[\s\S]+/,
+            // everything after the first <
+            alias: 'class-name',
+            inside: typeInside
+          }
+        }
+      }
+    });
+    Prism.languages.ts = Prism.languages.typescript;
+  })(Prism);
+  /* "prismjs/components/prism-tsx" */
+
+
+  (function (Prism) {
+    var typescript = Prism.util.clone(Prism.languages.typescript);
+    Prism.languages.tsx = Prism.languages.extend('jsx', typescript); // This will prevent collisions between TSX tags and TS generic types.
+    // Idea by https://github.com/karlhorky
+    // Discussion: https://github.com/PrismJS/prism/issues/2594#issuecomment-710666928
+
+    var tag = Prism.languages.tsx.tag;
+    tag.pattern = RegExp(/(^|[^\w$]|(?=<\/))/.source + '(?:' + tag.pattern.source + ')', tag.pattern.flags);
+    tag.lookbehind = true;
+  })(Prism);
+  /* "prismjs/components/prism-wasm" */
+
+
+  Prism.languages.wasm = {
+    'comment': [/\(;[\s\S]*?;\)/, {
+      pattern: /;;.*/,
+      greedy: true
+    }],
+    'string': {
+      pattern: /"(?:\\[\s\S]|[^"\\])*"/,
+      greedy: true
+    },
+    'keyword': [{
+      pattern: /\b(?:align|offset)=/,
+      inside: {
+        'operator': /=/
+      }
+    }, {
+      pattern: /\b(?:(?:f32|f64|i32|i64)(?:\.(?:abs|add|and|ceil|clz|const|convert_[su]\/i(?:32|64)|copysign|ctz|demote\/f64|div(?:_[su])?|eqz?|extend_[su]\/i32|floor|ge(?:_[su])?|gt(?:_[su])?|le(?:_[su])?|load(?:(?:8|16|32)_[su])?|lt(?:_[su])?|max|min|mul|nearest|neg?|or|popcnt|promote\/f32|reinterpret\/[fi](?:32|64)|rem_[su]|rot[lr]|shl|shr_[su]|store(?:8|16|32)?|sqrt|sub|trunc(?:_[su]\/f(?:32|64))?|wrap\/i64|xor))?|memory\.(?:grow|size))\b/,
+      inside: {
+        'punctuation': /\./
+      }
+    }, /\b(?:anyfunc|block|br(?:_if|_table)?|call(?:_indirect)?|data|drop|elem|else|end|export|func|get_(?:global|local)|global|if|import|local|loop|memory|module|mut|nop|offset|param|result|return|select|set_(?:global|local)|start|table|tee_local|then|type|unreachable)\b/],
+    'variable': /\$[\w!#$%&'*+\-./:<=>?@\\^_`|~]+/i,
+    'number': /[+-]?\b(?:\d(?:_?\d)*(?:\.\d(?:_?\d)*)?(?:[eE][+-]?\d(?:_?\d)*)?|0x[\da-fA-F](?:_?[\da-fA-F])*(?:\.[\da-fA-F](?:_?[\da-fA-D])*)?(?:[pP][+-]?\d(?:_?\d)*)?)\b|\binf\b|\bnan(?::0x[\da-fA-F](?:_?[\da-fA-D])*)?\b/,
+    'punctuation': /[()]/
+  };
+  /* "prismjs/components/prism-yaml" */
+
+  (function (Prism) {
+    // https://yaml.org/spec/1.2/spec.html#c-ns-anchor-property
+    // https://yaml.org/spec/1.2/spec.html#c-ns-alias-node
+    var anchorOrAlias = /[*&][^\s[\]{},]+/; // https://yaml.org/spec/1.2/spec.html#c-ns-tag-property
+
+    var tag = /!(?:<[\w\-%#;/?:@&=+$,.!~*'()[\]]+>|(?:[a-zA-Z\d-]*!)?[\w\-%#;/?:@&=+$.~*'()]+)?/; // https://yaml.org/spec/1.2/spec.html#c-ns-properties(n,c)
+
+    var properties = '(?:' + tag.source + '(?:[ \t]+' + anchorOrAlias.source + ')?|' + anchorOrAlias.source + '(?:[ \t]+' + tag.source + ')?)'; // https://yaml.org/spec/1.2/spec.html#ns-plain(n,c)
+    // This is a simplified version that doesn't support "#" and multiline keys
+    // All these long scarry character classes are simplified versions of YAML's characters
+
+    var plainKey = /(?:[^\s\x00-\x08\x0e-\x1f!"#%&'*,\-:>?@[\]`{|}\x7f-\x84\x86-\x9f\ud800-\udfff\ufffe\uffff]|[?:-]<PLAIN>)(?:[ \t]*(?:(?![#:])<PLAIN>|:<PLAIN>))*/.source.replace(/<PLAIN>/g, function () {
+      return /[^\s\x00-\x08\x0e-\x1f,[\]{}\x7f-\x84\x86-\x9f\ud800-\udfff\ufffe\uffff]/.source;
+    });
+    var string = /"(?:[^"\\\r\n]|\\.)*"|'(?:[^'\\\r\n]|\\.)*'/.source;
+    /**
+     *
+     * @param {string} value
+     * @param {string} [flags]
+     * @returns {RegExp}
+     */
+
+    function createValuePattern(value, flags) {
+      flags = (flags || '').replace(/m/g, '') + 'm'; // add m flag
+
+      var pattern = /([:\-,[{]\s*(?:\s<<prop>>[ \t]+)?)(?:<<value>>)(?=[ \t]*(?:$|,|]|}|(?:[\r\n]\s*)?#))/.source.replace(/<<prop>>/g, function () {
+        return properties;
+      }).replace(/<<value>>/g, function () {
+        return value;
+      });
+      return RegExp(pattern, flags);
+    }
+
+    Prism.languages.yaml = {
+      'scalar': {
+        pattern: RegExp(/([\-:]\s*(?:\s<<prop>>[ \t]+)?[|>])[ \t]*(?:((?:\r?\n|\r)[ \t]+)\S[^\r\n]*(?:\2[^\r\n]+)*)/.source.replace(/<<prop>>/g, function () {
+          return properties;
+        })),
+        lookbehind: true,
+        alias: 'string'
+      },
+      'comment': /#.*/,
+      'key': {
+        pattern: RegExp(/((?:^|[:\-,[{\r\n?])[ \t]*(?:<<prop>>[ \t]+)?)<<key>>(?=\s*:\s)/.source.replace(/<<prop>>/g, function () {
+          return properties;
+        }).replace(/<<key>>/g, function () {
+          return '(?:' + plainKey + '|' + string + ')';
+        })),
+        lookbehind: true,
+        greedy: true,
+        alias: 'atrule'
+      },
+      'directive': {
+        pattern: /(^[ \t]*)%.+/m,
+        lookbehind: true,
+        alias: 'important'
+      },
+      'datetime': {
+        pattern: createValuePattern(/\d{4}-\d\d?-\d\d?(?:[tT]|[ \t]+)\d\d?:\d{2}:\d{2}(?:\.\d*)?(?:[ \t]*(?:Z|[-+]\d\d?(?::\d{2})?))?|\d{4}-\d{2}-\d{2}|\d\d?:\d{2}(?::\d{2}(?:\.\d*)?)?/.source),
+        lookbehind: true,
+        alias: 'number'
+      },
+      'boolean': {
+        pattern: createValuePattern(/true|false/.source, 'i'),
+        lookbehind: true,
+        alias: 'important'
+      },
+      'null': {
+        pattern: createValuePattern(/null|~/.source, 'i'),
+        lookbehind: true,
+        alias: 'important'
+      },
+      'string': {
+        pattern: createValuePattern(string),
+        lookbehind: true,
+        greedy: true
+      },
+      'number': {
+        pattern: createValuePattern(/[+-]?(?:0x[\da-f]+|0o[0-7]+|(?:\d+(?:\.\d*)?|\.?\d+)(?:e[+-]?\d+)?|\.inf|\.nan)/.source, 'i'),
+        lookbehind: true
+      },
+      'tag': tag,
+      'important': anchorOrAlias,
+      'punctuation': /---|[:[\]{}\-,|>?]|\.\.\./
+    };
+    Prism.languages.yml = Prism.languages.yaml;
+  })(Prism);
+
+  // Duotone Dark
+  // Author: Simurai, adapted from DuoTone themes for Atom (http://simurai.com/projects/2016/01/01/duotone-themes)
+  // Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base2tone-evening-dark.css)
+  // Generated with Base16 Builder (https://github.com/base16-builder/base16-builder)
+  var theme$9 = {
+    plain: {
+      backgroundColor: "#2a2734",
+      color: "#9a86fd"
+    },
+    styles: [{
+      types: ["comment", "prolog", "doctype", "cdata", "punctuation"],
+      style: {
+        color: "#6c6783"
+      }
+    }, {
+      types: ["namespace"],
+      style: {
+        opacity: 0.7
+      }
+    }, {
+      types: ["tag", "operator", "number"],
+      style: {
+        color: "#e09142"
+      }
+    }, {
+      types: ["property", "function"],
+      style: {
+        color: "#9a86fd"
+      }
+    }, {
+      types: ["tag-id", "selector", "atrule-id"],
+      style: {
+        color: "#eeebff"
+      }
+    }, {
+      types: ["attr-name"],
+      style: {
+        color: "#c4b9fe"
+      }
+    }, {
+      types: ["boolean", "string", "entity", "url", "attr-value", "keyword", "control", "directive", "unit", "statement", "regex", "at-rule", "placeholder", "variable"],
+      style: {
+        color: "#ffcc99"
+      }
+    }, {
+      types: ["deleted"],
+      style: {
+        textDecorationLine: "line-through"
+      }
+    }, {
+      types: ["inserted"],
+      style: {
+        textDecorationLine: "underline"
+      }
+    }, {
+      types: ["italic"],
+      style: {
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["important", "bold"],
+      style: {
+        fontWeight: "bold"
+      }
+    }, {
+      types: ["important"],
+      style: {
+        color: "#c4b9fe"
+      }
+    }]
+  };
+  var duotoneDark = theme$9;
+
+  var defaultProps = {
+    // $FlowFixMe
+    Prism: Prism,
+    theme: duotoneDark
+  };
+
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function _extends() {
+    _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends.apply(this, arguments);
+  }
+
+  var newlineRe = /\r\n|\r|\n/; // Empty lines need to contain a single empty token, denoted with { empty: true }
+
+  var normalizeEmptyLines = function (line) {
+    if (line.length === 0) {
+      line.push({
+        types: ["plain"],
+        content: "\n",
+        empty: true
+      });
+    } else if (line.length === 1 && line[0].content === "") {
+      line[0].content = "\n";
+      line[0].empty = true;
+    }
+  };
+
+  var appendTypes = function (types, add) {
+    var typesSize = types.length;
+
+    if (typesSize > 0 && types[typesSize - 1] === add) {
+      return types;
+    }
+
+    return types.concat(add);
+  }; // Takes an array of Prism's tokens and groups them by line, turning plain
+  // strings into tokens as well. Tokens can become recursive in some cases,
+  // which means that their types are concatenated. Plain-string tokens however
+  // are always of type "plain".
+  // This is not recursive to avoid exceeding the call-stack limit, since it's unclear
+  // how nested Prism's tokens can become
+
+
+  var normalizeTokens = function (tokens) {
+    var typeArrStack = [[]];
+    var tokenArrStack = [tokens];
+    var tokenArrIndexStack = [0];
+    var tokenArrSizeStack = [tokens.length];
+    var i = 0;
+    var stackIndex = 0;
+    var currentLine = [];
+    var acc = [currentLine];
+
+    while (stackIndex > -1) {
+      while ((i = tokenArrIndexStack[stackIndex]++) < tokenArrSizeStack[stackIndex]) {
+        var content = void 0;
+        var types = typeArrStack[stackIndex];
+        var tokenArr = tokenArrStack[stackIndex];
+        var token = tokenArr[i]; // Determine content and append type to types if necessary
+
+        if (typeof token === "string") {
+          types = stackIndex > 0 ? types : ["plain"];
+          content = token;
+        } else {
+          types = appendTypes(types, token.type);
+
+          if (token.alias) {
+            types = appendTypes(types, token.alias);
+          }
+
+          content = token.content;
+        } // If token.content is an array, increase the stack depth and repeat this while-loop
+
+
+        if (typeof content !== "string") {
+          stackIndex++;
+          typeArrStack.push(types);
+          tokenArrStack.push(content);
+          tokenArrIndexStack.push(0);
+          tokenArrSizeStack.push(content.length);
+          continue;
+        } // Split by newlines
+
+
+        var splitByNewlines = content.split(newlineRe);
+        var newlineCount = splitByNewlines.length;
+        currentLine.push({
+          types: types,
+          content: splitByNewlines[0]
+        }); // Create a new line for each string on a new line
+
+        for (var i$1 = 1; i$1 < newlineCount; i$1++) {
+          normalizeEmptyLines(currentLine);
+          acc.push(currentLine = []);
+          currentLine.push({
+            types: types,
+            content: splitByNewlines[i$1]
+          });
+        }
+      } // Decreate the stack depth
+
+
+      stackIndex--;
+      typeArrStack.pop();
+      tokenArrStack.pop();
+      tokenArrIndexStack.pop();
+      tokenArrSizeStack.pop();
+    }
+
+    normalizeEmptyLines(currentLine);
+    return acc;
+  };
+
+  var themeToDict = function (theme, language) {
+    var plain = theme.plain; // $FlowFixMe
+
+    var base = Object.create(null);
+    var themeDict = theme.styles.reduce(function (acc, themeEntry) {
+      var languages = themeEntry.languages;
+      var style = themeEntry.style;
+
+      if (languages && !languages.includes(language)) {
+        return acc;
+      }
+
+      themeEntry.types.forEach(function (type) {
+        // $FlowFixMe
+        var accStyle = _extends({}, acc[type], style);
+
+        acc[type] = accStyle;
+      });
+      return acc;
+    }, base); // $FlowFixMe
+
+    themeDict.root = plain; // $FlowFixMe
+
+    themeDict.plain = _extends({}, plain, {
+      backgroundColor: null
+    });
+    return themeDict;
+  };
+
+  function objectWithoutProperties(obj, exclude) {
+    var target = {};
+
+    for (var k in obj) if (Object.prototype.hasOwnProperty.call(obj, k) && exclude.indexOf(k) === -1) target[k] = obj[k];
+
+    return target;
+  }
+
+  var Highlight = /*@__PURE__*/function (Component) {
+    function Highlight() {
+      var this$1$1 = this;
+      var args = [],
+          len = arguments.length;
+
+      while (len--) args[len] = arguments[len];
+
+      Component.apply(this, args);
+
+      _defineProperty(this, "getThemeDict", function (props) {
+        if (this$1$1.themeDict !== undefined && props.theme === this$1$1.prevTheme && props.language === this$1$1.prevLanguage) {
+          return this$1$1.themeDict;
+        }
+
+        this$1$1.prevTheme = props.theme;
+        this$1$1.prevLanguage = props.language;
+        var themeDict = props.theme ? themeToDict(props.theme, props.language) : undefined;
+        return this$1$1.themeDict = themeDict;
+      });
+
+      _defineProperty(this, "getLineProps", function (ref) {
+        var key = ref.key;
+        var className = ref.className;
+        var style = ref.style;
+        var rest$1 = objectWithoutProperties(ref, ["key", "className", "style", "line"]);
+        var rest = rest$1;
+
+        var output = _extends({}, rest, {
+          className: "token-line",
+          style: undefined,
+          key: undefined
+        });
+
+        var themeDict = this$1$1.getThemeDict(this$1$1.props);
+
+        if (themeDict !== undefined) {
+          output.style = themeDict.plain;
+        }
+
+        if (style !== undefined) {
+          output.style = output.style !== undefined ? _extends({}, output.style, style) : style;
+        }
+
+        if (key !== undefined) {
+          output.key = key;
+        }
+
+        if (className) {
+          output.className += " " + className;
+        }
+
+        return output;
+      });
+
+      _defineProperty(this, "getStyleForToken", function (ref) {
+        var types = ref.types;
+        var empty = ref.empty;
+        var typesSize = types.length;
+        var themeDict = this$1$1.getThemeDict(this$1$1.props);
+
+        if (themeDict === undefined) {
+          return undefined;
+        } else if (typesSize === 1 && types[0] === "plain") {
+          return empty ? {
+            display: "inline-block"
+          } : undefined;
+        } else if (typesSize === 1 && !empty) {
+          return themeDict[types[0]];
+        }
+
+        var baseStyle = empty ? {
+          display: "inline-block"
+        } : {}; // $FlowFixMe
+
+        var typeStyles = types.map(function (type) {
+          return themeDict[type];
+        });
+        return Object.assign.apply(Object, [baseStyle].concat(typeStyles));
+      });
+
+      _defineProperty(this, "getTokenProps", function (ref) {
+        var key = ref.key;
+        var className = ref.className;
+        var style = ref.style;
+        var token = ref.token;
+        var rest$1 = objectWithoutProperties(ref, ["key", "className", "style", "token"]);
+        var rest = rest$1;
+
+        var output = _extends({}, rest, {
+          className: "token " + token.types.join(" "),
+          children: token.content,
+          style: this$1$1.getStyleForToken(token),
+          key: undefined
+        });
+
+        if (style !== undefined) {
+          output.style = output.style !== undefined ? _extends({}, output.style, style) : style;
+        }
+
+        if (key !== undefined) {
+          output.key = key;
+        }
+
+        if (className) {
+          output.className += " " + className;
+        }
+
+        return output;
+      });
+
+      _defineProperty(this, "tokenize", function (Prism, code, grammar, language) {
+        var env = {
+          code: code,
+          grammar: grammar,
+          language: language,
+          tokens: []
+        };
+        Prism.hooks.run("before-tokenize", env);
+        var tokens = env.tokens = Prism.tokenize(env.code, env.grammar, env.language);
+        Prism.hooks.run("after-tokenize", env);
+        return tokens;
+      });
+    }
+
+    if (Component) Highlight.__proto__ = Component;
+    Highlight.prototype = Object.create(Component && Component.prototype);
+    Highlight.prototype.constructor = Highlight;
+
+    Highlight.prototype.render = function render() {
+      var ref = this.props;
+      var Prism = ref.Prism;
+      var language = ref.language;
+      var code = ref.code;
+      var children = ref.children;
+      var themeDict = this.getThemeDict(this.props);
+      var grammar = Prism.languages[language];
+      var mixedTokens = grammar !== undefined ? this.tokenize(Prism, code, grammar, language) : [code];
+      var tokens = normalizeTokens(mixedTokens);
+      return children({
+        tokens: tokens,
+        className: "prism-code language-" + language,
+        style: themeDict !== undefined ? themeDict.root : {},
+        getLineProps: this.getLineProps,
+        getTokenProps: this.getTokenProps
+      });
+    };
+
+    return Highlight;
+  }(React.Component);
+
+  var Highlight$1 = Highlight;
+
+  // Original: https://github.com/dracula/visual-studio-code
+  // Converted automatically using ./tools/themeFromVsCode
+  var theme$8 = {
+    plain: {
+      color: "#F8F8F2",
+      backgroundColor: "#282A36"
+    },
+    styles: [{
+      types: ["prolog", "constant", "builtin"],
+      style: {
+        color: "rgb(189, 147, 249)"
+      }
+    }, {
+      types: ["inserted", "function"],
+      style: {
+        color: "rgb(80, 250, 123)"
+      }
+    }, {
+      types: ["deleted"],
+      style: {
+        color: "rgb(255, 85, 85)"
+      }
+    }, {
+      types: ["changed"],
+      style: {
+        color: "rgb(255, 184, 108)"
+      }
+    }, {
+      types: ["punctuation", "symbol"],
+      style: {
+        color: "rgb(248, 248, 242)"
+      }
+    }, {
+      types: ["string", "char", "tag", "selector"],
+      style: {
+        color: "rgb(255, 121, 198)"
+      }
+    }, {
+      types: ["keyword", "variable"],
+      style: {
+        color: "rgb(189, 147, 249)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["comment"],
+      style: {
+        color: "rgb(98, 114, 164)"
+      }
+    }, {
+      types: ["attr-name"],
+      style: {
+        color: "rgb(241, 250, 140)"
+      }
+    }]
+  };
+  var dracula = theme$8;
+
+  // Duotone Light
+  // Author: Simurai, adapted from DuoTone themes for Atom (http://simurai.com/projects/2016/01/01/duotone-themes)
+  // Conversion: Bram de Haan (http://atelierbram.github.io/Base2Tone-prism/output/prism/prism-base2tone-evening-dark.css)
+  // Generated with Base16 Builder (https://github.com/base16-builder/base16-builder)
+  var theme$7 = {
+    plain: {
+      backgroundColor: "#faf8f5",
+      color: "#728fcb"
+    },
+    styles: [{
+      types: ["comment", "prolog", "doctype", "cdata", "punctuation"],
+      style: {
+        color: "#b6ad9a"
+      }
+    }, {
+      types: ["namespace"],
+      style: {
+        opacity: 0.7
+      }
+    }, {
+      types: ["tag", "operator", "number"],
+      style: {
+        color: "#063289"
+      }
+    }, {
+      types: ["property", "function"],
+      style: {
+        color: "#b29762"
+      }
+    }, {
+      types: ["tag-id", "selector", "atrule-id"],
+      style: {
+        color: "#2d2006"
+      }
+    }, {
+      types: ["attr-name"],
+      style: {
+        color: "#896724"
+      }
+    }, {
+      types: ["boolean", "string", "entity", "url", "attr-value", "keyword", "control", "directive", "unit", "statement", "regex", "at-rule"],
+      style: {
+        color: "#728fcb"
+      }
+    }, {
+      types: ["placeholder", "variable"],
+      style: {
+        color: "#93abdc"
+      }
+    }, {
+      types: ["deleted"],
+      style: {
+        textDecorationLine: "line-through"
+      }
+    }, {
+      types: ["inserted"],
+      style: {
+        textDecorationLine: "underline"
+      }
+    }, {
+      types: ["italic"],
+      style: {
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["important", "bold"],
+      style: {
+        fontWeight: "bold"
+      }
+    }, {
+      types: ["important"],
+      style: {
+        color: "#896724"
+      }
+    }]
+  };
+  var duotoneLight = theme$7;
+
+  // Original: https://raw.githubusercontent.com/PrismJS/prism-themes/master/themes/prism-ghcolors.css
+  var theme$6 = {
+    plain: {
+      color: "#393A34",
+      backgroundColor: "#f6f8fa"
+    },
+    styles: [{
+      types: ["comment", "prolog", "doctype", "cdata"],
+      style: {
+        color: "#999988",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["namespace"],
+      style: {
+        opacity: 0.7
+      }
+    }, {
+      types: ["string", "attr-value"],
+      style: {
+        color: "#e3116c"
+      }
+    }, {
+      types: ["punctuation", "operator"],
+      style: {
+        color: "#393A34"
+      }
+    }, {
+      types: ["entity", "url", "symbol", "number", "boolean", "variable", "constant", "property", "regex", "inserted"],
+      style: {
+        color: "#36acaa"
+      }
+    }, {
+      types: ["atrule", "keyword", "attr-name", "selector"],
+      style: {
+        color: "#00a4db"
+      }
+    }, {
+      types: ["function", "deleted", "tag"],
+      style: {
+        color: "#d73a49"
+      }
+    }, {
+      types: ["function-variable"],
+      style: {
+        color: "#6f42c1"
+      }
+    }, {
+      types: ["tag", "selector", "keyword"],
+      style: {
+        color: "#00009f"
+      }
+    }]
+  };
+  var github = theme$6;
+
+  // Original: https://github.com/sdras/night-owl-vscode-theme
+  // Converted automatically using ./tools/themeFromVsCode
+  var theme$5 = {
+    plain: {
+      color: "#d6deeb",
+      backgroundColor: "#011627"
+    },
+    styles: [{
+      types: ["changed"],
+      style: {
+        color: "rgb(162, 191, 252)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["deleted"],
+      style: {
+        color: "rgba(239, 83, 80, 0.56)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["inserted", "attr-name"],
+      style: {
+        color: "rgb(173, 219, 103)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["comment"],
+      style: {
+        color: "rgb(99, 119, 119)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["string", "url"],
+      style: {
+        color: "rgb(173, 219, 103)"
+      }
+    }, {
+      types: ["variable"],
+      style: {
+        color: "rgb(214, 222, 235)"
+      }
+    }, {
+      types: ["number"],
+      style: {
+        color: "rgb(247, 140, 108)"
+      }
+    }, {
+      types: ["builtin", "char", "constant", "function"],
+      style: {
+        color: "rgb(130, 170, 255)"
+      }
+    }, {
+      // This was manually added after the auto-generation
+      // so that punctuations are not italicised
+      types: ["punctuation"],
+      style: {
+        color: "rgb(199, 146, 234)"
+      }
+    }, {
+      types: ["selector", "doctype"],
+      style: {
+        color: "rgb(199, 146, 234)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["class-name"],
+      style: {
+        color: "rgb(255, 203, 139)"
+      }
+    }, {
+      types: ["tag", "operator", "keyword"],
+      style: {
+        color: "rgb(127, 219, 202)"
+      }
+    }, {
+      types: ["boolean"],
+      style: {
+        color: "rgb(255, 88, 116)"
+      }
+    }, {
+      types: ["property"],
+      style: {
+        color: "rgb(128, 203, 196)"
+      }
+    }, {
+      types: ["namespace"],
+      style: {
+        color: "rgb(178, 204, 214)"
+      }
+    }]
+  };
+  var nightOwl = theme$5;
+
+  // Original: https://github.com/sdras/night-owl-vscode-theme
+  // Converted automatically using ./tools/themeFromVsCode
+  var theme$4 = {
+    plain: {
+      color: "#403f53",
+      backgroundColor: "#FBFBFB"
+    },
+    styles: [{
+      types: ["changed"],
+      style: {
+        color: "rgb(162, 191, 252)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["deleted"],
+      style: {
+        color: "rgba(239, 83, 80, 0.56)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["inserted", "attr-name"],
+      style: {
+        color: "rgb(72, 118, 214)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["comment"],
+      style: {
+        color: "rgb(152, 159, 177)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["string", "builtin", "char", "constant", "url"],
+      style: {
+        color: "rgb(72, 118, 214)"
+      }
+    }, {
+      types: ["variable"],
+      style: {
+        color: "rgb(201, 103, 101)"
+      }
+    }, {
+      types: ["number"],
+      style: {
+        color: "rgb(170, 9, 130)"
+      }
+    }, {
+      // This was manually added after the auto-generation
+      // so that punctuations are not italicised
+      types: ["punctuation"],
+      style: {
+        color: "rgb(153, 76, 195)"
+      }
+    }, {
+      types: ["function", "selector", "doctype"],
+      style: {
+        color: "rgb(153, 76, 195)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["class-name"],
+      style: {
+        color: "rgb(17, 17, 17)"
+      }
+    }, {
+      types: ["tag"],
+      style: {
+        color: "rgb(153, 76, 195)"
+      }
+    }, {
+      types: ["operator", "property", "keyword", "namespace"],
+      style: {
+        color: "rgb(12, 150, 155)"
+      }
+    }, {
+      types: ["boolean"],
+      style: {
+        color: "rgb(188, 84, 84)"
+      }
+    }]
+  };
+  var nightOwlLight = theme$4;
+
+  // Oceanic Next
+  // Author: Dmitri Voronianski (https://github.com/voronianski)
+  // https://github.com/voronianski/oceanic-next-color-scheme
+  // Adapted from: https://github.com/reactjs/reactjs.org/blob/428d52b/src/prism-styles.js
+  var colors$1 = {
+    char: "#D8DEE9",
+    comment: "#999999",
+    keyword: "#c5a5c5",
+    primitive: "#5a9bcf",
+    string: "#8dc891",
+    variable: "#d7deea",
+    boolean: "#ff8b50",
+    punctuation: "#5FB3B3",
+    tag: "#fc929e",
+    function: "#79b6f2",
+    className: "#FAC863",
+    method: "#6699CC",
+    operator: "#fc929e"
+  };
+  var theme$3 = {
+    plain: {
+      backgroundColor: "#282c34",
+      color: "#ffffff"
+    },
+    styles: [{
+      types: ["attr-name"],
+      style: {
+        color: colors$1.keyword
+      }
+    }, {
+      types: ["attr-value"],
+      style: {
+        color: colors$1.string
+      }
+    }, {
+      types: ["comment", "block-comment", "prolog", "doctype", "cdata", "shebang"],
+      style: {
+        color: colors$1.comment
+      }
+    }, {
+      types: ["property", "number", "function-name", "constant", "symbol", "deleted"],
+      style: {
+        color: colors$1.primitive
+      }
+    }, {
+      types: ["boolean"],
+      style: {
+        color: colors$1.boolean
+      }
+    }, {
+      types: ["tag"],
+      style: {
+        color: colors$1.tag
+      }
+    }, {
+      types: ["string"],
+      style: {
+        color: colors$1.string
+      }
+    }, {
+      types: ["punctuation"],
+      style: {
+        color: colors$1.string
+      }
+    }, {
+      types: ["selector", "char", "builtin", "inserted"],
+      style: {
+        color: colors$1.char
+      }
+    }, {
+      types: ["function"],
+      style: {
+        color: colors$1.function
+      }
+    }, {
+      types: ["operator", "entity", "url", "variable"],
+      style: {
+        color: colors$1.variable
+      }
+    }, {
+      types: ["keyword"],
+      style: {
+        color: colors$1.keyword
+      }
+    }, {
+      types: ["at-rule", "class-name"],
+      style: {
+        color: colors$1.className
+      }
+    }, {
+      types: ["important"],
+      style: {
+        fontWeight: "400"
+      }
+    }, {
+      types: ["bold"],
+      style: {
+        fontWeight: "bold"
+      }
+    }, {
+      types: ["italic"],
+      style: {
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["namespace"],
+      style: {
+        opacity: 0.7
+      }
+    }]
+  };
+  var oceanicNext = theme$3;
+
+  // Converted automatically using ./tools/themeFromVsCode
+  var theme$2 = {
+    plain: {
+      color: "#bfc7d5",
+      backgroundColor: "#292d3e"
+    },
+    styles: [{
+      types: ["comment"],
+      style: {
+        color: "rgb(105, 112, 152)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["string", "inserted"],
+      style: {
+        color: "rgb(195, 232, 141)"
+      }
+    }, {
+      types: ["number"],
+      style: {
+        color: "rgb(247, 140, 108)"
+      }
+    }, {
+      types: ["builtin", "char", "constant", "function"],
+      style: {
+        color: "rgb(130, 170, 255)"
+      }
+    }, {
+      types: ["punctuation", "selector"],
+      style: {
+        color: "rgb(199, 146, 234)"
+      }
+    }, {
+      types: ["variable"],
+      style: {
+        color: "rgb(191, 199, 213)"
+      }
+    }, {
+      types: ["class-name", "attr-name"],
+      style: {
+        color: "rgb(255, 203, 107)"
+      }
+    }, {
+      types: ["tag", "deleted"],
+      style: {
+        color: "rgb(255, 85, 114)"
+      }
+    }, {
+      types: ["operator"],
+      style: {
+        color: "rgb(137, 221, 255)"
+      }
+    }, {
+      types: ["boolean"],
+      style: {
+        color: "rgb(255, 88, 116)"
+      }
+    }, {
+      types: ["keyword"],
+      style: {
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["doctype"],
+      style: {
+        color: "rgb(199, 146, 234)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["namespace"],
+      style: {
+        color: "rgb(178, 204, 214)"
+      }
+    }, {
+      types: ["url"],
+      style: {
+        color: "rgb(221, 221, 221)"
+      }
+    }]
+  };
+  var palenight = theme$2;
+
+  // Shades of Purple
+  // Author: Ahmad Awais https://twitter.com/MrAhmadAwais
+  // Original: https://github.com/ahmadawais/shades-of-purple-vscode/
+  // Converted automatically using ./tools/themeFromVsCode and then customized manually.
+  var theme$1 = {
+    plain: {
+      color: "#9EFEFF",
+      backgroundColor: "#2D2A55"
+    },
+    styles: [{
+      types: ["changed"],
+      style: {
+        color: "rgb(255, 238, 128)"
+      }
+    }, {
+      types: ["deleted"],
+      style: {
+        color: "rgba(239, 83, 80, 0.56)"
+      }
+    }, {
+      types: ["inserted"],
+      style: {
+        color: "rgb(173, 219, 103)"
+      }
+    }, {
+      types: ["comment"],
+      style: {
+        color: "rgb(179, 98, 255)",
+        fontStyle: "italic"
+      }
+    }, {
+      types: ["punctuation"],
+      style: {
+        color: "rgb(255, 255, 255)"
+      }
+    }, {
+      types: ["constant"],
+      style: {
+        color: "rgb(255, 98, 140)"
+      }
+    }, {
+      types: ["string", "url"],
+      style: {
+        color: "rgb(165, 255, 144)"
+      }
+    }, {
+      types: ["variable"],
+      style: {
+        color: "rgb(255, 238, 128)"
+      }
+    }, {
+      types: ["number", "boolean"],
+      style: {
+        color: "rgb(255, 98, 140)"
+      }
+    }, {
+      types: ["attr-name"],
+      style: {
+        color: "rgb(255, 180, 84)"
+      }
+    }, {
+      types: ["keyword", "operator", "property", "namespace", "tag", "selector", "doctype"],
+      style: {
+        color: "rgb(255, 157, 0)"
+      }
+    }, {
+      types: ["builtin", "char", "constant", "function", "class-name"],
+      style: {
+        color: "rgb(250, 208, 0)"
+      }
+    }]
+  };
+  var shadesOfPurple = theme$1;
+
+  // Original: https://github.com/damienstanton/ultramin
+  // Converted automatically using ./tools/themeFromVsCode
+  var theme = {
+    plain: {
+      color: "#282a2e",
+      backgroundColor: "#ffffff"
+    },
+    styles: [{
+      types: ["comment"],
+      style: {
+        color: "rgb(197, 200, 198)"
+      }
+    }, {
+      types: ["string", "number", "builtin", "variable"],
+      style: {
+        color: "rgb(150, 152, 150)"
+      }
+    }, {
+      types: ["class-name", "function", "tag", "attr-name"],
+      style: {
+        color: "rgb(40, 42, 46)"
+      }
+    }]
+  };
+  var ultramin = theme;
+
+  const themes = {
+      dracula,
+      duotoneDark,
+      duotoneLight,
+      github,
+      nightOwl,
+      nightOwlLight,
+      oceanicNext,
+      palenight,
+      shadesOfPurple,
+      ultramin,
+  };
+
+  /* eslint-disable unicorn/no-unused-properties */
+  const exampleCode = `
+import something from 'something'
+
+// 获取并设置样式
+const setStyle = () => {
+  // 获取主题样式并添加
+  const themeStyle = GM_getValue(currentTheme)
+
+  if (themeStyle) {
+    GM_addStyle(themeStyle)
+  } else {
+    const themeUrl = \`https://cdn.bootcss.com/highlight.js/9.15.10/styles/\${currentTheme}.min.css\`
+
+    fetchStyleText(themeUrl).then(style => {
+      GM_addStyle(style)
+      GM_setValue(currentTheme, style)
+    })
+  }
+}
+
+export default something
+`.trim();
+  const Pre = newStyled.pre `
+  text-align: left;
+  margin: 1em 0;
+  padding: 0.5em;
+
+  & .token-line {
+    line-height: 1.3em;
+    height: 1.3em;
+  }
+`;
+  const LineNo = newStyled.span `
+  display: inline-block;
+  width: 2em;
+  user-select: none;
+  opacity: 0.3;
+`;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const Preview = (props) => {
+      const { state } = props;
+      const fontRef = React.useRef(null);
+      React.useEffect(() => {
+          const font = fontRef.current;
+          if (font) {
+              font.style.fontFamily = state.font;
+              font.style.fontSize = state.fontSize.toString() + 'px';
+          }
+      }, [state.font, state.fontSize]);
+      return React.useMemo(() => (React__default['default'].createElement(Highlight$1, { ...defaultProps, theme: themes[state.theme], code: exampleCode, language: "jsx" }, ({ className, style, tokens, getLineProps, getTokenProps }) => (React__default['default'].createElement(Pre, { className: className, style: style, ref: fontRef }, tokens.map((line, i) => (React__default['default'].createElement("div", { ...getLineProps({ line, key: i }) },
+          React__default['default'].createElement(LineNo, null, i + 1),
+          line.map((token, key) => (React__default['default'].createElement("span", { ...getTokenProps({ token, key }) })))))))))), [state]);
+  };
+
+  const fonts = [
+      'Fira Code',
+      'Helvetica',
+      'Garamond',
+      'Franklin Gothic',
+      'Times',
+      'Rockwell',
+      'Copperplate Gothic',
+      'Arial',
+      'Verdana',
+      'Garamond',
+      'Centaur',
+      'Granjon',
+  ];
+
+  /* eslint-disable @typescript-eslint/no-shadow */
+  const Setting = (props) => {
+      const { state, dispatch } = props;
+      const [isThemeChanges, setIsThemeChanges] = useBoolean(true);
+      const [isFontChanges, setIsFontChanges] = useBoolean(true);
+      const [isForceThemeBackground, setIsForceThemeBackground] = useBoolean(false);
+      const [isGWF, setIsGWF] = useBoolean(true);
+      return React.useMemo(() => (React__default['default'].createElement("div", { className: "setting" },
+          React__default['default'].createElement(Box, { borderWidth: "1px", borderRadius: "10", padding: "7" },
+              React__default['default'].createElement("label", null,
+                  "Themes",
+                  React__default['default'].createElement(Select, { value: state.theme, borderRadius: "20", onChange: (event) => {
+                          if (isThemeChanges) {
+                              dispatch({ type: 'update', payload: { theme: event.target.value } });
+                          }
+                      } }, Object.keys(themes).map((value) => (React__default['default'].createElement("option", { key: value }, value))))),
+              React__default['default'].createElement("label", null,
+                  "Monospace Fonts",
+                  React__default['default'].createElement(Select, { value: state.font, borderRadius: "20", onChange: (event) => {
+                          if (isFontChanges) {
+                              dispatch({ type: 'update', payload: { font: event.target.value } });
+                          }
+                      } }, fonts.map((value) => (React__default['default'].createElement("option", { key: value }, value))))),
+              React__default['default'].createElement("label", null,
+                  "Font Size",
+                  React__default['default'].createElement(Slider, { "aria-label": "slider-ex-2", colorScheme: "pink", value: state.fontSize, min: 8, max: 24, onChange: (value) => {
+                          if (isFontChanges) {
+                              dispatch({
+                                  type: 'update',
+                                  payload: { fontSize: value },
+                              });
+                          }
+                      } },
+                      React__default['default'].createElement(SliderTrack, null,
+                          React__default['default'].createElement(SliderFilledTrack, null)),
+                      React__default['default'].createElement(SliderThumb, null))),
+              React__default['default'].createElement("label", null,
+                  "Apply theme changes",
+                  React__default['default'].createElement(FormControl, { display: "flex", alignItems: "center" },
+                      React__default['default'].createElement(Switch, { id: "apply-theme", isChecked: isThemeChanges, onChange: setIsThemeChanges.toggle }),
+                      React__default['default'].createElement(FormLabel, { htmlFor: "apply-theme", ml: "3" }, isThemeChanges ? 'Yes' : 'No'))),
+              React__default['default'].createElement("label", null,
+                  "Apply font changes",
+                  React__default['default'].createElement(FormControl, { display: "flex", alignItems: "center" },
+                      React__default['default'].createElement(Switch, { id: "font-change", isChecked: isFontChanges, onChange: setIsFontChanges.toggle }),
+                      React__default['default'].createElement(FormLabel, { htmlFor: "font-change", ml: "3" }, isFontChanges ? 'Yes' : 'No'))),
+              React__default['default'].createElement("label", null,
+                  "Force theme background",
+                  React__default['default'].createElement(FormControl, { display: "flex", alignItems: "center" },
+                      React__default['default'].createElement(Switch, { id: "force-theme", isChecked: isForceThemeBackground, onChange: setIsForceThemeBackground.toggle }),
+                      React__default['default'].createElement(FormLabel, { htmlFor: "force-theme", ml: "3" }, isForceThemeBackground ? 'Yes' : 'No'))),
+              React__default['default'].createElement("label", null,
+                  "\u94C1\u5E55\u91CD\u91CD\u56F0\u9752\u5E74",
+                  React__default['default'].createElement(FormControl, { display: "flex", alignItems: "center" },
+                      React__default['default'].createElement(Switch, { id: "gwf", isChecked: isGWF, onChange: setIsGWF.toggle }),
+                      React__default['default'].createElement(FormLabel, { htmlFor: "gwf", ml: "3" }, isGWF ? 'Fuck' : 'No thank you!'))),
+              React__default['default'].createElement(Stack, { direction: "row", spacing: 4, align: "center", marginTop: "3" },
+                  React__default['default'].createElement(Button, { colorScheme: "purple", isDisabled: true, borderRadius: "20" }, "Apply!!!"),
+                  React__default['default'].createElement(Button, { colorScheme: "orange", isDisabled: true, borderRadius: "20" }, "closed"),
+                  React__default['default'].createElement(Button, { colorScheme: "red", borderRadius: "20", onClick: () => {
+                          dispatch({
+                              type: 'reset',
+                              payload: { theme: 'shadesOfPurple', font: 'Fira Code', fontSize: 16 },
+                          });
+                      } }, "Reset"))))), [
+          dispatch,
+          isFontChanges,
+          isForceThemeBackground,
+          isGWF,
+          isThemeChanges,
+          setIsFontChanges.toggle,
+          setIsForceThemeBackground.toggle,
+          setIsGWF.toggle,
+          setIsThemeChanges.toggle,
+          state.font,
+          state.fontSize,
+          state.theme,
+      ]);
+  };
+
+  /**
    * The global provider that must be added to make all Chakra components
    * work correctly
    */
@@ -12966,7 +20118,7 @@ SOFTWARE.
                   p: 3,
                   flexGrow: 9999,
                   flexBasis: 0,
-                  minWidth: 320,
+                  minWidth: 300,
               } }, right()))), [left, right]);
   };
 
@@ -13001,15 +20153,38 @@ SOFTWARE.
       }
   };
 
-  /* eslint-disable react/jsx-no-bind */
-  const App = (props) => {
-      return React.useMemo(() => (React__default['default'].createElement(Sidebar, { left: () => {
-              return React__default['default'].createElement(Button, { title: "222" }, "223");
-          }, right: () => {
-              return 'right';
-          } })), []);
+  /* eslint-disable react/button-has-type */
+  const initialState = {
+      theme: 'shadesOfPurple',
+      font: 'Fira Code',
+      fontSize: 16,
   };
-  const createApp = () => {
+  const reducer = (state, action) => {
+      // eslint-disable-next-line default-case
+      switch (action.type) {
+          case 'reset':
+              return initialState;
+          case 'update':
+              return {
+                  ...state,
+                  ...action.payload,
+              };
+      }
+  };
+  const App = () => {
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+      return React.useMemo(() => (React__default['default'].createElement(Sidebar, { left: () => {
+              return (React__default['default'].createElement(React__default['default'].Fragment, null,
+                  React__default['default'].createElement(Button, { colorScheme: "pink", onClick: () => {
+                          createApp().hide();
+                      } }, "hello word"),
+                  React__default['default'].createElement(Setting, { ...{ state, dispatch } })));
+          }, right: () => {
+              return React__default['default'].createElement(Preview, { ...{ state, dispatch } });
+          } })), [dispatch, state]);
+  };
+  const _createApp = () => {
+      // extendTheme 方法用于在默认主题对象的基础上进行扩展
       const stripe = extendTheme({
           colors: { ...colors },
       });
@@ -13054,11 +20229,11 @@ SOFTWARE.
           return instance;
       };
   };
-  var createApp$1 = singleton(createApp);
+  const createApp = singleton(_createApp);
 
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   GM.registerMenuCommand('Setting', () => {
-      createApp$1().show();
+      createApp().show();
   });
 
 }(React, ReactDOM));
