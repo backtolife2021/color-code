@@ -25,6 +25,8 @@ export default {
     globals: {
       'react': 'React',
       'react-dom': 'ReactDOM',
+      'shiki': 'shiki',
+      'prettier': 'prettier',
     },
   },
   plugins: [
@@ -52,5 +54,7 @@ export default {
       },
     }),
   ],
-  external: (id) => /^react(-dom)?$/.test(id),
+  external (id) {
+    return /^react(-dom)?$/.test(id) || ['shiki', 'prettier'].includes(id)
+  },
 }

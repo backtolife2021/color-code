@@ -3,8 +3,12 @@
   "copyright": "2021, backtolife (https://floatsyi.com)",
   "require": [
     "https://unpkg.com/react@17/umd/react.development.js",
-    "https://unpkg.com/react-dom@17/umd/react-dom.development.js"
+    "https://unpkg.com/react-dom@17/umd/react-dom.development.js",
+    "https://unpkg.com/shiki@0.9.15/dist/index.unpkg.iife.js",
+    "https://unpkg.com/prettier@2.5.1/standalone.js",
+    "https://unpkg.com/prettier@2.5.1/parser-typescript.js",
+    "https://unpkg.com/prettier@2.5.1/parser-babel.js"
   ],
-  "include": ["https://github.com/*"],
+  "include": ["https://github.com/*", "https://*.zhihu.com/*"],
   "grant": ["GM.getValue", "GM.registerMenuCommand"]
 }

@@ -5,11 +5,11 @@ import createCache from '@emotion/cache'
 import { css } from '@emotion/css'
 import { CacheProvider } from '@emotion/react'
 
-import { Preview } from './Preview'
-import { Control } from './Control'
 import { ChakraProvider } from './ChakraProvider'
 import { colors } from './colors'
+import { Control } from './Control'
 import { Sidebar } from './Layout'
+import { Preview } from './Preview'
 import { create, mount } from './shadowdom'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -42,7 +42,6 @@ export const reducer = (state: IInitialState, action: IAction) => {
   }
 }
 
-
 export interface changegeProps {
   state: IInitialState
   dispatch: React.Dispatch<IAction>
@@ -64,13 +63,13 @@ const App: React.FC = () => {
               >
                 hello word
               </Button>
-              {/* <Control {...{ state, dispatch }} /> */}
+              <Control {...{ state, dispatch }} />
             </>
           )
         }}
         right={() => {
-          return ''
-          // return <Preview {...{ state, dispatch }} />
+          // return ''
+          return <Preview {...{ state, dispatch }} />
         }}
       />
     ),

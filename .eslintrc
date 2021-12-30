@@ -16,7 +16,10 @@
     {
       "parserOptions": { "project": "./tsconfig.json" },
       "files": ["*.ts", "*.tsx"], // Your TypeScript files extension
-      "extends": ["@quitsmx/eslint-config/ts-runtime", "@quitsmx/eslint-config/react"]
+      "extends": ["@quitsmx/eslint-config/ts-runtime", "@quitsmx/eslint-config/react"],
+      "rules": {
+        "react/jsx-no-bind": "off"
+      }
     },
 
     {
@@ -36,5 +39,5 @@
       }
     }
   ],
-  "rules": { "no-void": "off", "react/jsx-no-bind": { "allowArrowFunctions": true } }
+  "rules": { "no-void": "off", "react/jsx-no-bind": 0 }
 }
