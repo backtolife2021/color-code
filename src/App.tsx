@@ -1,112 +1,248 @@
-import React, { useMemo, useReducer } from 'react'
-import ReactDOM from 'react-dom'
-import { Button, extendTheme } from '@chakra-ui/react'
+/* eslint-disable react/jsx-no-bind */
+
+import * as ReactDOMClient from 'react-dom/client'
+import { Rnd } from 'react-rnd'
+import { useBoolean, useCopyToClipboard, useLocalStorage } from 'react-use'
+import { BellIcon, CopyIcon, InfoIcon, SunIcon } from '@chakra-ui/icons'
+import { ChakraProvider, extendTheme, useToast } from '@chakra-ui/react'
 import createCache from '@emotion/cache'
 import { css } from '@emotion/css'
-import { CacheProvider } from '@emotion/react'
+import { CacheProvider, Global as GlobalStyles } from '@emotion/react'
 
-import { ChakraProvider } from './ChakraProvider'
+import {
+  CircleMenu,
+  CircleMenuContext,
+  CircleMenuItem,
+  TooltipPlacement,
+} from './components/FloatButton'
 import { colors } from './colors'
-import { Control } from './Control'
-import { Sidebar } from './Layout'
-import { Preview } from './Preview'
 import { create, mount } from './shadowdom'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export interface IInitialState {
-  theme: string
-  font: string
-  fontSize: number
-}
-export const initialState: IInitialState = {
-  theme: 'shadesOfPurple',
-  font: 'Fira Code',
-  fontSize: 16,
-}
+const hosts = ['https://www.tapd.cn', 'https://gitlab.weike.fm'] as const
+type Hosts = typeof hosts
+type Host = Hosts[number]
 
-export interface IAction {
-  type: 'reset' | 'update'
-  payload: Partial<IInitialState>
-}
+const App = ({ root }: { root: HTMLElement }) => {
+  const [, copyToClipboard] = useCopyToClipboard()
+  const toast = useToast()
+  const [rndLocalStorage, setRndLocalStorage, removeRndLocalStorage] =
+    useLocalStorage('rnd', {
+      position: {
+        x: 0,
+        y: 0,
+      },
+    })
+  const [hasMoved, toggleHasMoved] = useBoolean(false)
 
-export const reducer = (state: IInitialState, action: IAction) => {
-  switch (action.type) {
-    case 'reset':
-      return initialState
-
-    case 'update':
-      return {
-        ...state,
-        ...action.payload,
-      }
-  }
-}
-
-export interface changegeProps {
-  state: IInitialState
-  dispatch: React.Dispatch<IAction>
-}
-
-const App: React.FC = () => {
-  const [state, dispatch] = useReducer(reducer, initialState)
-  return useMemo(
-    () => (
-      <Sidebar
-        left={() => {
-          return (
-            <>
-              <Button
-                colorScheme="pink"
-                onClick={() => {
-                  createApp().hide()
-                }}
-              >
-                hello word
-              </Button>
-              <Control {...{ state, dispatch }} />
-            </>
+  return (
+    <div>
+      <Rnd
+        default={{
+          x: rndLocalStorage?.position.x ?? 0,
+          y: rndLocalStorage?.position.y ?? 0,
+          width: 50,
+          height: 50,
+        }}
+        onDragStop={(event, data) => {
+          const hasMoved = !(
+            rndLocalStorage?.position.x === data.x &&
+            rndLocalStorage?.position.y === data.y
           )
+
+          toggleHasMoved(hasMoved)
+
+          setRndLocalStorage({
+            position: {
+              x: data.x,
+              y: data.y,
+            },
+          })
         }}
-        right={() => {
-          // return ''
-          return <Preview {...{ state, dispatch }} />
-        }}
-      />
-    ),
-    [dispatch, state]
+        resizable={false}
+      >
+        <CircleMenuContext.Provider
+          value={{
+            root,
+          }}
+        >
+          <CircleMenu
+            startAngle={-90}
+            rotationAngle={360}
+            itemSize={2}
+            radius={5}
+            /**
+             * rotationAngleInclusive (default true)
+             * Whether to include the ending angle in rotation because an
+             * item at 360deg is the same as an item at 0deg if inclusive.
+             * Leave this prop for angles other than 360deg unless otherwise desired.
+             */
+            rotationAngleInclusive={false}
+            disableClick={hasMoved}
+          >
+            <CircleMenuItem
+              onClick={async () => {
+                const getText = async ({ origin }: { origin: string }) => {
+                  if (!hosts.includes(origin as any)) {
+                    throw new Error(`can't work in ${origin}`)
+                  }
+
+                  const methods = {
+                    'https://www.tapd.cn': {
+                      async getText() {
+                        const { href } = window.location
+                        const title =
+                          (
+                            document.querySelector(
+                              'span.editable-value'
+                            ) as HTMLSpanElement
+                          )?.innerText ?? 'title'
+                        const url = href
+                        return `sfe-workflow-cli --name zhiyong.yu --mr --title "${title}" --description "${url}" --copy --open --write-log`
+                      },
+                    },
+                    'https://gitlab.weike.fm': {
+                      async getText() {
+                        const { href } = window.location
+                        const names = ['王志君', '谢业江', '李博']
+
+                        const targetBranch = (
+                          document.querySelector(
+                            '.js-target-branch'
+                          ) as HTMLAnchorElement
+                        ).text.trim()
+
+                        const text = `${href}  ${targetBranch} ${names
+                          .map((it) => '@' + it)
+                          .join(' ')}`
+
+                        return text
+                      },
+                    },
+                  }
+
+                  return methods[origin as Host].getText()
+                }
+                const { origin } = window.location
+
+                const text = await getText({
+                  origin,
+                })
+
+                copyToClipboard(text)
+
+                toast({
+                  title: `copied to clipboard!`,
+                  variant: 'top-accent',
+                  status: 'success',
+                  position: 'top',
+                  duration: 3e3,
+                })
+              }}
+              tooltip="Copy"
+              tooltipPlacement={TooltipPlacement.Right}
+            >
+              <CopyIcon />
+            </CircleMenuItem>
+            <CircleMenuItem tooltip="Bell">
+              <BellIcon />
+            </CircleMenuItem>
+            <CircleMenuItem
+              tooltip="Sun"
+              onClick={async () => {
+                const getText = async ({ origin }: { origin: string }) => {
+                  if (!hosts.includes(origin as any)) {
+                    throw new Error(`can't work in ${origin}`)
+                  }
+
+                  const methods = {
+                    'https://www.tapd.cn': {
+                      async getText() {
+                        const title =
+                          (
+                            document.querySelector(
+                              'span.editable-value'
+                            ) as HTMLSpanElement
+                          )?.innerText ?? 'title'
+
+                        return `git commit -m "feat: ${title}"`
+                      },
+                    },
+                    'https://gitlab.weike.fm': {
+                      async getText() {
+                        const title =
+                          (
+                            document.querySelector(
+                              '[data-qa-selector="title_content"]'
+                            ) as HTMLSpanElement
+                          )?.innerText ?? 'title'
+                        const targetBranch = (
+                          document.querySelector(
+                            '.js-target-branch'
+                          ) as HTMLAnchorElement
+                        ).text.trim()
+                        const tapdUrl = (
+                          document.querySelector(
+                            '.description a'
+                          ) as HTMLAnchorElement
+                        ).textContent
+                        const { href } = window.location
+
+                        return `- [${title}](${tapdUrl})｜[【MR：特性 -> ${targetBranch.toUpperCase()}】](${href})`
+                      },
+                    },
+                  }
+
+                  return methods[origin as Host].getText()
+                }
+                const { origin } = window.location
+
+                const text = await getText({
+                  origin,
+                })
+
+                copyToClipboard(text)
+
+                toast({
+                  title: `copied to clipboard!`,
+                  variant: 'top-accent',
+                  status: 'success',
+                  position: 'top',
+                  duration: 3e3,
+                })
+              }}
+            >
+              <SunIcon />
+            </CircleMenuItem>
+            <CircleMenuItem tooltip="Info">
+              <InfoIcon />
+            </CircleMenuItem>
+          </CircleMenu>
+        </CircleMenuContext.Provider>
+      </Rnd>
+    </div>
   )
 }
 
 export const _createApp = () => {
-  // extendTheme 方法用于在默认主题对象的基础上进行扩展
-
   const stripe = extendTheme({
     colors: { ...colors },
   })
 
-  const { head, main, parasitifer } = create()
+  const { head, body, main, parasitifer } = create()
 
   parasitifer.classList.add(
     css`
-      display: none;
+      display: display;
       position: fixed;
-      top: 0;
-      bottom: 0;
+      bottom: 200px;
+      right: 100px;
       z-index: 9999;
-      width: 100vw;
-      height: 100vh;
+      width: 100px;
+      height: 100px;
       font-size: 16px;
-      background-color: #fff;
+      background-color: transparent;
     `
   )
-
-  const show = () => {
-    parasitifer.style.display = 'block'
-  }
-
-  const hide = () => {
-    parasitifer.style.display = 'none'
-  }
 
   mount('last', parasitifer)
 
@@ -116,19 +252,20 @@ export const _createApp = () => {
     container: head,
   })
 
-  ReactDOM.render(
+  ReactDOMClient.createRoot(main).render(
     <CacheProvider value={cacheEmotionForShadowDom}>
       <ChakraProvider theme={stripe}>
-        <App />
+        <App root={body} />
+        <GlobalStyles
+          styles={{
+            body: {
+              backgroundColor: 'transparent !important',
+            },
+          }}
+        />
       </ChakraProvider>
-    </CacheProvider>,
-    main
+    </CacheProvider>
   )
-
-  return {
-    show,
-    hide,
-  }
 }
 
 export const singleton = <A extends any[], R>(

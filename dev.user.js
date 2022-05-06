@@ -1,14 +1,11 @@
-/* eslint-disable no-undef */
-/* eslint-disable compat/compat */
-/* eslint-disable node/handle-callback-err */
 /* eslint-disable promise/no-nesting */
-/* eslint-disable promise/catch-or-return */
+/* eslint-disable no-undef */
 /**  globals GM */
 
 'use strict'
 ;(function () {
   const url = `http://localhost:%PORT%/bundle.user.js?${Date.now()}`
-  new Promise(function loadBundleFromServer (resolve, reject) {
+  new Promise(function loadBundleFromServer(resolve, reject) {
     const req = GM.xmlHttpRequest({
       method: 'GET',
       url: url,
@@ -42,9 +39,14 @@
       if (err && 'status' in err) {
         if (err.status <= 0) {
           log('Server is not responding')
-          GM.getValue('scriptlastsource3948218', false).then(function (src) {
+          void GM.getValue('scriptlastsource3948218', false).then(function (
+            src
+          ) {
             if (src) {
-              log('%cExecuting cached script version', 'color: Crimson; font-size:x-large;')
+              log(
+                '%cExecuting cached script version',
+                'color: Crimson; font-size:x-large;'
+              )
               /* eslint-disable no-eval */
               eval(src)
             }

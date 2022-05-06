@@ -1,17 +1,24 @@
-import babel from '@rollup/plugin-babel'
+import fs from 'node:fs'
+import path from 'node:path'
+
+import babel, {
+  getBabelInputPlugin,
+  getBabelOutputPlugin,
+} from '@rollup/plugin-babel'
 import commonjs from '@rollup/plugin-commonjs'
+import json from '@rollup/plugin-json'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import typescriptPlugin from '@rollup/plugin-typescript'
+import { defineConfig } from 'rollup'
 import metablock from 'rollup-plugin-userscript-metablock'
 import typescript from 'typescript'
 
-const fs = require('fs')
-const pkg = require('./package.json')
+import pkg from './package.json'
 
 fs.mkdir('dist/', { recursive: true }, () => null)
 
-export default {
+export default defineConfig({
   input: 'src/index.tsx',
   output: {
     file: 'dist/bundle.user.js',
@@ -23,25 +30,25 @@ export default {
       '*/\n\n/* globals React, ReactDOM */',
     sourcemap: true,
     globals: {
-      'react': 'React',
+      react: 'React',
       'react-dom': 'ReactDOM',
-      'shiki': 'shiki',
-      'prettier': 'prettier',
     },
   },
   plugins: [
+    json(),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
-      'ENVIRONMENT': JSON.stringify('production'),
-      'preventAssignment': true,
+      ENVIRONMENT: JSON.stringify('production'),
+      preventAssignment: true,
     }),
     nodeResolve({ extensions: ['.js', '.ts', '.tsx'] }),
     typescriptPlugin({ typescript }),
     commonjs({
       include: ['node_modules/**'],
-      exclude: ['node_modules/process-es6/**'],
     }),
-    babel({ babelHelpers: 'bundled' }),
+    babel({
+      babelHelpers: 'bundled',
+    }),
     metablock({
       file: './meta.json',
       override: {
@@ -52,9 +59,9 @@ export default {
         author: pkg.author,
         license: pkg.license,
       },
-    }),
+    } as any),
   ],
-  external (id) {
-    return /^react(-dom)?$/.test(id) || ['shiki', 'prettier'].includes(id)
+  external(id) {
+    return /^react(-dom)?$/.test(id)
   },
-}
+})

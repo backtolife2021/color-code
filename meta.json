@@ -2,13 +2,13 @@
   "namespace": "github.com/backtolife2021",
   "copyright": "2021, backtolife (https://floatsyi.com)",
   "require": [
-    "https://unpkg.com/react@17/umd/react.development.js",
-    "https://unpkg.com/react-dom@17/umd/react-dom.development.js",
-    "https://unpkg.com/shiki@0.9.15/dist/index.unpkg.iife.js",
-    "https://unpkg.com/prettier@2.5.1/standalone.js",
-    "https://unpkg.com/prettier@2.5.1/parser-typescript.js",
-    "https://unpkg.com/prettier@2.5.1/parser-babel.js"
+    "https://unpkg.com/react@18/umd/react.development.js",
+    "https://unpkg.com/react-dom@18/umd/react-dom.development.js"
   ],
-  "include": ["https://github.com/*", "https://*.zhihu.com/*"],
+  "include": [
+    "https://www.tapd.cn/*/stories/view/*",
+    "https://www.tapd.cn/*/bugtrace/bugs/view*",
+    "https://gitlab.weike.fm/**/merge_requests/*"
+  ],
   "grant": ["GM.getValue", "GM.registerMenuCommand"]
 }

@@ -95,7 +95,7 @@ The [vscode](https://code.visualstudio.com/) editor extensions listed below can 
 - [stylelint](https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint)
 - [prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - [css modules](https://marketplace.visualstudio.com/items?itemName=clinyong.vscode-css-modules)
-- [vscode-styled-components](https://marketplace.visualstudio.com/items?itemName=jpoissonnier.vscode-styled-components)
+- [vscode-@emotion/styled](https://marketplace.visualstudio.com/items?itemName=jpoissonnier.vscode-@emotion/styled)
 - [GitLens — Git supercharged](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens)
 - [jest](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest)
 - [dotenv](https://marketplace.visualstudio.com/items?itemName=mikestead.dotenv)
