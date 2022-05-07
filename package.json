@@ -63,7 +63,7 @@
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "3.3.0",
     "eslint": "^7.27.0",
-    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-testing-library": "^4.10.1",
     "git-cz": "^4.8.0",
     "husky": "^7.0.2",
